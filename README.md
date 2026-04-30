@@ -33,9 +33,9 @@ This utility will not harm your Mac because it is based on an official command l
 - [Version 1.6.2](https://github.com/newmarcel/KeepingYouAwake/releases/tag/1.6.2) is the last release that supports macOS Sierra (10.12)
 - [Version 1.5.2](https://github.com/newmarcel/KeepingYouAwake/releases/tag/1.5.2) is the last release that supports macOS Yosemite (10.10) and El Capitan (10.11)
 
-## Help wanted!
+## Contribution Guidelines
 
-Do you want to improve the app or add useful features? Please go ahead and create pull requests. I'm thankful for any help.
+If you plan to contribute to the project, I recommend taking a look at the [Contribution Guidelines](./CONTRIBUTING.md). These should cover common questions and will be updated over time.
 
 ## License
 
