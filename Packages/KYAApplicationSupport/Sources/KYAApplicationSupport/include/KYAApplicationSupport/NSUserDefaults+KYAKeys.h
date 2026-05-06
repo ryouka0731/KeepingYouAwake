@@ -22,6 +22,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThresholdEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThreshold;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyLowPowerModeMonitoringEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifier;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -57,6 +58,16 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
 
 /// Returns YES if the app should deactivate when the user account is switched.
 @property (nonatomic, getter=kya_isDeactivateOnUserSwitchEnabled) BOOL kya_deactivateOnUserSwitchEnabled;
+
+/// The bundle identifier of an application whose run state should drive
+/// activation. The sleep wake timer is activated indefinitely while the
+/// app is running and deactivated when it terminates. Empty string or
+/// nil disables the feature.
+///
+/// There is no settings UI yet — set with:
+///     defaults write info.marcel-dierkes.KeepingYouAwake \
+///         WatchedApplicationBundleIdentifier com.apple.FinalCut
+@property (copy, nonatomic, nullable) NSString *kya_watchedApplicationBundleIdentifier;
 
 @end
 

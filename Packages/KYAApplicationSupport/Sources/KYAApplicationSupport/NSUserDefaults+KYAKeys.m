@@ -75,6 +75,29 @@ KYA_GENERATE_BOOL_PROPERTY(isLowPowerModeMonitoringEnabled,
                            lowPowerModeMonitoringEnabled,
                            LowPowerModeMonitoringEnabled);
 
+#pragma mark - Watched Application Bundle Identifier
+
+NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifier = @"info.marcel-dierkes.KeepingYouAwake.WatchedApplicationBundleIdentifier";
+
+- (NSString *)kya_watchedApplicationBundleIdentifier
+{
+    Auto value = [self stringForKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
+    if(value.length == 0) { return nil; }
+    return value;
+}
+
+- (void)setKya_watchedApplicationBundleIdentifier:(NSString *)bundleIdentifier
+{
+    if(bundleIdentifier.length == 0)
+    {
+        [self removeObjectForKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
+    }
+    else
+    {
+        [self setObject:bundleIdentifier forKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
+    }
+}
+
 #pragma mark - Battery Capacity Threshold
 
 NSString * const KYAUserDefaultsKeyBatteryCapacityThreshold = @"info.marcel-dierkes.KeepingYouAwake.BatteryCapacityThreshold";
