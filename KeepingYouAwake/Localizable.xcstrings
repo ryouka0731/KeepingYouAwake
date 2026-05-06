@@ -1026,7 +1026,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "バッテリー満充電時に停止"
+            "value" : "バッテリーが満充電になったら停止"
           }
         },
         "ko" : {
