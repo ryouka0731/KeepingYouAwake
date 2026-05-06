@@ -1459,6 +1459,10 @@
         }
       }
     },
+    "Prevent the disk from sleeping" : {
+      "comment" : "Prevent the disk from sleeping",
+      "extractionState" : "manual"
+    },
     "Preventing Sleep" : {
       "comment" : "Preventing Sleep",
       "localizations" : {

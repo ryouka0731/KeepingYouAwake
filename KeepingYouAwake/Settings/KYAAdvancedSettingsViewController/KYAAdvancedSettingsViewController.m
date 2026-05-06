@@ -60,6 +60,7 @@
     
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_QUIT_ON_TIMER_EXPIRATION key:KYAUserDefaultsKeyIsQuitOnTimerExpirationEnabled]];
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_ALLOW_DISPLAY_SLEEP key:KYAUserDefaultsKeyAllowDisplaySleep]];
+    [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_PREVENT_DISK_SLEEP key:KYAUserDefaultsKeyPreventDiskSleepEnabled]];
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_ACTIVATE_ON_EXTERNAL_DISPLAY key:KYAUserDefaultsKeyActivateOnExternalDisplayConnectedEnabled]];
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_DEACTIVATE_ON_USER_SWITCH key:KYAUserDefaultsKeyDeactivateOnUserSwitchEnabled]];
     

@@ -46,6 +46,10 @@ KYA_GENERATE_BOOL_PROPERTY(shouldAllowDisplaySleep,
                            allowDisplaySleep,
                            AllowDisplaySleep);
 
+KYA_GENERATE_BOOL_PROPERTY(isPreventDiskSleepEnabled,
+                           preventDiskSleepEnabled,
+                           PreventDiskSleepEnabled);
+
 KYA_GENERATE_BOOL_PROPERTY(isMenuBarIconHighlightDisabled,
                            menuBarIconHighlightDisabled,
                            MenuBarIconHighlightDisabled);

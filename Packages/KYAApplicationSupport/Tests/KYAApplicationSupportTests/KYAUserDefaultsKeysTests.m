@@ -50,6 +50,10 @@ KYA_GENERATE_BOOL_TEST(shouldAllowDisplaySleep,
                        allowDisplaySleep,
                        KYAUserDefaultsKeyAllowDisplaySleep);
 
+KYA_GENERATE_BOOL_TEST(isPreventDiskSleepEnabled,
+                       preventDiskSleepEnabled,
+                       KYAUserDefaultsKeyPreventDiskSleepEnabled);
+
 KYA_GENERATE_BOOL_TEST(isMenuBarIconHighlightDisabled,
                        menuBarIconHighlightDisabled,
                        KYAUserDefaultsKeyMenuBarIconHighlightDisabled);
