@@ -21,6 +21,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyIsQuitOnTimerExpirationEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThresholdEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThreshold;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyLowPowerModeMonitoringEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyDeactivateOnFullChargeEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
 
 @interface NSUserDefaults (KYAKeys)
@@ -45,6 +46,10 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
 
 /// Returns YES if the sleep wake timer should deactivate when Low Power Mode is enabled.
 @property (nonatomic, getter=kya_isLowPowerModeMonitoringEnabled) BOOL kya_lowPowerModeMonitoringEnabled;
+
+/// Returns YES if the sleep wake timer should deactivate when the battery
+/// reaches a fully charged state.
+@property (nonatomic, getter=kya_isDeactivateOnFullChargeEnabled) BOOL kya_deactivateOnFullChargeEnabled;
 
 /// Returns YES if Sparkle should check for pre-release updates.
 @property (nonatomic, getter = kya_arePreReleaseUpdatesEnabled) BOOL kya_preReleaseUpdatesEnabled;

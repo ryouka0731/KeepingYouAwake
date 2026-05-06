@@ -219,11 +219,20 @@
     Auto deviceParameter = (KYADeviceParameter)userInfo[KYADeviceParameterKey];
     if([deviceParameter isEqualToString:KYADeviceParameterBattery])
     {
+        if([self.sleepWakeTimer isScheduled] == NO) { return; }
+
+        if([defaults kya_isDeactivateOnFullChargeEnabled]
+           && device.batteryMonitor.state == KYADeviceBatteryStateFull)
+        {
+            [self terminateTimer];
+            return;
+        }
+
         if([defaults kya_isBatteryCapacityThresholdEnabled] == NO) { return; }
-        
+
         CGFloat threshold = defaults.kya_batteryCapacityThreshold;
         Auto capacity = device.batteryMonitor.currentCapacity;
-        if([self.sleepWakeTimer isScheduled] && (capacity <= threshold) && ![self isBatteryOverrideEnabled])
+        if((capacity <= threshold) && ![self isBatteryOverrideEnabled])
         {
             [self terminateTimer];
         }
@@ -253,7 +262,8 @@
                    name:KYADeviceParameterDidChangeNotification
                  object:device];
     
-    if([defaults kya_isBatteryCapacityThresholdEnabled])
+    if([defaults kya_isBatteryCapacityThresholdEnabled]
+       || [defaults kya_isDeactivateOnFullChargeEnabled])
     {
         device.batteryMonitoringEnabled = YES;
     }

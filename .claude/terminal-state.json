@@ -1,0 +1,10 @@
+{
+  "event": "PreToolUse",
+  "state": "processing",
+  "session_id": "92c2251c-528f-4367-89cb-4136d815f7ce",
+  "permission_mode": "bypassPermissions",
+  "tool_name": "Bash",
+  "claude_port": 0,
+  "approval_transition": "to_progress",
+  "timestamp": 1778104547
+}

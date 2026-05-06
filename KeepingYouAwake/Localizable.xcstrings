@@ -966,6 +966,10 @@
         }
       }
     },
+    "Deactivate when battery is fully charged" : {
+      "comment" : "Deactivate when battery is fully charged",
+      "extractionState" : "manual"
+    },
     "Deactivate when switched to another user account" : {
       "comment" : "Deactivate when switched to another user account",
       "localizations" : {
