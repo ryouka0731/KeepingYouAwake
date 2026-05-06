@@ -74,6 +74,8 @@
         [self registerForWiFiSSIDNotifications];
         [self reconcileWatchedWiFiSSIDState];
         [self configureACPowerTrigger];
+        [self registerForWatchedApplicationNotifications];
+        [self reconcileWatchedApplicationState];
 
         // Reconcile the AC-power trigger when the user toggles the
         // setting at runtime — without this the trigger only honours
@@ -96,6 +98,7 @@
 
     [self unregisterFromWorkspaceSessionNotifications];
     [self unregisterFromWiFiSSIDNotifications];
+    [self unregisterFromWatchedApplicationNotifications];
     [self teardownACPowerTrigger];
 }
 
@@ -538,6 +541,77 @@
     {
         [self terminateTimer];
     }
+}
+
+#pragma mark - Watched Application
+
+- (void)registerForWatchedApplicationNotifications
+{
+    Auto workspaceCenter = NSWorkspace.sharedWorkspace.notificationCenter;
+    [workspaceCenter addObserver:self
+                        selector:@selector(watchedApplicationDidLaunch:)
+                            name:NSWorkspaceDidLaunchApplicationNotification
+                          object:nil];
+    [workspaceCenter addObserver:self
+                        selector:@selector(watchedApplicationDidTerminate:)
+                            name:NSWorkspaceDidTerminateApplicationNotification
+                          object:nil];
+}
+
+- (void)unregisterFromWatchedApplicationNotifications
+{
+    Auto workspaceCenter = NSWorkspace.sharedWorkspace.notificationCenter;
+    [workspaceCenter removeObserver:self
+                               name:NSWorkspaceDidLaunchApplicationNotification
+                             object:nil];
+    [workspaceCenter removeObserver:self
+                               name:NSWorkspaceDidTerminateApplicationNotification
+                             object:nil];
+}
+
+- (BOOL)isWatchedBundleIdentifier:(NSString *)bundleIdentifier
+{
+    if(bundleIdentifier.length == 0) { return NO; }
+    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifier;
+    if(watched.length == 0) { return NO; }
+    return [bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame;
+}
+
+- (BOOL)isWatchedApplicationRunning
+{
+    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifier;
+    if(watched.length == 0) { return NO; }
+    for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
+    {
+        if([runningApp.bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame)
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)reconcileWatchedApplicationState
+{
+    if([self isWatchedApplicationRunning] == NO) { return; }
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
+}
+
+- (void)watchedApplicationDidLaunch:(NSNotification *)notification
+{
+    Auto launched = (NSRunningApplication *)notification.userInfo[NSWorkspaceApplicationKey];
+    if(![self isWatchedBundleIdentifier:launched.bundleIdentifier]) { return; }
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
+}
+
+- (void)watchedApplicationDidTerminate:(NSNotification *)notification
+{
+    Auto terminated = (NSRunningApplication *)notification.userInfo[NSWorkspaceApplicationKey];
+    if(![self isWatchedBundleIdentifier:terminated.bundleIdentifier]) { return; }
+    if([self.sleepWakeTimer isScheduled] == NO) { return; }
+    [self terminateTimer];
 }
 
 #pragma mark - Event Handling

@@ -87,6 +87,10 @@ KYA_GENERATE_BOOL_PROPERTY(isDriveAliveEnabled,
                            driveAliveEnabled,
                            DriveAliveEnabled);
 
+KYA_GENERATE_BOOL_PROPERTY(isActivateOnACPowerEnabled,
+                           activateOnACPowerEnabled,
+                           ActivateOnACPowerEnabled);
+
 #pragma mark - Watched Wi-Fi SSIDs
 
 NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs";
@@ -119,9 +123,29 @@ NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.Keep
         [self setObject:[ssids copy] forKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
     }
 }
-KYA_GENERATE_BOOL_PROPERTY(isActivateOnACPowerEnabled,
-                           activateOnACPowerEnabled,
-                           ActivateOnACPowerEnabled);
+
+#pragma mark - Watched Application Bundle Identifier
+
+NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifier = @"info.marcel-dierkes.KeepingYouAwake.WatchedApplicationBundleIdentifier";
+
+- (NSString *)kya_watchedApplicationBundleIdentifier
+{
+    Auto value = [self stringForKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
+    if(value.length == 0) { return nil; }
+    return value;
+}
+
+- (void)setKya_watchedApplicationBundleIdentifier:(NSString *)bundleIdentifier
+{
+    if(bundleIdentifier.length == 0)
+    {
+        [self removeObjectForKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
+    }
+    else
+    {
+        [self setObject:bundleIdentifier forKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
+    }
+}
 
 #pragma mark - Battery Capacity Threshold
 

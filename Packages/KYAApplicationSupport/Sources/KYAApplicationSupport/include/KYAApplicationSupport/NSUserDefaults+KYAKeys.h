@@ -27,6 +27,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnACPowerEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDriveAliveEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifier;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -94,6 +95,17 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs;
 ///         info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs \
 ///         -array Office-WiFi Home-5G
 @property (copy, nonatomic, nullable) NSArray<NSString *> *kya_watchedWiFiSSIDs;
+
+/// The bundle identifier of an application whose run state should drive
+/// activation. The sleep wake timer is activated indefinitely while the
+/// app is running and deactivated when it terminates. Empty string or
+/// nil disables the feature.
+///
+/// There is no settings UI yet — set with:
+///     defaults write info.marcel-dierkes.KeepingYouAwake \
+///         info.marcel-dierkes.KeepingYouAwake.WatchedApplicationBundleIdentifier \
+///         com.apple.FinalCut
+@property (copy, nonatomic, nullable) NSString *kya_watchedApplicationBundleIdentifier;
 
 @end
 
