@@ -2416,6 +2416,10 @@
         }
       }
     },
+    "Until end of day" : {
+      "comment" : "Until end of day",
+      "extractionState" : "manual"
+    },
     "Version" : {
       "comment" : "Version",
       "localizations" : {

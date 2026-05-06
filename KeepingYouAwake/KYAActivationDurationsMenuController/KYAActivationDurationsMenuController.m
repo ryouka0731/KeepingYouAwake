@@ -176,6 +176,35 @@ static const CGFloat KYAMenuItemDefaultFontSize = 14.0f;
             }
         }
     }
+
+    // Until end of day (next midnight). Computed at menu open time so that the
+    // tag carries the correct seconds-until-target. Selecting the item flows
+    // through the same selectActivationDuration: path as the configured
+    // durations above.
+    NSTimeInterval secondsUntilMidnight = [self secondsUntilNextMidnight];
+    if(secondsUntilMidnight > 0)
+    {
+        [menu addItem:NSMenuItem.separatorItem];
+
+        Auto endOfDayItem = [menu addItemWithTitle:KYA_L10N_UNTIL_END_OF_DAY
+                                            action:@selector(selectActivationDuration:)
+                                     keyEquivalent:@""];
+        endOfDayItem.target = self;
+        endOfDayItem.tag = (NSInteger)secondsUntilMidnight;
+    }
+}
+
+- (NSTimeInterval)secondsUntilNextMidnight
+{
+    Auto calendar = NSCalendar.currentCalendar;
+    Auto now = [NSDate date];
+    Auto nextMidnight = [calendar nextDateAfterDate:now
+                                       matchingHour:0
+                                             minute:0
+                                             second:0
+                                            options:NSCalendarMatchNextTime];
+    if(nextMidnight == nil) { return 0; }
+    return [nextMidnight timeIntervalSinceDate:now];
 }
 
 @end
