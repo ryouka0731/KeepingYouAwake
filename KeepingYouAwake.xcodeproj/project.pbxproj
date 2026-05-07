@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A3A2676F1F8794B3AD492B91 /* KYAAppIntents in Frameworks */ = {isa = PBXBuildFile; productRef = CA0111CB3151E818AEE22F85 /* KYAAppIntents */; };
+		CE0F40CAA3CC4F4EBEBC7BBD /* KYAAppIntents in Frameworks */ = {isa = PBXBuildFile; productRef = AC864B4BE41A5AB2C2065228 /* KYAAppIntents */; };
 		DA085D1021D6BAB6003D9B1B /* container-migration.plist in Resources */ = {isa = PBXBuildFile; fileRef = DA085D0F21D6BAB6003D9B1B /* container-migration.plist */; };
 		DA13771A25E969FF00FB0FAD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DA13771925E969FF00FB0FAD /* Assets.xcassets */; };
 		DA25063027C2486D0052CCD8 /* KYADeviceInfo in Frameworks */ = {isa = PBXBuildFile; productRef = DA25062F27C2486D0052CCD8 /* KYADeviceInfo */; };
@@ -265,6 +267,7 @@
 				DACF2FCD27C271BA00856FEC /* KYAApplicationEvents in Frameworks */,
 				DACF2FC727C2657800856FEC /* KYAUserNotifications in Frameworks */,
 				DA51CA692BB75A120013175E /* KYACommon in Frameworks */,
+				CE0F40CAA3CC4F4EBEBC7BBD /* KYAAppIntents in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,6 +291,7 @@
 				DA814385281D599D0004BE71 /* KYAStatusItemUI in Frameworks */,
 				DA52096827C6C56F00ECFDA6 /* KYAActivationDurations in Frameworks */,
 				DACF2FCB27C271B600856FEC /* KYAApplicationEvents in Frameworks */,
+				A3A2676F1F8794B3AD492B91 /* KYAAppIntents in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -572,6 +576,7 @@
 				DA52096F27C6CBC000ECFDA6 /* KYASleepWakeTimer */,
 				DA814382281D59970004BE71 /* KYAStatusItemUI */,
 				DA51CA682BB75A120013175E /* KYACommon */,
+				AC864B4BE41A5AB2C2065228 /* KYAAppIntents */,
 			);
 			productName = KeepingYouAwake;
 			productReference = DA637B3919F14693004C8838 /* KeepingYouAwake.app */;
@@ -620,6 +625,7 @@
 				DA52097127C6CBC500ECFDA6 /* KYASleepWakeTimer */,
 				DA814384281D599D0004BE71 /* KYAStatusItemUI */,
 				DA51CA662BB75A0B0013175E /* KYACommon */,
+				CA0111CB3151E818AEE22F85 /* KYAAppIntents */,
 			);
 			productName = KeepingYouAwake;
 			productReference = DAD3CF8F271186720006CA14 /* KeepingYouAwake.app */;
@@ -1263,6 +1269,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AC864B4BE41A5AB2C2065228 /* KYAAppIntents */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KYAAppIntents;
+		};
+		CA0111CB3151E818AEE22F85 /* KYAAppIntents */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KYAAppIntents;
+		};
 		DA25062F27C2486D0052CCD8 /* KYADeviceInfo */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = KYADeviceInfo;
