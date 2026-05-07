@@ -71,6 +71,14 @@
         [self registerForWiFiSSIDNotifications];
         [self reconcileWatchedWiFiSSIDState];
         [self configureACPowerTrigger];
+
+        // Reconcile the AC-power trigger when the user toggles the
+        // setting at runtime — without this the trigger only honours
+        // the value that was set at app launch.
+        [center addObserver:self
+                   selector:@selector(userDefaultsDidChange:)
+                       name:NSUserDefaultsDidChangeNotification
+                     object:NSUserDefaults.standardUserDefaults];
     }
     return self;
 }
@@ -81,10 +89,30 @@
     [center removeObserver:self name:NSApplicationDidFinishLaunchingNotification object:nil];
     [center removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
     [center removeObserver:self name:kKYABatteryCapacityThresholdDidChangeNotification object:nil];
-    
+    [center removeObserver:self name:NSUserDefaultsDidChangeNotification object:NSUserDefaults.standardUserDefaults];
+
     [self unregisterFromWorkspaceSessionNotifications];
     [self unregisterFromWiFiSSIDNotifications];
     [self teardownACPowerTrigger];
+}
+
+- (void)userDefaultsDidChange:(NSNotification *)notification
+{
+    [self reconcileACPowerTrigger];
+}
+
+- (void)reconcileACPowerTrigger
+{
+    BOOL enabled = [NSUserDefaults.standardUserDefaults kya_isActivateOnACPowerEnabled];
+    BOOL active = (self.acPowerObserver != nil);
+    if(enabled && !active)
+    {
+        [self configureACPowerTrigger];
+    }
+    else if(!enabled && active)
+    {
+        [self teardownACPowerTrigger];
+    }
 }
 
 #pragma mark - Main Menu
