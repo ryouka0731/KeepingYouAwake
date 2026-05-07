@@ -52,9 +52,11 @@
                                         DISPATCH_QUEUE_SERIAL);
     Auto source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     uint64_t intervalNs = (uint64_t)(self.interval * NSEC_PER_SEC);
-    // Loose 10% tolerance — exact firing isn't important.
+    // Fire immediately so a drive that's already near its spin-down
+    // threshold gets touched before it stops; subsequent fires use
+    // a loose 10% tolerance — exact firing isn't important.
     dispatch_source_set_timer(source,
-                              dispatch_time(DISPATCH_TIME_NOW, (int64_t)intervalNs),
+                              DISPATCH_TIME_NOW,
                               intervalNs,
                               intervalNs / 10);
 
