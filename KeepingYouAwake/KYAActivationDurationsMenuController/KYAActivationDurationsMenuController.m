@@ -182,7 +182,11 @@ static const CGFloat KYAMenuItemDefaultFontSize = 14.0f;
     // through the same selectActivationDuration: path as the configured
     // durations above.
     NSTimeInterval secondsUntilMidnight = [self secondsUntilNextMidnight];
-    if(secondsUntilMidnight > 0)
+    // Round up so a sub-second remainder (e.g., 0.4s before midnight)
+    // never truncates to a 0 tag, which the activation-duration
+    // controller treats as `KYASleepWakeTimeIntervalIndefinite`.
+    NSInteger secondsTag = (NSInteger)ceil(secondsUntilMidnight);
+    if(secondsTag > 0)
     {
         [menu addItem:NSMenuItem.separatorItem];
 
@@ -190,7 +194,7 @@ static const CGFloat KYAMenuItemDefaultFontSize = 14.0f;
                                             action:@selector(selectActivationDuration:)
                                      keyEquivalent:@""];
         endOfDayItem.target = self;
-        endOfDayItem.tag = (NSInteger)secondsUntilMidnight;
+        endOfDayItem.tag = secondsTag;
     }
 }
 
