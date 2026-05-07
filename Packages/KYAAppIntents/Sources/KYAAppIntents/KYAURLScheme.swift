@@ -21,9 +21,14 @@ enum KYAURLScheme {
     }
 
     static func dispatch(_ action: Action, query: [URLQueryItem] = []) throws {
+        // KYAEventHandler keys actions off `URL.lastPathComponent`, so the
+        // action name has to live in the path (`keepingyouawake:///activate`)
+        // rather than the host (`keepingyouawake://activate`). The leading
+        // empty authority is required for the URL to parse cleanly.
         var components = URLComponents()
         components.scheme = scheme
-        components.host = action.rawValue
+        components.host = ""
+        components.path = "/" + action.rawValue
         components.queryItems = query.isEmpty ? nil : query
         guard let url = components.url else {
             throw DispatchError.invalidURL
