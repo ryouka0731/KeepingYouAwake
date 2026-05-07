@@ -124,26 +124,36 @@ NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.Keep
     }
 }
 
-#pragma mark - Watched Application Bundle Identifier
+#pragma mark - Watched Application Bundle Identifiers
 
-NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifier = @"info.marcel-dierkes.KeepingYouAwake.WatchedApplicationBundleIdentifier";
+NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers = @"info.marcel-dierkes.KeepingYouAwake.WatchedApplicationBundleIdentifiers";
 
-- (NSString *)kya_watchedApplicationBundleIdentifier
+- (NSArray<NSString *> *)kya_watchedApplicationBundleIdentifiers
 {
-    Auto value = [self stringForKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
-    if(value.length == 0) { return nil; }
-    return value;
+    Auto raw = [self arrayForKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers];
+    if(raw.count == 0) { return nil; }
+
+    Auto sanitized = [NSMutableArray<NSString *> arrayWithCapacity:raw.count];
+    for(id entry in raw)
+    {
+        if([entry isKindOfClass:NSString.class] && [(NSString *)entry length] > 0)
+        {
+            [sanitized addObject:(NSString *)entry];
+        }
+    }
+    if(sanitized.count == 0) { return nil; }
+    return [sanitized copy];
 }
 
-- (void)setKya_watchedApplicationBundleIdentifier:(NSString *)bundleIdentifier
+- (void)setKya_watchedApplicationBundleIdentifiers:(NSArray<NSString *> *)bundleIdentifiers
 {
-    if(bundleIdentifier.length == 0)
+    if(bundleIdentifiers.count == 0)
     {
-        [self removeObjectForKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
+        [self removeObjectForKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers];
     }
     else
     {
-        [self setObject:bundleIdentifier forKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifier];
+        [self setObject:[bundleIdentifiers copy] forKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers];
     }
 }
 

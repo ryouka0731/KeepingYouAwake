@@ -606,23 +606,10 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
 - (BOOL)isWatchedBundleIdentifier:(NSString *)bundleIdentifier
 {
     if(bundleIdentifier.length == 0) { return NO; }
-    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifier;
-    if(watched.length == 0) { return NO; }
-    return [bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame;
-}
-
-- (BOOL)isWatchedApplicationRunning
-{
-    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifier;
-    if(watched.length == 0) { return NO; }
-    for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
+    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifiers;
+    for(NSString *candidate in watched)
     {
-        // Skip apps that don't expose a bundle identifier — sending
-        // `caseInsensitiveCompare:` to a nil receiver returns 0
-        // (NSOrderedSame), which would otherwise treat them as a match.
-        Auto bundleIdentifier = runningApp.bundleIdentifier;
-        if(bundleIdentifier.length == 0) { continue; }
-        if([bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame)
+        if([bundleIdentifier caseInsensitiveCompare:candidate] == NSOrderedSame)
         {
             return YES;
         }
@@ -630,9 +617,28 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     return NO;
 }
 
+- (BOOL)isAnyWatchedApplicationRunning
+{
+    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifiers;
+    if(watched.count == 0) { return NO; }
+    for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
+    {
+        Auto bid = runningApp.bundleIdentifier;
+        if(bid.length == 0) { continue; }
+        for(NSString *candidate in watched)
+        {
+            if([bid caseInsensitiveCompare:candidate] == NSOrderedSame)
+            {
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
+
 - (void)reconcileWatchedApplicationState
 {
-    if([self isWatchedApplicationRunning] == NO) { return; }
+    if([self isAnyWatchedApplicationRunning] == NO) { return; }
     if([self.sleepWakeTimer isScheduled]) { return; }
     [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
                                  source:KYAActivationSourceWatchedApp];
@@ -651,9 +657,21 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
 {
     Auto terminated = (NSRunningApplication *)notification.userInfo[NSWorkspaceApplicationKey];
     if(![self isWatchedBundleIdentifier:terminated.bundleIdentifier]) { return; }
-    // Only end the session we ourselves started for the watched-app
-    // feature — never kill a user-initiated timer that happened to be
-    // running while the watched app quit.
+    if([self.sleepWakeTimer isScheduled] == NO) { return; }
+    // Only deactivate when the LAST watched app terminates. The
+    // notification fires before the running-applications list updates,
+    // so re-check membership while excluding the just-terminated
+    // process.
+    for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
+    {
+        if([runningApp isEqual:terminated]) { continue; }
+        if([self isWatchedBundleIdentifier:runningApp.bundleIdentifier])
+        {
+            return; // another watched app is still running
+        }
+    }
+    // Only end the session we started for the watched-app feature —
+    // a user-initiated timer that happened to be running stays.
     [self terminateTimerIfOwnedBySource:KYAActivationSourceWatchedApp];
 }
 
