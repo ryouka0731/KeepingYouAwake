@@ -119,6 +119,9 @@ NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.Keep
         [self setObject:[ssids copy] forKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
     }
 }
+KYA_GENERATE_BOOL_PROPERTY(isActivateOnACPowerEnabled,
+                           activateOnACPowerEnabled,
+                           ActivateOnACPowerEnabled);
 
 #pragma mark - Battery Capacity Threshold
 

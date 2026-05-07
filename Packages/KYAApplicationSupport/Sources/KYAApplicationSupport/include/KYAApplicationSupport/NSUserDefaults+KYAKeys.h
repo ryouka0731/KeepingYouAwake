@@ -23,6 +23,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThresholdEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThreshold;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyLowPowerModeMonitoringEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDeactivateOnFullChargeEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnACPowerEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDriveAliveEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs;
@@ -57,6 +58,11 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs;
 /// Returns YES if the sleep wake timer should deactivate when the battery
 /// reaches a fully charged state.
 @property (nonatomic, getter=kya_isDeactivateOnFullChargeEnabled) BOOL kya_deactivateOnFullChargeEnabled;
+/// Returns YES if the sleep wake timer should activate while the Mac is
+/// connected to external power, and deactivate when running on battery.
+/// On desktop Macs without a battery the option is a no-op (the state
+/// is reported as `KYADeviceBatteryStateUnknown`).
+@property (nonatomic, getter=kya_isActivateOnACPowerEnabled) BOOL kya_activateOnACPowerEnabled;
 
 /// Returns YES if Sparkle should check for pre-release updates.
 @property (nonatomic, getter = kya_arePreReleaseUpdatesEnabled) BOOL kya_preReleaseUpdatesEnabled;

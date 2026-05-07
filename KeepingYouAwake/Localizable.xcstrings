@@ -316,6 +316,32 @@
         }
       }
     },
+    "Activate while on AC power" : {
+      "comment" : "Activate while on AC power",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Aktivér mens strømmen er tilsluttet" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktivieren, solange am Stromnetz angeschlossen" } },
+        "el" : { "stringUnit" : { "state" : "translated", "value" : "Ενεργοποίηση όσο τροφοδοτείται από το ρεύμα" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar mientras esté conectado a la corriente" } },
+        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Aktivoi verkkovirran ollessa kytkettynä" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer lorsque branché sur secteur" } },
+        "hi" : { "stringUnit" : { "state" : "translated", "value" : "एसी पावर पर रहते हुए सक्रिय करें" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Aktifkan saat tersambung ke listrik" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva quando collegato alla corrente" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "電源接続中は有効にする" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "전원 연결 중일 때 활성화" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Activeren bij netvoeding" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Aktywuj po podłączeniu do zasilania" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Ativar enquanto estiver na energia elétrica" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Включать при подключённом питании" } },
+        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Aktivovať pri pripojení k napájaniu" } },
+        "tr" : { "stringUnit" : { "state" : "translated", "value" : "Prize bağlıyken etkinleştir" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Вмикати при підключеному живленні" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Kích hoạt khi cắm sạc" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "接入电源时激活" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "源源不絕（連接電源時保持清醒）" } }
+      }
+    },
     "Afterwards your Mac will automatically go to sleep again when unused." : {
       "comment" : "Afterwards your Mac will automatically go to sleep again when unused.",
       "localizations" : {

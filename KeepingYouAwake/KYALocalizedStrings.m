@@ -58,6 +58,7 @@
 #define KYA_L10N_DEACTIVATE_ON_USER_SWITCH NSLocalizedString(@"Deactivate when switched to another user account", @"Deactivate when switched to another user account")
 #define KYA_L10N_DEACTIVATE_ON_FULL_CHARGE NSLocalizedString(@"Deactivate when battery is fully charged", @"Deactivate when battery is fully charged")
 #define KYA_L10N_DRIVE_ALIVE NSLocalizedString(@"Keep external drives spinning while active", @"Keep external drives spinning while active")
+#define KYA_L10N_ACTIVATE_ON_AC_POWER NSLocalizedString(@"Activate while on AC power", @"Activate while on AC power")
 #define KYA_L10N_DURATIONS_ALERT_REALLY_RESET_TITLE NSLocalizedString(@"Reset Activation Durations", @"Reset Activation Durations")
 #define KYA_L10N_DURATIONS_ALERT_REALLY_RESET_MESSAGE NSLocalizedString(@"Do you really want to reset the activation durations to the default values?", @"Do you really want to reset the activation durations to the default values?")
 
