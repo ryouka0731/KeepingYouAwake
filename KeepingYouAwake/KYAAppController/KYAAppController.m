@@ -391,13 +391,22 @@
     if(ssids.count == 0) { return; }
     Auto monitor = KYAWiFiMonitor.sharedMonitor;
     BOOL onWatchedNetwork = [monitor isJoinedNetworkAmongSSIDs:ssids];
-    BOOL scheduled = [self.sleepWakeTimer isScheduled];
+    Auto sleepWakeTimer = self.sleepWakeTimer;
+    BOOL scheduled = [sleepWakeTimer isScheduled];
 
-    if(onWatchedNetwork && !scheduled)
+    if(onWatchedNetwork)
     {
+        // While joined to a watched network the user expects activation
+        // to last for the duration of the connection. Either start an
+        // indefinite session, or upgrade an in-progress finite session
+        // so it doesn't expire mid-connection.
+        BOOL alreadyIndefinite = scheduled
+            && sleepWakeTimer.scheduledTimeInterval == KYASleepWakeTimeIntervalIndefinite;
+        if(alreadyIndefinite) { return; }
+        if(scheduled) { [self terminateTimer]; }
         [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
     }
-    else if(!onWatchedNetwork && scheduled)
+    else if(scheduled)
     {
         [self terminateTimer];
     }
