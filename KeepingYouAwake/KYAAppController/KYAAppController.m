@@ -31,6 +31,8 @@
 
 // Drive Alive
 @property (nonatomic, nullable) KYADriveAliveTimer *driveAliveTimer;
+// Continuous AC power observer (separate from activation-lifecycle monitoring)
+@property (nonatomic, nullable) id acPowerObserver;
 
 // Menu
 @property (nonatomic) NSMenu *menu;
@@ -68,6 +70,7 @@
         [self registerForWorkspaceSessionNotifications];
         [self registerForWiFiSSIDNotifications];
         [self reconcileWatchedWiFiSSIDState];
+        [self configureACPowerTrigger];
     }
     return self;
 }
@@ -81,6 +84,7 @@
     
     [self unregisterFromWorkspaceSessionNotifications];
     [self unregisterFromWiFiSSIDNotifications];
+    [self teardownACPowerTrigger];
 }
 
 #pragma mark - Main Menu
@@ -271,6 +275,7 @@
     
     if([defaults kya_isBatteryCapacityThresholdEnabled]
        || [defaults kya_isDeactivateOnFullChargeEnabled])
+       || [defaults kya_isActivateOnACPowerEnabled])
     {
         device.batteryMonitoringEnabled = YES;
     }
@@ -284,13 +289,73 @@
 {
     Auto device = KYADevice.currentDevice;
     Auto center = NSNotificationCenter.defaultCenter;
-    
+    Auto defaults = NSUserDefaults.standardUserDefaults;
+
     [center removeObserver:self
                       name:KYADeviceParameterDidChangeNotification
                     object:device];
-    
-    device.batteryMonitoringEnabled = NO;
+
+    // The AC-power trigger uses a block-based observer (unaffected by the
+    // selector-based removal above) and needs the battery monitor to keep
+    // emitting notifications, so leave the flag on while it is engaged.
+    if([defaults kya_isActivateOnACPowerEnabled] == NO)
+    {
+        device.batteryMonitoringEnabled = NO;
+    }
     device.lowPowerModeMonitoringEnabled = NO;
+}
+
+#pragma mark - AC Power Trigger
+
+- (void)configureACPowerTrigger
+{
+    if([NSUserDefaults.standardUserDefaults kya_isActivateOnACPowerEnabled] == NO) { return; }
+
+    Auto device = KYADevice.currentDevice;
+    device.batteryMonitoringEnabled = YES;
+
+    AutoWeak weakSelf = self;
+    self.acPowerObserver = [NSNotificationCenter.defaultCenter
+        addObserverForName:KYADeviceParameterDidChangeNotification
+                    object:device
+                     queue:NSOperationQueue.mainQueue
+                usingBlock:^(NSNotification *note) {
+        Auto userInfo = note.userInfo;
+        Auto param = (KYADeviceParameter)userInfo[KYADeviceParameterKey];
+        if(![param isEqualToString:KYADeviceParameterBattery]) { return; }
+        [weakSelf evaluateACPowerState];
+    }];
+
+    [self evaluateACPowerState];
+}
+
+- (void)teardownACPowerTrigger
+{
+    if(self.acPowerObserver != nil)
+    {
+        [NSNotificationCenter.defaultCenter removeObserver:self.acPowerObserver];
+        self.acPowerObserver = nil;
+    }
+}
+
+- (void)evaluateACPowerState
+{
+    if([NSUserDefaults.standardUserDefaults kya_isActivateOnACPowerEnabled] == NO) { return; }
+
+    Auto state = KYADevice.currentDevice.batteryMonitor.state;
+    BOOL onAC = (state == KYADeviceBatteryStateCharging
+                 || state == KYADeviceBatteryStateFull);
+    BOOL scheduled = [self.sleepWakeTimer isScheduled];
+
+    if(onAC && !scheduled)
+    {
+        [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
+    }
+    else if(state == KYADeviceBatteryStateUnplugged && scheduled)
+    {
+        [self terminateTimer];
+    }
+    // KYADeviceBatteryStateUnknown (no battery / desktop Mac) → no-op.
 }
 
 #pragma mark - Battery Capacity Threshold Changes

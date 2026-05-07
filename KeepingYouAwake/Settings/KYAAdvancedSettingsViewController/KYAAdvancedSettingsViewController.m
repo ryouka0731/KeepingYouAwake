@@ -65,6 +65,7 @@
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_DEACTIVATE_ON_USER_SWITCH key:KYAUserDefaultsKeyDeactivateOnUserSwitchEnabled]];
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_DEACTIVATE_ON_FULL_CHARGE key:KYAUserDefaultsKeyDeactivateOnFullChargeEnabled]];
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_DRIVE_ALIVE key:KYAUserDefaultsKeyDriveAliveEnabled]];
+    [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_ACTIVATE_ON_AC_POWER key:KYAUserDefaultsKeyActivateOnACPowerEnabled]];
     
     self.settings = [settings copy];
 }
