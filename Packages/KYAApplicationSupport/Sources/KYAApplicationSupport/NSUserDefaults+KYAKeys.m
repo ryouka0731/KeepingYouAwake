@@ -83,6 +83,39 @@ KYA_GENERATE_BOOL_PROPERTY(isDriveAliveEnabled,
                            driveAliveEnabled,
                            DriveAliveEnabled);
 
+#pragma mark - Watched Wi-Fi SSIDs
+
+NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs";
+
+- (NSArray<NSString *> *)kya_watchedWiFiSSIDs
+{
+    Auto raw = [self arrayForKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
+    if(raw.count == 0) { return nil; }
+
+    Auto sanitized = [NSMutableArray<NSString *> arrayWithCapacity:raw.count];
+    for(id entry in raw)
+    {
+        if([entry isKindOfClass:NSString.class] && [(NSString *)entry length] > 0)
+        {
+            [sanitized addObject:(NSString *)entry];
+        }
+    }
+    if(sanitized.count == 0) { return nil; }
+    return [sanitized copy];
+}
+
+- (void)setKya_watchedWiFiSSIDs:(NSArray<NSString *> *)ssids
+{
+    if(ssids.count == 0)
+    {
+        [self removeObjectForKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
+    }
+    else
+    {
+        [self setObject:[ssids copy] forKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
+    }
+}
+
 #pragma mark - Battery Capacity Threshold
 
 NSString * const KYAUserDefaultsKeyBatteryCapacityThreshold = @"info.marcel-dierkes.KeepingYouAwake.BatteryCapacityThreshold";

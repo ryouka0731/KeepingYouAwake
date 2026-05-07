@@ -18,6 +18,9 @@ let package = Package(
             name: "KYADeviceInfo",
             dependencies: [
                 .product(name: "KYACommon", package: "KYACommon"),
+            ],
+            linkerSettings: [
+                .linkedFramework("CoreWLAN"),
             ]
         ),
     ]
