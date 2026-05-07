@@ -13,7 +13,7 @@ public struct KYAToggleIntent: AppIntent {
     public init() {}
 
     public func perform() async throws -> some IntentResult {
-        KYAURLScheme.dispatch(.toggle)
+        try KYAURLScheme.dispatch(.toggle)
         return .result()
     }
 }

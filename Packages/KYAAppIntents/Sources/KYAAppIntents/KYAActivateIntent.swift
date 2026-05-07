@@ -31,7 +31,7 @@ public struct KYAActivateIntent: AppIntent {
         if let minutes, minutes > 0 {
             query.append(URLQueryItem(name: "minutes", value: String(minutes)))
         }
-        KYAURLScheme.dispatch(.activate, query: query)
+        try KYAURLScheme.dispatch(.activate, query: query)
         return .result()
     }
 }

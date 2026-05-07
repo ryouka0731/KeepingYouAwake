@@ -15,12 +15,21 @@ enum KYAURLScheme {
         case toggle
     }
 
-    static func dispatch(_ action: Action, query: [URLQueryItem] = []) {
+    enum DispatchError: Error {
+        case invalidURL
+        case workspaceOpenFailed(URL)
+    }
+
+    static func dispatch(_ action: Action, query: [URLQueryItem] = []) throws {
         var components = URLComponents()
         components.scheme = scheme
         components.host = action.rawValue
         components.queryItems = query.isEmpty ? nil : query
-        guard let url = components.url else { return }
-        NSWorkspace.shared.open(url)
+        guard let url = components.url else {
+            throw DispatchError.invalidURL
+        }
+        if !NSWorkspace.shared.open(url) {
+            throw DispatchError.workspaceOpenFailed(url)
+        }
     }
 }
