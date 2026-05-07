@@ -381,7 +381,17 @@
     Auto ssids = NSUserDefaults.standardUserDefaults.kya_watchedWiFiSSIDs;
     if(ssids.count == 0) { return; }
     if([KYAWiFiMonitor.sharedMonitor isJoinedNetworkAmongSSIDs:ssids] == NO) { return; }
-    if([self.sleepWakeTimer isScheduled]) { return; }
+
+    Auto sleepWakeTimer = self.sleepWakeTimer;
+    BOOL scheduled = [sleepWakeTimer isScheduled];
+    // Mirror watchedWiFiSSIDDidChange: an in-progress finite session
+    // (e.g., one started by `kya_isActivatedOnLaunch` with a finite
+    // default duration) must be upgraded to indefinite while joined
+    // to a watched SSID, otherwise it expires mid-connection.
+    BOOL alreadyIndefinite = scheduled
+        && sleepWakeTimer.scheduledTimeInterval == KYASleepWakeTimeIntervalIndefinite;
+    if(alreadyIndefinite) { return; }
+    if(scheduled) { [self terminateTimer]; }
     [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
 }
 
