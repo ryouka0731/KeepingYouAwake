@@ -40,6 +40,8 @@ KYA_EXPORT NSNotificationName const KYAWiFiMonitorSSIDDidChangeNotification;
 /// case-insensitively. `nil` or empty `currentSSID` always returns `NO`.
 - (BOOL)isJoinedNetworkAmongSSIDs:(NSArray<NSString *> *)ssids;
 
+- (instancetype)init NS_UNAVAILABLE;
+
 @end
 
 NS_ASSUME_NONNULL_END

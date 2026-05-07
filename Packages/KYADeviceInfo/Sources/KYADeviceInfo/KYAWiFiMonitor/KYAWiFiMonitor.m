@@ -46,6 +46,11 @@ NSNotificationName const KYAWiFiMonitorSSIDDidChangeNotification = @"KYAWiFiMoni
     if(![client startMonitoringEventWithType:CWEventTypeSSIDDidChange error:&error])
     {
         NSLog(@"[KYAWiFiMonitor] failed to start SSID monitoring: %@", error);
+        if(client.delegate == self)
+        {
+            client.delegate = nil;
+        }
+        self.client = nil;
         return;
     }
     if(![client startMonitoringEventWithType:CWEventTypeLinkDidChange error:&error])
