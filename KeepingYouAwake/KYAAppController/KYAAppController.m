@@ -305,7 +305,7 @@
                  object:device];
     
     if([defaults kya_isBatteryCapacityThresholdEnabled]
-       || [defaults kya_isDeactivateOnFullChargeEnabled])
+       || [defaults kya_isDeactivateOnFullChargeEnabled]
        || [defaults kya_isActivateOnACPowerEnabled])
     {
         device.batteryMonitoringEnabled = YES;
@@ -373,9 +373,11 @@
 
     // We turned battery monitoring on for this feature in
     // configureACPowerTrigger; turn it off again unless another
-    // feature still needs it. Battery-capacity-threshold is the
-    // only other consumer today.
-    if([NSUserDefaults.standardUserDefaults kya_isBatteryCapacityThresholdEnabled] == NO)
+    // feature still needs it. Both battery-capacity-threshold and
+    // deactivate-on-full-charge are also consumers.
+    Auto defaults = NSUserDefaults.standardUserDefaults;
+    if([defaults kya_isBatteryCapacityThresholdEnabled] == NO
+       && [defaults kya_isDeactivateOnFullChargeEnabled] == NO)
     {
         KYADevice.currentDevice.batteryMonitoringEnabled = NO;
     }
