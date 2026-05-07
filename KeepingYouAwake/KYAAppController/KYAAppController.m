@@ -617,7 +617,12 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     if(watched.length == 0) { return NO; }
     for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
     {
-        if([runningApp.bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame)
+        // Skip apps that don't expose a bundle identifier — sending
+        // `caseInsensitiveCompare:` to a nil receiver returns 0
+        // (NSOrderedSame), which would otherwise treat them as a match.
+        Auto bundleIdentifier = runningApp.bundleIdentifier;
+        if(bundleIdentifier.length == 0) { continue; }
+        if([bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame)
         {
             return YES;
         }
