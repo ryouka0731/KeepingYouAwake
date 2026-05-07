@@ -79,6 +79,10 @@ KYA_GENERATE_BOOL_PROPERTY(isDeactivateOnFullChargeEnabled,
                            deactivateOnFullChargeEnabled,
                            DeactivateOnFullChargeEnabled);
 
+KYA_GENERATE_BOOL_PROPERTY(isDriveAliveEnabled,
+                           driveAliveEnabled,
+                           DriveAliveEnabled);
+
 #pragma mark - Battery Capacity Threshold
 
 NSString * const KYAUserDefaultsKeyBatteryCapacityThreshold = @"info.marcel-dierkes.KeepingYouAwake.BatteryCapacityThreshold";
