@@ -31,6 +31,14 @@ public struct KYAActivateIntent: AppIntent {
         var query: [URLQueryItem] = []
         if let minutes, minutes > 0 {
             query.append(URLQueryItem(name: "minutes", value: String(minutes)))
+        } else {
+            // Explicitly request indefinite. Without a duration parameter
+            // KYAEventHandler falls through to the app's
+            // `defaultTimeInterval` (the user's preferred default
+            // duration), which contradicts this intent's description
+            // promising an indefinite session. `seconds=0` is
+            // `KYASleepWakeTimeIntervalIndefinite` in the URL handler.
+            query.append(URLQueryItem(name: "seconds", value: "0"))
         }
         try KYAURLScheme.dispatch(.activate, query: query)
         return .result()
