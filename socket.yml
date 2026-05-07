@@ -21,7 +21,7 @@ issueRules:
   gptSecurity: true
   installScripts: true
   telemetry: true
-  obfuscatedCode: true
+  obfuscatedFile: true
   typoSquatting: true
   unmaintainedPackage: true
   shellScriptOverride: true
