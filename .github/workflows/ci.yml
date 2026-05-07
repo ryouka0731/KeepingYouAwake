@@ -45,6 +45,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run xcodebuild test
+        # The KeepingYouAwake scheme already wires every SPM
+        # package's test bundle in via TestableReference (see
+        # KeepingYouAwake.xcscheme), so this single command runs
+        # them all. A standalone `swift test` loop on the
+        # Packages/ directories was tried earlier but produced
+        # duplicate test runs that contaminated each other through
+        # NSUserDefaults state — drop it.
         run: |
           set -o pipefail
           xcodebuild test $XCODEBUILD_ARGS -configuration Debug \
@@ -52,18 +59,6 @@ jobs:
             | xcbeautify --renderer github-actions || \
           xcodebuild test $XCODEBUILD_ARGS -configuration Debug \
             -resultBundlePath build/TestResult.xcresult
-
-      - name: Run SPM package tests
-        run: |
-          set -e
-          for pkg in Packages/*/Package.swift; do
-            dir=$(dirname "$pkg")
-            if [ -d "$dir/Tests" ]; then
-              echo "::group::Testing $(basename "$dir")"
-              ( cd "$dir" && swift test --parallel )
-              echo "::endgroup::"
-            fi
-          done
 
       - name: Upload xcresult bundle on failure
         if: failure()
