@@ -364,6 +364,15 @@
         [NSNotificationCenter.defaultCenter removeObserver:self.acPowerObserver];
         self.acPowerObserver = nil;
     }
+
+    // We turned battery monitoring on for this feature in
+    // configureACPowerTrigger; turn it off again unless another
+    // feature still needs it. Battery-capacity-threshold is the
+    // only other consumer today.
+    if([NSUserDefaults.standardUserDefaults kya_isBatteryCapacityThresholdEnabled] == NO)
+    {
+        KYADevice.currentDevice.batteryMonitoringEnabled = NO;
+    }
 }
 
 - (void)evaluateACPowerState
