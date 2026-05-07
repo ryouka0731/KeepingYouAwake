@@ -30,6 +30,8 @@
 
 #define KYA_L10N_INDEFINITELY NSLocalizedString(@"Indefinitely", @"Indefinitely")
 
+#define KYA_L10N_UNTIL_END_OF_DAY NSLocalizedString(@"Until end of day", @"Until end of day")
+
 #define KYA_L10N_VERSION NSLocalizedString(@"Version", @"Version")
 
 #pragma mark - Notifications
