@@ -24,6 +24,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyLowPowerModeMonitoringEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDeactivateOnFullChargeEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDriveAliveEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -68,6 +69,20 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyDriveAliveEnabled;
 /// file while the sleep wake timer is active, to keep external storage
 /// devices spinning. Equivalent to Amphetamine's "Drive Alive".
 @property (nonatomic, getter=kya_isDriveAliveEnabled) BOOL kya_driveAliveEnabled;
+
+/// Wi-Fi SSIDs that should drive activation. While the joined network's
+/// SSID matches one of these (case-insensitive) the sleep wake timer is
+/// activated indefinitely; activation ends when the Mac switches away
+/// from all of them.
+///
+/// Reading the SSID on macOS 14+ requires Location authorization for
+/// the host app; without it the feature is inactive.
+///
+/// Until a settings UI lands, configure via:
+///     defaults write info.marcel-dierkes.KeepingYouAwake \
+///         info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs \
+///         -array Office-WiFi Home-5G
+@property (copy, nonatomic, nullable) NSArray<NSString *> *kya_watchedWiFiSSIDs;
 
 @end
 

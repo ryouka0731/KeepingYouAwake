@@ -21,6 +21,10 @@
 	</array>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSLocationUsageDescription</key>
+	<string>KeepingYouAwake reads the joined Wi-Fi network's SSID so it can keep your Mac awake automatically while you are connected to networks you have chosen. macOS requires Location authorization to expose the SSID; no location data is recorded or transmitted.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>KeepingYouAwake reads the joined Wi-Fi network's SSID so it can keep your Mac awake automatically while you are connected to networks you have chosen. macOS requires Location authorization to expose the SSID; no location data is recorded or transmitted.</string>
 	<key>NSRequiresAquaSystemAppearance</key>
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption</key>

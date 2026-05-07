@@ -66,6 +66,8 @@
                      object:nil];
         
         [self registerForWorkspaceSessionNotifications];
+        [self registerForWiFiSSIDNotifications];
+        [self reconcileWatchedWiFiSSIDState];
     }
     return self;
 }
@@ -78,6 +80,7 @@
     [center removeObserver:self name:kKYABatteryCapacityThresholdDidChangeNotification object:nil];
     
     [self unregisterFromWorkspaceSessionNotifications];
+    [self unregisterFromWiFiSSIDNotifications];
 }
 
 #pragma mark - Main Menu
@@ -342,6 +345,79 @@
     if([defaults kya_isDeactivateOnUserSwitchEnabled] && [self.sleepWakeTimer isScheduled])
     {
         self.workspaceScheduledTimeInterval = self.sleepWakeTimer.scheduledTimeInterval;
+        [self terminateTimer];
+    }
+}
+
+#pragma mark - Watched Wi-Fi SSID
+
+- (void)registerForWiFiSSIDNotifications
+{
+    Auto monitor = KYAWiFiMonitor.sharedMonitor;
+    Auto defaults = NSUserDefaults.standardUserDefaults;
+    if(defaults.kya_watchedWiFiSSIDs.count > 0)
+    {
+        [monitor startMonitoring];
+    }
+
+    Auto center = NSNotificationCenter.defaultCenter;
+    [center addObserver:self
+               selector:@selector(watchedWiFiSSIDDidChange:)
+                   name:KYAWiFiMonitorSSIDDidChangeNotification
+                 object:monitor];
+}
+
+- (void)unregisterFromWiFiSSIDNotifications
+{
+    Auto center = NSNotificationCenter.defaultCenter;
+    [center removeObserver:self
+                      name:KYAWiFiMonitorSSIDDidChangeNotification
+                    object:KYAWiFiMonitor.sharedMonitor];
+    [KYAWiFiMonitor.sharedMonitor stopMonitoring];
+}
+
+- (void)reconcileWatchedWiFiSSIDState
+{
+    Auto ssids = NSUserDefaults.standardUserDefaults.kya_watchedWiFiSSIDs;
+    if(ssids.count == 0) { return; }
+    if([KYAWiFiMonitor.sharedMonitor isJoinedNetworkAmongSSIDs:ssids] == NO) { return; }
+
+    Auto sleepWakeTimer = self.sleepWakeTimer;
+    BOOL scheduled = [sleepWakeTimer isScheduled];
+    // Mirror watchedWiFiSSIDDidChange: an in-progress finite session
+    // (e.g., one started by `kya_isActivatedOnLaunch` with a finite
+    // default duration) must be upgraded to indefinite while joined
+    // to a watched SSID, otherwise it expires mid-connection.
+    BOOL alreadyIndefinite = scheduled
+        && sleepWakeTimer.scheduledTimeInterval == KYASleepWakeTimeIntervalIndefinite;
+    if(alreadyIndefinite) { return; }
+    if(scheduled) { [self terminateTimer]; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
+}
+
+- (void)watchedWiFiSSIDDidChange:(NSNotification *)notification
+{
+    Auto ssids = NSUserDefaults.standardUserDefaults.kya_watchedWiFiSSIDs;
+    if(ssids.count == 0) { return; }
+    Auto monitor = KYAWiFiMonitor.sharedMonitor;
+    BOOL onWatchedNetwork = [monitor isJoinedNetworkAmongSSIDs:ssids];
+    Auto sleepWakeTimer = self.sleepWakeTimer;
+    BOOL scheduled = [sleepWakeTimer isScheduled];
+
+    if(onWatchedNetwork)
+    {
+        // While joined to a watched network the user expects activation
+        // to last for the duration of the connection. Either start an
+        // indefinite session, or upgrade an in-progress finite session
+        // so it doesn't expire mid-connection.
+        BOOL alreadyIndefinite = scheduled
+            && sleepWakeTimer.scheduledTimeInterval == KYASleepWakeTimeIntervalIndefinite;
+        if(alreadyIndefinite) { return; }
+        if(scheduled) { [self terminateTimer]; }
+        [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
+    }
+    else if(scheduled)
+    {
         [self terminateTimer];
     }
 }
