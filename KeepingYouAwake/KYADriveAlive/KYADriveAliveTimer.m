@@ -75,17 +75,26 @@
 {
     if(!self.running) { return; }
 
-    dispatch_source_cancel(self.timer);
+    Auto source = self.timer;
+    Auto pingURL = self.pingFileURL;
+    Auto log = self.log;
+
+    // `dispatch_source_cancel` is asynchronous — an in-flight timer
+    // event can still execute and rewrite the ping file. Defer the
+    // removal to the cancel handler, which runs after every pending
+    // event has finished, so we never race a write against a delete.
+    dispatch_source_set_cancel_handler(source, ^{
+        NSError *removalError = nil;
+        [NSFileManager.defaultManager removeItemAtURL:pingURL error:&removalError];
+        if(removalError != nil && removalError.code != NSFileNoSuchFileError)
+        {
+            os_log_error(log, "drive-alive stop: failed to remove ping file: %{public}@", removalError);
+        }
+    });
+    dispatch_source_cancel(source);
+
     self.timer = nil;
     self.running = NO;
-
-    NSError *error = nil;
-    [NSFileManager.defaultManager removeItemAtURL:self.pingFileURL error:&error];
-    // Missing-file is a normal outcome; only log unusual errors.
-    if(error != nil && error.code != NSFileNoSuchFileError)
-    {
-        os_log_error(self.log, "%{public}@ stop: failed to remove ping file: %{public}@", self, error);
-    }
     os_log(self.log, "%{public}@ stopped", self);
 }
 
