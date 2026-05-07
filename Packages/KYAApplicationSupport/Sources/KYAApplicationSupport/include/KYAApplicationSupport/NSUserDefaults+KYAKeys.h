@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 // User Default Keys
 KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnLaunch;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyAllowDisplaySleep;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyPreventDiskSleepEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnExternalDisplayConnectedEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDeactivateOnUserSwitchEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyMenuBarIconHighlightDisabled;
@@ -34,6 +35,10 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs;
 /// Returns YES if the app should allow the display to sleep while still keeping
 /// the system awake. This exposes the `caffeinate -i` command.
 @property (nonatomic, getter = kya_shouldAllowDisplaySleep) BOOL kya_allowDisplaySleep;
+
+/// Returns YES if the app should prevent the disk from idling while a session
+/// is active. This exposes the `caffeinate -m` command.
+@property (nonatomic, getter = kya_isPreventDiskSleepEnabled) BOOL kya_preventDiskSleepEnabled;
 
 /// Returns YES if the menu bar icon should not be highlighted on left and right click.
 @property (nonatomic, getter = kya_isMenuBarIconHighlightDisabled) BOOL kya_menuBarIconHighlightDisabled;

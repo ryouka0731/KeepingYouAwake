@@ -105,6 +105,11 @@ NSTimeInterval const KYASleepWakeTimeIntervalIndefinite = 0;
         [arguments addObject:@"-di"];
     }
 
+    if([defaults kya_isPreventDiskSleepEnabled])
+    {
+        [arguments addObject:@"-m"];
+    }
+
     if(timeInterval != KYASleepWakeTimeIntervalIndefinite)
     {
         [arguments addObject:[NSString stringWithFormat:@"-t %.f", timeInterval]];
