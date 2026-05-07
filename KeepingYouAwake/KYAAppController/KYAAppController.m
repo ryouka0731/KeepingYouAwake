@@ -19,6 +19,19 @@
 #define KYA_MINUTES(m) (m * 60.0f)
 #define KYA_HOURS(h) (h * 3600.0f)
 
+/// Tracks who started the current activation session. Feature triggers
+/// (watched-app, watched-SSID, AC power) only deactivate when their own
+/// `KYAActivationSource` matches the session, so a feature signal can't
+/// terminate a user-initiated timer. The default is `User`, covering the
+/// status-item click, menu duration, URL scheme, AppleScript, and
+/// kya_isActivatedOnLaunch paths.
+typedef NS_ENUM(NSInteger, KYAActivationSource) {
+    KYAActivationSourceUser = 0,
+    KYAActivationSourceWatchedApp,
+    KYAActivationSourceWatchedSSID,
+    KYAActivationSourceACPower,
+};
+
 @interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate>
 @property (nonatomic, readwrite) KYASleepWakeTimer *sleepWakeTimer;
 @property (nonatomic, readwrite) KYAStatusItemController *statusItemController;
@@ -36,6 +49,10 @@
 // Last observed AC state, used to gate the activate-on-AC trigger on
 // transitions (unplugged → AC) instead of every battery notification.
 @property (nonatomic) BOOL acTriggerWasOnAC;
+
+// Who started the active session. Only meaningful while the timer is
+// scheduled; reset to User on terminateTimer.
+@property (nonatomic) KYAActivationSource activationSource;
 
 // Menu
 @property (nonatomic) NSMenu *menu;
@@ -74,6 +91,8 @@
         [self registerForWiFiSSIDNotifications];
         [self reconcileWatchedWiFiSSIDState];
         [self configureACPowerTrigger];
+        [self registerForWatchedApplicationNotifications];
+        [self reconcileWatchedApplicationState];
 
         // Reconcile the AC-power trigger when the user toggles the
         // setting at runtime — without this the trigger only honours
@@ -96,6 +115,7 @@
 
     [self unregisterFromWorkspaceSessionNotifications];
     [self unregisterFromWiFiSSIDNotifications];
+    [self unregisterFromWatchedApplicationNotifications];
     [self teardownACPowerTrigger];
 }
 
@@ -161,6 +181,12 @@
 
 - (void)activateTimerWithTimeInterval:(NSTimeInterval)timeInterval
 {
+    [self activateTimerWithTimeInterval:timeInterval source:KYAActivationSourceUser];
+}
+
+- (void)activateTimerWithTimeInterval:(NSTimeInterval)timeInterval
+                               source:(KYAActivationSource)source
+{
     // Do not allow negative time intervals
     if(timeInterval < 0)
     {
@@ -168,7 +194,7 @@
     }
 
     Auto defaults = NSUserDefaults.standardUserDefaults;
-    
+
     Auto timerCompletion = ^(BOOL cancelled) {
         // Post deactivation notification
         if(@available(macOS 11.0, *))
@@ -184,6 +210,7 @@
             [NSApplication.sharedApplication terminate:nil];
         }
     };
+    self.activationSource = source;
     [self.sleepWakeTimer scheduleWithTimeInterval:timeInterval completion:timerCompletion];
 
     // Post activation notification
@@ -204,6 +231,18 @@
     {
         [self.sleepWakeTimer invalidate];
     }
+    self.activationSource = KYAActivationSourceUser;
+}
+
+/// Terminate the timer only if the running session was started by the
+/// given source. Used by feature triggers (watched-app, watched-SSID,
+/// AC power) so that a feature signal can't kill a user-initiated
+/// session that happened to be running at the same time.
+- (void)terminateTimerIfOwnedBySource:(KYAActivationSource)source
+{
+    if(self.activationSource != source) { return; }
+    if([self.sleepWakeTimer isScheduled] == NO) { return; }
+    [self terminateTimer];
 }
 
 #pragma mark - Default Time Interval
@@ -403,11 +442,15 @@
     // user manually deactivated it while still on AC.
     if(onAC && !wasOnAC && !scheduled)
     {
-        [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
+        [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                     source:KYAActivationSourceACPower];
     }
-    else if(!onAC && wasOnAC && scheduled)
+    else if(!onAC && wasOnAC)
     {
-        [self terminateTimer];
+        // Only end the session we started for the AC trigger; a
+        // user-initiated timer running on AC keeps running when the
+        // user unplugs.
+        [self terminateTimerIfOwnedBySource:KYAActivationSourceACPower];
     }
 }
 
@@ -499,45 +542,119 @@
     Auto ssids = NSUserDefaults.standardUserDefaults.kya_watchedWiFiSSIDs;
     if(ssids.count == 0) { return; }
     if([KYAWiFiMonitor.sharedMonitor isJoinedNetworkAmongSSIDs:ssids] == NO) { return; }
-
-    Auto sleepWakeTimer = self.sleepWakeTimer;
-    BOOL scheduled = [sleepWakeTimer isScheduled];
-    // Mirror watchedWiFiSSIDDidChange: an in-progress finite session
-    // (e.g., one started by `kya_isActivatedOnLaunch` with a finite
-    // default duration) must be upgraded to indefinite while joined
-    // to a watched SSID, otherwise it expires mid-connection.
-    BOOL alreadyIndefinite = scheduled
-        && sleepWakeTimer.scheduledTimeInterval == KYASleepWakeTimeIntervalIndefinite;
-    if(alreadyIndefinite) { return; }
-    if(scheduled) { [self terminateTimer]; }
-    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
+    // Don't disturb a session that's already running — whoever owns it
+    // (the user with a manual duration, kya_isActivatedOnLaunch, the
+    // watched-app trigger, etc.) made the choice they wanted. We only
+    // start one when the timer is idle.
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                 source:KYAActivationSourceWatchedSSID];
 }
 
 - (void)watchedWiFiSSIDDidChange:(NSNotification *)notification
 {
     Auto ssids = NSUserDefaults.standardUserDefaults.kya_watchedWiFiSSIDs;
     if(ssids.count == 0) { return; }
-    Auto monitor = KYAWiFiMonitor.sharedMonitor;
-    BOOL onWatchedNetwork = [monitor isJoinedNetworkAmongSSIDs:ssids];
-    Auto sleepWakeTimer = self.sleepWakeTimer;
-    BOOL scheduled = [sleepWakeTimer isScheduled];
+    BOOL onWatchedNetwork = [KYAWiFiMonitor.sharedMonitor isJoinedNetworkAmongSSIDs:ssids];
 
     if(onWatchedNetwork)
     {
-        // While joined to a watched network the user expects activation
-        // to last for the duration of the connection. Either start an
-        // indefinite session, or upgrade an in-progress finite session
-        // so it doesn't expire mid-connection.
-        BOOL alreadyIndefinite = scheduled
-            && sleepWakeTimer.scheduledTimeInterval == KYASleepWakeTimeIntervalIndefinite;
-        if(alreadyIndefinite) { return; }
-        if(scheduled) { [self terminateTimer]; }
-        [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
+        // Joining a watched network only starts a new indefinite session
+        // if no other session is running. Existing sessions (user manual
+        // duration, watched-app trigger, etc.) are left alone — promoting
+        // them to indefinite would silently override the user's intent
+        // and orphan the original session's source.
+        if([self.sleepWakeTimer isScheduled]) { return; }
+        [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                     source:KYAActivationSourceWatchedSSID];
     }
-    else if(scheduled)
+    else
     {
-        [self terminateTimer];
+        // Leaving the watched network only ends sessions we started for
+        // this feature. A user-initiated timer (or another feature's)
+        // keeps running.
+        [self terminateTimerIfOwnedBySource:KYAActivationSourceWatchedSSID];
     }
+}
+
+#pragma mark - Watched Application
+
+- (void)registerForWatchedApplicationNotifications
+{
+    Auto workspaceCenter = NSWorkspace.sharedWorkspace.notificationCenter;
+    [workspaceCenter addObserver:self
+                        selector:@selector(watchedApplicationDidLaunch:)
+                            name:NSWorkspaceDidLaunchApplicationNotification
+                          object:nil];
+    [workspaceCenter addObserver:self
+                        selector:@selector(watchedApplicationDidTerminate:)
+                            name:NSWorkspaceDidTerminateApplicationNotification
+                          object:nil];
+}
+
+- (void)unregisterFromWatchedApplicationNotifications
+{
+    Auto workspaceCenter = NSWorkspace.sharedWorkspace.notificationCenter;
+    [workspaceCenter removeObserver:self
+                               name:NSWorkspaceDidLaunchApplicationNotification
+                             object:nil];
+    [workspaceCenter removeObserver:self
+                               name:NSWorkspaceDidTerminateApplicationNotification
+                             object:nil];
+}
+
+- (BOOL)isWatchedBundleIdentifier:(NSString *)bundleIdentifier
+{
+    if(bundleIdentifier.length == 0) { return NO; }
+    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifier;
+    if(watched.length == 0) { return NO; }
+    return [bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame;
+}
+
+- (BOOL)isWatchedApplicationRunning
+{
+    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifier;
+    if(watched.length == 0) { return NO; }
+    for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
+    {
+        // Skip apps that don't expose a bundle identifier — sending
+        // `caseInsensitiveCompare:` to a nil receiver returns 0
+        // (NSOrderedSame), which would otherwise treat them as a match.
+        Auto bundleIdentifier = runningApp.bundleIdentifier;
+        if(bundleIdentifier.length == 0) { continue; }
+        if([bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame)
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)reconcileWatchedApplicationState
+{
+    if([self isWatchedApplicationRunning] == NO) { return; }
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                 source:KYAActivationSourceWatchedApp];
+}
+
+- (void)watchedApplicationDidLaunch:(NSNotification *)notification
+{
+    Auto launched = (NSRunningApplication *)notification.userInfo[NSWorkspaceApplicationKey];
+    if(![self isWatchedBundleIdentifier:launched.bundleIdentifier]) { return; }
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                 source:KYAActivationSourceWatchedApp];
+}
+
+- (void)watchedApplicationDidTerminate:(NSNotification *)notification
+{
+    Auto terminated = (NSRunningApplication *)notification.userInfo[NSWorkspaceApplicationKey];
+    if(![self isWatchedBundleIdentifier:terminated.bundleIdentifier]) { return; }
+    // Only end the session we ourselves started for the watched-app
+    // feature — never kill a user-initiated timer that happened to be
+    // running while the watched app quit.
+    [self terminateTimerIfOwnedBySource:KYAActivationSourceWatchedApp];
 }
 
 #pragma mark - Event Handling
