@@ -33,6 +33,9 @@
 @property (nonatomic, nullable) KYADriveAliveTimer *driveAliveTimer;
 // Continuous AC power observer (separate from activation-lifecycle monitoring)
 @property (nonatomic, nullable) id acPowerObserver;
+// Last observed AC state, used to gate the activate-on-AC trigger on
+// transitions (unplugged → AC) instead of every battery notification.
+@property (nonatomic) BOOL acTriggerWasOnAC;
 
 // Menu
 @property (nonatomic) NSMenu *menu;
@@ -364,6 +367,9 @@
         [NSNotificationCenter.defaultCenter removeObserver:self.acPowerObserver];
         self.acPowerObserver = nil;
     }
+    // Drop the cached state so the next configure starts fresh and
+    // treats the first observation as a transition.
+    self.acTriggerWasOnAC = NO;
 
     // We turned battery monitoring on for this feature in
     // configureACPowerTrigger; turn it off again unless another
@@ -380,19 +386,27 @@
     if([NSUserDefaults.standardUserDefaults kya_isActivateOnACPowerEnabled] == NO) { return; }
 
     Auto state = KYADevice.currentDevice.batteryMonitor.state;
+    // Desktop Macs / battery-less hosts: no signal to act on.
+    if(state == KYADeviceBatteryStateUnknown) { return; }
+
     BOOL onAC = (state == KYADeviceBatteryStateCharging
                  || state == KYADeviceBatteryStateFull);
+    BOOL wasOnAC = self.acTriggerWasOnAC;
+    self.acTriggerWasOnAC = onAC;
+
     BOOL scheduled = [self.sleepWakeTimer isScheduled];
 
-    if(onAC && !scheduled)
+    // Act only on AC transitions, not every battery notification.
+    // Without this, the trigger would re-activate the timer after a
+    // user manually deactivated it while still on AC.
+    if(onAC && !wasOnAC && !scheduled)
     {
         [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
     }
-    else if(state == KYADeviceBatteryStateUnplugged && scheduled)
+    else if(!onAC && wasOnAC && scheduled)
     {
         [self terminateTimer];
     }
-    // KYADeviceBatteryStateUnknown (no battery / desktop Mac) → no-op.
 }
 
 #pragma mark - Battery Capacity Threshold Changes
