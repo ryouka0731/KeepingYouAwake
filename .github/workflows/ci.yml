@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel older runs against the same ref to keep the queue short.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  XCODEBUILD_ARGS: >-
+    -workspace KeepingYouAwake.xcworkspace
+    -scheme KeepingYouAwake
+    -destination platform=macOS
+    CODE_SIGNING_ALLOWED=NO
+    CODE_SIGNING_REQUIRED=NO
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Build (Debug)
+        run: |
+          set -o pipefail
+          xcodebuild build $XCODEBUILD_ARGS -configuration Debug \
+            | xcbeautify --renderer github-actions || \
+          xcodebuild build $XCODEBUILD_ARGS -configuration Debug
+
+  unit-test:
+    name: Unit tests
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run xcodebuild test
+        # The KeepingYouAwake scheme already wires every SPM
+        # package's test bundle in via TestableReference (see
+        # KeepingYouAwake.xcscheme), so this single command runs
+        # them all. A standalone `swift test` loop on the
+        # Packages/ directories was tried earlier but produced
+        # duplicate test runs that contaminated each other through
+        # NSUserDefaults state — drop it.
+        run: |
+          set -o pipefail
+          xcodebuild test $XCODEBUILD_ARGS -configuration Debug \
+            -resultBundlePath build/TestResult.xcresult \
+            | xcbeautify --renderer github-actions || \
+          xcodebuild test $XCODEBUILD_ARGS -configuration Debug \
+            -resultBundlePath build/TestResult.xcresult
+
+      - name: Upload xcresult bundle on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcresult
+          path: build/TestResult.xcresult
+          retention-days: 7
+
+  e2e:
+    name: E2E (URL scheme + caffeinate)
+    runs-on: macos-14
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build app for E2E
+        run: |
+          set -o pipefail
+          xcodebuild build $XCODEBUILD_ARGS -configuration Debug \
+            -derivedDataPath build/
+
+      - name: Smoke-test the URL scheme
+        run: |
+          set -euo pipefail
+
+          APP="$(find build/Build/Products/Debug -maxdepth 2 -name 'KeepingYouAwake.app' -type d | head -n 1)"
+          if [ -z "$APP" ] || [ ! -d "$APP" ]; then
+            echo "::error::Built KeepingYouAwake.app not found"
+            ls -la build/Build/Products/Debug/ || true
+            exit 1
+          fi
+          echo "Found app at $APP"
+
+          # Register the app with LaunchServices so the URL scheme resolves
+          /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister \
+            -f "$APP"
+          open -j -g "$APP"
+
+          # Wait for the app to be alive
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if pgrep -x KeepingYouAwake >/dev/null; then break; fi
+            sleep 1
+          done
+          if ! pgrep -x KeepingYouAwake >/dev/null; then
+            echo "::error::KeepingYouAwake failed to launch"
+            exit 1
+          fi
+
+          # Activate via URL scheme (10 s window)
+          open "keepingyouawake:///activate?seconds=10"
+          sleep 3
+
+          # KYA spawns `/usr/bin/caffeinate -di -t <secs> -w <kya_pid>`,
+          # so `-di` (display + idle) is the most reliable fingerprint
+          # for "caffeinate launched by KYA" (and won't match unrelated
+          # processes the runner might run).
+          if ! pgrep -f "caffeinate.*-di" >/dev/null; then
+            echo "::error::caffeinate did not spawn after activate"
+            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
+            exit 1
+          fi
+          echo "PASS: caffeinate is running after activate"
+
+          # Deactivate via URL scheme
+          open "keepingyouawake:///deactivate"
+          sleep 3
+
+          if pgrep -f "caffeinate.*-di" >/dev/null; then
+            echo "::error::caffeinate still running after deactivate"
+            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
+            exit 1
+          fi
+          echo "PASS: caffeinate stopped after deactivate"
+
+          # Quit the app cleanly
+          osascript -e 'tell application "KeepingYouAwake" to quit' || \
+            killall KeepingYouAwake || true
