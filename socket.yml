@@ -15,6 +15,7 @@ projectIgnorePaths:
   - "**/*.xcworkspace/**"
 
 # Default issue rules; tune later if false-positives appear.
+# Slug names verified against docs.socket.dev/docs/socket-yml.
 issueRules:
   malware: true
   gptMalware: true
@@ -22,7 +23,7 @@ issueRules:
   installScripts: true
   telemetry: true
   obfuscatedFile: true
-  typoSquatting: true
-  unmaintainedPackage: true
+  didYouMean: true
+  unmaintained: true
   shellScriptOverride: true
-  unsafe: true
+  troll: true
