@@ -1,5 +1,6 @@
-import AppIntents
 import Foundation
+#if canImport(AppIntents)
+import AppIntents
 
 /// Activates KeepingYouAwake. With no `minutes` parameter the timer is
 /// activated indefinitely (the app's default for the URL scheme without
@@ -35,3 +36,4 @@ public struct KYAActivateIntent: AppIntent {
         return .result()
     }
 }
+#endif

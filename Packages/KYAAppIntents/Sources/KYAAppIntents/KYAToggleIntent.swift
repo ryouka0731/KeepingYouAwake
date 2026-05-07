@@ -1,3 +1,4 @@
+#if canImport(AppIntents)
 import AppIntents
 
 /// Toggles KeepingYouAwake between active and inactive. Equivalent to
@@ -17,3 +18,4 @@ public struct KYAToggleIntent: AppIntent {
         return .result()
     }
 }
+#endif

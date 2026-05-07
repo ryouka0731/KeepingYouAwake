@@ -1,3 +1,4 @@
+#if canImport(AppIntents)
 import AppIntents
 
 /// Surfaces the three intents to Shortcuts.app and Spotlight as ready-made
@@ -34,3 +35,4 @@ public struct KYAShortcutsProvider: AppShortcutsProvider {
         )
     }
 }
+#endif

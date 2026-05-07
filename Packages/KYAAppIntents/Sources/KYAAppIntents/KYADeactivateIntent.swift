@@ -1,3 +1,4 @@
+#if canImport(AppIntents)
 import AppIntents
 
 /// Deactivates KeepingYouAwake, ending any in-progress activation
@@ -17,3 +18,4 @@ public struct KYADeactivateIntent: AppIntent {
         return .result()
     }
 }
+#endif
