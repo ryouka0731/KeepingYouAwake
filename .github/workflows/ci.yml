@@ -13,7 +13,7 @@ concurrency:
 
 env:
   XCODEBUILD_ARGS: >-
-    -project KeepingYouAwake.xcodeproj
+    -workspace KeepingYouAwake.xcworkspace
     -scheme KeepingYouAwake
     -destination platform=macOS
     CODE_SIGNING_ALLOWED=NO
