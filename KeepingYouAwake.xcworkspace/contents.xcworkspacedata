@@ -37,5 +37,8 @@
       <FileRef
          location = "group:Packages/KYACommon">
       </FileRef>
+      <FileRef
+         location = "group:Packages/KYAAppIntents">
+      </FileRef>
    </Group>
 </Workspace>
