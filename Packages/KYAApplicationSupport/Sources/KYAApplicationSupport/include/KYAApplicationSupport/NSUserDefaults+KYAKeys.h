@@ -23,6 +23,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThreshold;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyLowPowerModeMonitoringEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDeactivateOnFullChargeEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyDriveAliveEnabled;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -62,6 +63,11 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
 
 /// Returns YES if the app should deactivate when the user account is switched.
 @property (nonatomic, getter=kya_isDeactivateOnUserSwitchEnabled) BOOL kya_deactivateOnUserSwitchEnabled;
+
+/// Returns YES if the app should periodically touch a small temporary
+/// file while the sleep wake timer is active, to keep external storage
+/// devices spinning. Equivalent to Amphetamine's "Drive Alive".
+@property (nonatomic, getter=kya_isDriveAliveEnabled) BOOL kya_driveAliveEnabled;
 
 @end
 

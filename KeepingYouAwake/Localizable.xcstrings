@@ -1507,6 +1507,32 @@
         }
       }
     },
+    "Keep external drives spinning while active" : {
+      "comment" : "Keep external drives spinning while active",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Hold eksterne diske i gang under aktivering" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Externe Laufwerke während Aktivierung laufen lassen" } },
+        "el" : { "stringUnit" : { "state" : "translated", "value" : "Να διατηρούνται ενεργοί οι εξωτερικοί δίσκοι όσο είναι ενεργοποιημένο" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mantener los discos externos activos mientras está activado" } },
+        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Pidä ulkoiset levyt käynnissä aktivoinnin aikana" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Garder les disques externes actifs pendant l'activation" } },
+        "hi" : { "stringUnit" : { "state" : "translated", "value" : "सक्रिय होने के दौरान बाहरी ड्राइव चालू रखें" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Jaga agar drive eksternal tetap berputar saat aktif" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mantieni i dischi esterni in funzione durante l'attivazione" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "有効中は外付けドライブを止めない" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "활성 중 외장 드라이브 계속 회전" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Externe schijven draaiend houden tijdens activering" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Utrzymuj dyski zewnętrzne aktywne podczas aktywacji" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Manter os discos externos girando enquanto ativo" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Не давать внешним дискам засыпать во время активации" } },
+        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Udržiavať externé disky v chode počas aktivácie" } },
+        "tr" : { "stringUnit" : { "state" : "translated", "value" : "Etkinken harici sürücüleri çalışır durumda tut" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Не давати зовнішнім дискам засинати під час активації" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giữ ổ đĩa ngoài hoạt động khi đang kích hoạt" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "激活期间保持外接磁盘运转" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "生生不息（活躍時讓外接硬碟保持運轉）" } }
+      }
+    },
     "OK" : {
       "comment" : "OK",
       "localizations" : {

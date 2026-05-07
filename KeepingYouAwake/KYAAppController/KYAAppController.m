@@ -13,6 +13,7 @@
 #import "KYABatteryCapacityThreshold.h"
 #import "KYAActivationDurationsMenuController.h"
 #import "KYAActivationUserNotification.h"
+#import "KYADriveAliveTimer.h"
 
 // Deprecated!
 #define KYA_MINUTES(m) (m * 60.0f)
@@ -27,6 +28,9 @@
 
 // Battery Status
 @property (nonatomic, direct, getter=isBatteryOverrideEnabled) BOOL batteryOverrideEnabled;
+
+// Drive Alive
+@property (nonatomic, nullable) KYADriveAliveTimer *driveAliveTimer;
 
 // Menu
 @property (nonatomic) NSMenu *menu;
@@ -495,16 +499,35 @@
 {
     // Update the status item
     self.statusItemController.appearance = KYAStatusItemAppearanceActive;
-    
+
     [self enableDevicePowerMonitoring];
+    [self startDriveAliveIfEnabled];
 }
 
 - (void)sleepWakeTimerDidDeactivate:(KYASleepWakeTimer *)sleepWakeTimer
 {
     // Update the status item
     self.statusItemController.appearance = KYAStatusItemAppearanceInactive;
-    
+
     [self disableDevicePowerMonitoring];
+    [self stopDriveAlive];
+}
+
+#pragma mark - Drive Alive
+
+- (void)startDriveAliveIfEnabled
+{
+    if([NSUserDefaults.standardUserDefaults kya_isDriveAliveEnabled] == NO) { return; }
+    if(self.driveAliveTimer.isRunning) { return; }
+
+    self.driveAliveTimer = [[KYADriveAliveTimer alloc] initWithInterval:30.0];
+    [self.driveAliveTimer start];
+}
+
+- (void)stopDriveAlive
+{
+    [self.driveAliveTimer stop];
+    self.driveAliveTimer = nil;
 }
 
 @end
