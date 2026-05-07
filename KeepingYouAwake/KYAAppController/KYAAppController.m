@@ -364,18 +364,10 @@
 - (BOOL)isWatchedBundleIdentifier:(NSString *)bundleIdentifier
 {
     if(bundleIdentifier.length == 0) { return NO; }
-    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifier;
-    if(watched.length == 0) { return NO; }
-    return [bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame;
-}
-
-- (BOOL)isWatchedApplicationRunning
-{
-    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifier;
-    if(watched.length == 0) { return NO; }
-    for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
+    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifiers;
+    for(NSString *candidate in watched)
     {
-        if([runningApp.bundleIdentifier caseInsensitiveCompare:watched] == NSOrderedSame)
+        if([bundleIdentifier caseInsensitiveCompare:candidate] == NSOrderedSame)
         {
             return YES;
         }
@@ -383,9 +375,28 @@
     return NO;
 }
 
+- (BOOL)isAnyWatchedApplicationRunning
+{
+    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifiers;
+    if(watched.count == 0) { return NO; }
+    for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
+    {
+        Auto bid = runningApp.bundleIdentifier;
+        if(bid.length == 0) { continue; }
+        for(NSString *candidate in watched)
+        {
+            if([bid caseInsensitiveCompare:candidate] == NSOrderedSame)
+            {
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
+
 - (void)reconcileWatchedApplicationState
 {
-    if([self isWatchedApplicationRunning] == NO) { return; }
+    if([self isAnyWatchedApplicationRunning] == NO) { return; }
     if([self.sleepWakeTimer isScheduled]) { return; }
     [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite];
 }
@@ -403,6 +414,17 @@
     Auto terminated = (NSRunningApplication *)notification.userInfo[NSWorkspaceApplicationKey];
     if(![self isWatchedBundleIdentifier:terminated.bundleIdentifier]) { return; }
     if([self.sleepWakeTimer isScheduled] == NO) { return; }
+    // Only deactivate when the LAST watched app terminates. The notification
+    // fires before the running-applications list updates, so re-check
+    // membership while excluding the just-terminated process.
+    for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
+    {
+        if([runningApp isEqual:terminated]) { continue; }
+        if([self isWatchedBundleIdentifier:runningApp.bundleIdentifier])
+        {
+            return; // another watched app is still running
+        }
+    }
     [self terminateTimer];
 }
 
