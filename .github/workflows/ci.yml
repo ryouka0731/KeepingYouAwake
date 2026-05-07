@@ -117,9 +117,13 @@ jobs:
           open "keepingyouawake:///activate?seconds=10"
           sleep 3
 
-          if ! pgrep -f "caffeinate -w" >/dev/null; then
+          # KYA spawns `/usr/bin/caffeinate -di -t <secs> -w <kya_pid>`,
+          # so `-di` (display + idle) is the most reliable fingerprint
+          # for "caffeinate launched by KYA" (and won't match unrelated
+          # processes the runner might run).
+          if ! pgrep -f "caffeinate.*-di" >/dev/null; then
             echo "::error::caffeinate did not spawn after activate"
-            ps -ef | grep -i -E '(KeepingYouAwake|caffeinate)' || true
+            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
             exit 1
           fi
           echo "PASS: caffeinate is running after activate"
@@ -128,9 +132,9 @@ jobs:
           open "keepingyouawake:///deactivate"
           sleep 3
 
-          if pgrep -f "caffeinate -w" >/dev/null; then
+          if pgrep -f "caffeinate.*-di" >/dev/null; then
             echo "::error::caffeinate still running after deactivate"
-            ps -ef | grep -i -E '(KeepingYouAwake|caffeinate)' || true
+            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
             exit 1
           fi
           echo "PASS: caffeinate stopped after deactivate"
