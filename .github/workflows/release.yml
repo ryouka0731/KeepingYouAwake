@@ -149,6 +149,22 @@ jobs:
           shasum -a 256 "$DMG_NAME" > "${DMG_NAME}.sha256"
           echo "name=$DMG_NAME" >> "$GITHUB_OUTPUT"
 
+      - name: Ensure GitHub Release exists for the tag
+        # On a tag push, a Release object isn't created automatically —
+        # `gh release upload` then fails with "release not found". Create
+        # it on the fly if missing so that tag-driven runs are self-contained.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          TAG="${{ steps.tag.outputs.tag }}"
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$TAG" \
+              --notes "Automated release for $TAG. Ad-hoc signed dmg attached below — first launch needs right-click → Open."
+          fi
+
       - name: Upload .dmg + checksum to the release
         env:
           GH_TOKEN: ${{ github.token }}
