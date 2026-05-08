@@ -32,6 +32,17 @@ typedef NS_ENUM(NSUInteger, KYAStatusItemAppearance)
 /// Controls the activate/inactive appearance of the status item image.
 @property (nonatomic) KYAStatusItemAppearance appearance;
 
+/// Starts a one-second-tick UI timer that updates the status item's
+/// title to show the time remaining until \c fireDate. No-op if the
+/// fire date is in the past or if the user has disabled the countdown
+/// via \c kya_menuBarCountdownDisabled.
+/// @param fireDate The moment at which the active session will end.
+- (void)startCountdownWithFireDate:(NSDate *)fireDate;
+
+/// Stops the countdown timer and clears the status item title so that
+/// only the icon is shown.
+- (void)stopCountdown;
+
 /// A delegate for receiving click events.
 @property (weak, nonatomic, nullable) id<KYAStatusItemControllerDataSource> dataSource;
 

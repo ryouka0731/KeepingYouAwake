@@ -13,6 +13,9 @@
 
 @interface KYAStatusItemController ()
 @property (nonatomic, readwrite) NSStatusItem *systemStatusItem;
+@property (nonatomic, copy, nullable) NSDate *countdownFireDate;
+@property (nonatomic, nullable) NSTimer *countdownTimer;
+@property (nonatomic) NSDateComponentsFormatter *countdownFormatter;
 @end
 
 @implementation KYAStatusItemController
@@ -104,9 +107,92 @@
     {
         button.image = imageProvider.inactiveIconImage;
         button.toolTip = KYA_L10N_CLICK_TO_PREVENT_SLEEP;
+        // Force-clear the countdown when the icon goes back to inactive,
+        // even if the caller forgot to call -stopCountdown explicitly.
+        [self stopCountdown];
     }
-    
+
     [self didChangeValueForKey:@"appearance"];
+}
+
+#pragma mark - Countdown
+
+- (NSDateComponentsFormatter *)countdownFormatter
+{
+    if(_countdownFormatter == nil)
+    {
+        Auto formatter = [NSDateComponentsFormatter new];
+        formatter.unitsStyle = NSDateComponentsFormatterUnitsStylePositional;
+        formatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorPad;
+        formatter.allowedUnits = NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+        _countdownFormatter = formatter;
+    }
+    return _countdownFormatter;
+}
+
+- (void)startCountdownWithFireDate:(NSDate *)fireDate
+{
+    if([NSUserDefaults.standardUserDefaults kya_isMenuBarCountdownDisabled])
+    {
+        return;
+    }
+    if(fireDate == nil || [fireDate timeIntervalSinceNow] <= 0)
+    {
+        [self stopCountdown];
+        return;
+    }
+
+    self.countdownFireDate = fireDate;
+    [self renderCountdown];
+
+    [self.countdownTimer invalidate];
+    Auto timer = [NSTimer scheduledTimerWithTimeInterval:1.0
+                                                 repeats:YES
+                                                   block:^(NSTimer * _Nonnull t) {
+        [self renderCountdown];
+    }];
+    timer.tolerance = 0.25;
+    self.countdownTimer = timer;
+}
+
+- (void)stopCountdown
+{
+    [self.countdownTimer invalidate];
+    self.countdownTimer = nil;
+    self.countdownFireDate = nil;
+
+    Auto button = self.systemStatusItem.button;
+    if(button.title.length > 0)
+    {
+        button.title = @"";
+    }
+}
+
+- (void)renderCountdown
+{
+    Auto fireDate = self.countdownFireDate;
+    if(fireDate == nil)
+    {
+        [self stopCountdown];
+        return;
+    }
+    NSTimeInterval remaining = [fireDate timeIntervalSinceNow];
+    if(remaining <= 0)
+    {
+        [self stopCountdown];
+        return;
+    }
+    // Drop hour padding when remaining < 1h to keep the menu bar tidy.
+    Auto formatter = self.countdownFormatter;
+    formatter.allowedUnits = (remaining >= 3600)
+        ? (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond)
+        : (NSCalendarUnitMinute | NSCalendarUnitSecond);
+    NSString *text = [formatter stringFromTimeInterval:remaining];
+    if(text != nil)
+    {
+        // Prefix with a hair space so the icon doesn't crowd the digits.
+        self.systemStatusItem.button.title = [@" " stringByAppendingString:text];
+    }
 }
 
 #pragma mark - Menu
