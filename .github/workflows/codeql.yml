@@ -37,10 +37,23 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+          # The default Autobuild for c-cpp can't drive an Xcode
+          # workspace, so we hand it an explicit `xcodebuild` for
+          # Obj-C; Swift's Autobuild is fine.
+          build-mode: ${{ matrix.language == 'c-cpp' && 'manual' || 'autobuild' }}
           queries: security-and-quality
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      - name: Manual build for c-cpp (Obj-C app target)
+        if: matrix.language == 'c-cpp'
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -workspace KeepingYouAwake.xcworkspace \
+            -scheme KeepingYouAwake \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
