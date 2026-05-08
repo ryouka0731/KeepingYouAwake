@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  # Tag-driven release: pushing `v*.*.*` (or `v*.*.*-suffix.N`) builds
+  # the app, packages it as a .dmg, and uploads to the matching
+  # GitHub Release.
+  push:
+    tags:
+      - 'v*'
+  # Manual trigger lets us backfill a dmg onto an existing release
+  # without re-tagging. Pick the tag from the "Run workflow" UI.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build (e.g. v1.7.0-amphetamine.2). Falls back to GITHUB_REF when empty."
+        required: false
+        type: string
+
+permissions:
+  contents: write   # needed for `gh release upload`
+
+jobs:
+  build-and-upload:
+    name: Build .dmg and attach to release
+    runs-on: macos-14
+    steps:
+      - name: Resolve tag
+        id: tag
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          if [ -z "$TAG" ] || [ "$TAG" = "$GITHUB_REF" ]; then
+            echo "::error::Could not resolve a tag from push event or workflow_dispatch input"
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag: $TAG"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Build Release archive (codesigning disabled)
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -workspace KeepingYouAwake.xcworkspace \
+            -scheme KeepingYouAwake \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -archivePath build/KeepingYouAwake.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Locate built .app
+        id: app
+        run: |
+          APP=$(find build/KeepingYouAwake.xcarchive/Products/Applications -maxdepth 2 -name 'KeepingYouAwake.app' -type d | head -n 1)
+          if [ -z "$APP" ] || [ ! -d "$APP" ]; then
+            echo "::error::Built KeepingYouAwake.app not found in xcarchive"
+            ls -laR build/KeepingYouAwake.xcarchive/Products/ || true
+            exit 1
+          fi
+          echo "Found: $APP"
+          echo "path=$APP" >> "$GITHUB_OUTPUT"
+
+      - name: Stage .app into a clean directory for hdiutil
+        # hdiutil's -srcfolder will use the directory as the dmg root,
+        # so we want it to contain only the .app (no derivatives).
+        run: |
+          mkdir -p build/dmg-stage
+          cp -R "${{ steps.app.outputs.path }}" build/dmg-stage/
+          ls -la build/dmg-stage/
+
+      - name: Create .dmg
+        id: dmg
+        run: |
+          set -o pipefail
+          DMG_NAME="KeepingYouAwake-${{ steps.tag.outputs.tag }}.dmg"
+          hdiutil create \
+            -volname "KeepingYouAwake" \
+            -srcfolder build/dmg-stage \
+            -ov \
+            -format UDZO \
+            "$DMG_NAME"
+          ls -la "$DMG_NAME"
+          shasum -a 256 "$DMG_NAME" > "${DMG_NAME}.sha256"
+          echo "name=$DMG_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Upload .dmg + checksum to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          DMG_NAME="${{ steps.dmg.outputs.name }}"
+          gh release upload "${{ steps.tag.outputs.tag }}" \
+            "$DMG_NAME" \
+            "${DMG_NAME}.sha256" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - name: Upload artifacts on failure for triage
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-debug
+          path: |
+            build/KeepingYouAwake.xcarchive
+            *.dmg
+          retention-days: 7
+          if-no-files-found: ignore
