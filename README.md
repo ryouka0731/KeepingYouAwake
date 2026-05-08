@@ -1,44 +1,114 @@
-# KeepingYouAwake
+# KeepingYouAwake (Amphetamine)
 
-KeepingYouAwake is a small menu bar utility for macOS *(Version 10.13 and newer)* that can prevent your Mac from entering sleep mode for a predefined duration or as long as it is activated.
+🌐 **English** · [日本語](README.ja.md) · [简体中文](README.zh-CN.md) · [Deutsch](README.de.md) · [Français](README.fr.md)
 
-https://keepingyouawake.app/
+> **Community fork** of [`newmarcel/KeepingYouAwake`](https://github.com/newmarcel/KeepingYouAwake) by [@ryouka0731](https://github.com/ryouka0731), bringing **Amphetamine-style features** to a familiar `caffeinate` wrapper. The original app's name and icon are kept distinct (orange cup, suffixed display name) per the upstream maintainer's request.
+>
+> EN: This is the *Amphetamine-parity* fork — same caffeinate engine, more triggers and durations.
+> 日本語: Amphetamine 機能パリティを目指した fork。caffeinate エンジンはそのままに、トリガと継続時間を強化。
+> 中文: 加入 Amphetamine 风格触发器和持续时间的社区分支，caffeinate 内核保持不变。
+
+KeepingYouAwake (Amphetamine) は macOS 10.13 以降向けの軽量メニューバーユーティリティ。事前に決めた時間 — または何らかのトリガが続く間 — Mac をスリープさせない。
+
+## What's added on top of upstream 1.6.9
+
+| # | Feature | PR |
+|---|---------|----|
+| 1 | Prevent disk sleep (`caffeinate -m`) | [#8](https://github.com/ryouka0731/KeepingYouAwake/pull/8) |
+| 2 | Deactivate when battery is fully charged | [#9](https://github.com/ryouka0731/KeepingYouAwake/pull/9) |
+| 3 | Activation duration: until end of day (next midnight) | [#10](https://github.com/ryouka0731/KeepingYouAwake/pull/10) |
+| 4 | App Intents / Shortcuts.app integration (`Activate`, `Deactivate`, `Toggle`) | [#17](https://github.com/ryouka0731/KeepingYouAwake/pull/17) |
+| 5 | Trigger: while joined to a watched Wi-Fi SSID | [#18](https://github.com/ryouka0731/KeepingYouAwake/pull/18) |
+| 6 | Trigger: while on AC power (transition-aware) | [#19](https://github.com/ryouka0731/KeepingYouAwake/pull/19) |
+| 7 | Drive Alive — keep external drives spinning during activation | [#20](https://github.com/ryouka0731/KeepingYouAwake/pull/20) |
+| 8 | Trigger: while a watched application is running (multi-bundle) | [#27](https://github.com/ryouka0731/KeepingYouAwake/pull/27) / [#28](https://github.com/ryouka0731/KeepingYouAwake/pull/28) |
+
+Plus session source tracking so a feature trigger can never deactivate a user-initiated timer, and a Phase B refactor to clean up the multi-trigger interaction.
 
 ## Installation
 
-**[Download the latest version here.](https://github.com/newmarcel/KeepingYouAwake/releases/latest)**
+### Download (recommended)
 
-or install it via [cask](http://caskroom.github.io/): `brew install --cask keepingyouawake`.
+[Releases page →](https://github.com/ryouka0731/KeepingYouAwake/releases)
 
-<img src="./Extras/Screenshot@2x.jpg" width="500" />
+Each release attaches a `KeepingYouAwake-<tag>.dmg` and a `.dmg.sha256`. The bundle is **ad-hoc signed** but **not Apple-notarised** (no Developer ID), so the first launch needs:
+
+1. Mount the dmg, drag `KeepingYouAwake.app` into `/Applications`.
+2. Right-click the app → **Open** → confirm "Open" in the prompt.
+3. (Or, in System Settings → Privacy & Security, click *Open Anyway* after the first failed launch.)
+
+After that, the app launches normally.
+
+### Build from source
+
+```bash
+git clone https://github.com/ryouka0731/KeepingYouAwake.git
+cd KeepingYouAwake
+open KeepingYouAwake.xcworkspace
+```
+
+Open in Xcode 16 or newer (the icon uses Apple's Icon Composer format introduced with Xcode 16) and Run. Targets macOS 10.13+.
+
+## Configuring the new triggers
+
+The fork's new feature toggles aren't all wired into the Settings UI yet — they live in `NSUserDefaults` and can be set with `defaults write`:
+
+```bash
+# Watched application bundle identifiers (any matching app keeps KYA active)
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.WatchedApplicationBundleIdentifiers \
+  -array com.apple.FinalCut com.apple.Logic
+
+# Watched Wi-Fi SSIDs (case-insensitive match)
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs \
+  -array Office-WiFi Home-5G
+
+# Activate while on AC power
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.ActivateOnACPowerEnabled -bool YES
+
+# Drive Alive
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.DriveAliveEnabled -bool YES
+
+# Prevent disk sleep
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.PreventDiskSleepEnabled -bool YES
+
+# Deactivate when battery is fully charged
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.DeactivateOnFullChargeEnabled -bool YES
+```
+
+`NSWorkspace.shared.open()` of `keepingyouawake:///activate?seconds=N` / `:///deactivate` / `:///toggle` is also exposed as App Intents for Shortcuts.app.
 
 ## How does it work?
 
-The app is a small wrapper around Apple's `caffeinate` command line utility. All current versions of macOS ship with this tool by default. You can read the manual page [here](https://web.archive.org/web/20140604153141/https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/caffeinate.8.html).
+The app is a thin wrapper around macOS's built-in [`caffeinate`](https://web.archive.org/web/20140604153141/https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/caffeinate.8.html). All upstream caveats apply (e.g. closed-lid sleep on portable Macs is still enforced by macOS).
 
-### Does it work on a MacBook with a closed lid?
+## Relationship to upstream
 
-No. Because of _(sensible)_ macOS limitations and out of thermal considerations, KeepingYouAwake will only prevent sleep on desktop Macs and portable Macs with an open lid.
+This fork tracks `newmarcel/KeepingYouAwake` and ports back any maintenance fixes the original receives. Bug fixes that aren't fork-specific are first proposed upstream where appropriate.
 
-## Is this dangerous?
+The original `newmarcel/KeepingYouAwake` and `keepingyouawake.app` remain the project of [Marcel Dierkes](https://github.com/newmarcel) and are independently maintained.
 
-This utility will not harm your Mac because it is based on an official command line tool by Apple. **BUT** I cannot guarantee anything, so use this tool **AT YOUR OWN RISK**.
+## Bot review / CI infrastructure
 
-## Inspired by Caffeine
-
-*KeepingYouAwake* is inspired by *[Caffeine](https://web.archive.org/web/20240625031548/https://www.lightheadsw.com/caffeine/)* from *Lighthead Software*. I used it for many years, but sadly it hasn't been updated in a while. Eventually in 2014 I decided to build a replacement for myself that was optimized for macOS Yosemite and used the [`caffeinate`](https://web.archive.org/web/20140604153141/https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/caffeinate.8.html) command line tool under the hood.
-
-## Still using old macOS versions?
-
-- [Version 1.6.2](https://github.com/newmarcel/KeepingYouAwake/releases/tag/1.6.2) is the last release that supports macOS Sierra (10.12)
-- [Version 1.5.2](https://github.com/newmarcel/KeepingYouAwake/releases/tag/1.5.2) is the last release that supports macOS Yosemite (10.10) and El Capitan (10.11)
-
-## Contribution Guidelines
-
-If you plan to contribute to the project, I recommend taking a look at the [Contribution Guidelines](./CONTRIBUTING.md). These should cover common questions and will be updated over time.
+- **CI** (`.github/workflows/ci.yml`) — every PR runs xcodebuild build, unit tests against the SPM packages, and a URL-scheme E2E that asserts `caffeinate` actually spawns/exits.
+- **Release** (`.github/workflows/release.yml`) — every `v*` tag builds a Release-config dmg with ad-hoc signing and uploads it to the matching GitHub Release.
+- **CodeQL + OSSF Scorecards** — security audits on PRs and on a weekly schedule.
+- **AI review** — CodeRabbit, cubic, Gitar, Socket Security, and Gemini Code Assist all comment on each PR.
+- **Dependabot** — npm / GitHub Actions weekly version updates with grouped minor/patch.
 
 ## License
 
-Everything in this project is licensed under the [MIT license](http://opensource.org/licenses/MIT). Provided image assets are also covered by this license.
+MIT. Same license as upstream. Provided image assets are also MIT.
 
-*Although it's not required please do not redistribute forked versions of the app with the same name and icon. Thanks!*
+The fork keeps Marcel Dierkes' original copyright and adds its own attribution; see the in-app *About* panel and `Credits.rtf` for full attribution. Upstream's polite request — don't redistribute forks with the same name and icon — is honoured: this fork ships under the display name **KeepingYouAwake (Amphetamine)** and an orange cup icon.
+
+## Old macOS support
+
+Same as upstream:
+- [Version 1.6.2](https://github.com/newmarcel/KeepingYouAwake/releases/tag/1.6.2) is the last release that supports macOS Sierra (10.12).
+- [Version 1.5.2](https://github.com/newmarcel/KeepingYouAwake/releases/tag/1.5.2) is the last release that supports macOS Yosemite (10.10) / El Capitan (10.11).
