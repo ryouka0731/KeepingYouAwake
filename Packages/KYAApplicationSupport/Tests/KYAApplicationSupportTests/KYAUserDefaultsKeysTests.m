@@ -86,6 +86,94 @@ KYA_GENERATE_BOOL_TEST(isDeactivateOnFullChargeEnabled,
                        deactivateOnFullChargeEnabled,
                        KYAUserDefaultsKeyDeactivateOnFullChargeEnabled);
 
+KYA_GENERATE_BOOL_TEST(isActivateOnACPowerEnabled,
+                       activateOnACPowerEnabled,
+                       KYAUserDefaultsKeyActivateOnACPowerEnabled);
+
+KYA_GENERATE_BOOL_TEST(isDriveAliveEnabled,
+                       driveAliveEnabled,
+                       KYAUserDefaultsKeyDriveAliveEnabled);
+
+KYA_GENERATE_BOOL_TEST(isMenuBarCountdownDisabled,
+                       menuBarCountdownDisabled,
+                       KYAUserDefaultsKeyMenuBarCountdownDisabled);
+
+#pragma mark - Watched Wi-Fi SSIDs sanitization
+
+- (void)testWatchedWiFiSSIDs_roundTrip
+{
+    Auto defaults = self.defaults;
+    NSArray *input = @[@"Office-WiFi", @"Home-5G"];
+    defaults.kya_watchedWiFiSSIDs = input;
+    XCTAssertEqualObjects(defaults.kya_watchedWiFiSSIDs, input);
+    XCTAssertEqualObjects([defaults arrayForKey:KYAUserDefaultsKeyWatchedWiFiSSIDs], input);
+}
+
+- (void)testWatchedWiFiSSIDs_emptyArrayClearsKey
+{
+    Auto defaults = self.defaults;
+    defaults.kya_watchedWiFiSSIDs = @[@"x"];
+    defaults.kya_watchedWiFiSSIDs = @[];
+    XCTAssertNil(defaults.kya_watchedWiFiSSIDs);
+    XCTAssertNil([defaults arrayForKey:KYAUserDefaultsKeyWatchedWiFiSSIDs]);
+}
+
+- (void)testWatchedWiFiSSIDs_nilClearsKey
+{
+    Auto defaults = self.defaults;
+    defaults.kya_watchedWiFiSSIDs = @[@"x"];
+    defaults.kya_watchedWiFiSSIDs = nil;
+    XCTAssertNil(defaults.kya_watchedWiFiSSIDs);
+}
+
+- (void)testWatchedWiFiSSIDs_dropsNonStringAndEmptyEntries
+{
+    Auto defaults = self.defaults;
+    // Bypass the setter to force a malformed plist underneath. This is
+    // exactly how a fat-fingered `defaults write` could land in prefs.
+    [defaults setObject:@[@"Office", @"", @42, [NSNull null], @"Home"]
+                 forKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
+
+    NSArray *result = defaults.kya_watchedWiFiSSIDs;
+    XCTAssertEqualObjects(result, (@[@"Office", @"Home"]));
+}
+
+- (void)testWatchedWiFiSSIDs_returnsNilWhenEverythingFiltered
+{
+    Auto defaults = self.defaults;
+    [defaults setObject:@[@"", @42, [NSNull null]]
+                 forKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
+    XCTAssertNil(defaults.kya_watchedWiFiSSIDs);
+}
+
+#pragma mark - Watched Application Bundle Identifiers sanitization
+
+- (void)testWatchedAppBundleIDs_roundTrip
+{
+    Auto defaults = self.defaults;
+    NSArray *input = @[@"com.apple.FinalCut", @"com.apple.Logic"];
+    defaults.kya_watchedApplicationBundleIdentifiers = input;
+    XCTAssertEqualObjects(defaults.kya_watchedApplicationBundleIdentifiers, input);
+}
+
+- (void)testWatchedAppBundleIDs_dropsInvalidEntries
+{
+    Auto defaults = self.defaults;
+    [defaults setObject:@[@"com.apple.FinalCut", @"", @0, [NSNull null], @"com.apple.Logic"]
+                 forKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers];
+
+    NSArray *result = defaults.kya_watchedApplicationBundleIdentifiers;
+    XCTAssertEqualObjects(result, (@[@"com.apple.FinalCut", @"com.apple.Logic"]));
+}
+
+- (void)testWatchedAppBundleIDs_emptyArrayClearsKey
+{
+    Auto defaults = self.defaults;
+    defaults.kya_watchedApplicationBundleIdentifiers = @[@"com.example"];
+    defaults.kya_watchedApplicationBundleIdentifiers = @[];
+    XCTAssertNil(defaults.kya_watchedApplicationBundleIdentifiers);
+}
+
 - (void)testBatteryCapacityThreshold
 {
     Auto defaults = self.defaults;
