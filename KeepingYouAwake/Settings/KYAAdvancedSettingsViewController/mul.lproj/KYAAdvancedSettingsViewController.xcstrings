@@ -143,6 +143,12 @@
       "comment" : "Class = \"NSButtonCell\"; title = \"Check\"; ObjectID = \"7z8-pS-A86\"; Note = \"Do not localize\";",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チェック"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
