@@ -24,6 +24,8 @@
 		DA4F7F482A3F218D00C7C076 /* KYASettings.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DA4F7F462A3F218D00C7C076 /* KYASettings.xcstrings */; };
 		DA4F7F512A3F21E100C7C076 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DA4F7F502A3F21E100C7C076 /* Localizable.xcstrings */; };
 		DA4F7F522A3F21E100C7C076 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DA4F7F502A3F21E100C7C076 /* Localizable.xcstrings */; };
+		AA0000010100000000000002 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA0000010100000000000001 /* InfoPlist.xcstrings */; };
+		AA0000010100000000000003 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA0000010100000000000001 /* InfoPlist.xcstrings */; };
 		DA51CA672BB75A0B0013175E /* KYACommon in Frameworks */ = {isa = PBXBuildFile; productRef = DA51CA662BB75A0B0013175E /* KYACommon */; };
 		DA51CA692BB75A120013175E /* KYACommon in Frameworks */ = {isa = PBXBuildFile; productRef = DA51CA682BB75A120013175E /* KYACommon */; };
 		DA52096327C6BE6400ECFDA6 /* KYAActivationDuration+KYALocalizedTitle.m in Sources */ = {isa = PBXBuildFile; fileRef = DA52096227C6BE6400ECFDA6 /* KYAActivationDuration+KYALocalizedTitle.m */; };
@@ -193,6 +195,7 @@
 		DA4F7F4E2A3F218E00C7C076 /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/KYAUpdateSettingsViewController.xcstrings; sourceTree = "<group>"; };
 		DA4F7F4F2A3F218E00C7C076 /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/KYAAdvancedSettingsViewController.xcstrings; sourceTree = "<group>"; };
 		DA4F7F502A3F21E100C7C076 /* Localizable.xcstrings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		AA0000010100000000000001 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		DA52096127C6BE6400ECFDA6 /* KYAActivationDuration+KYALocalizedTitle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KYAActivationDuration+KYALocalizedTitle.h"; sourceTree = "<group>"; };
 		DA52096227C6BE6400ECFDA6 /* KYAActivationDuration+KYALocalizedTitle.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KYAActivationDuration+KYALocalizedTitle.m"; sourceTree = "<group>"; };
 		DA52B1062617021500D09FE5 /* KYAActivationUserNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KYAActivationUserNotification.m; sourceTree = "<group>"; };
@@ -540,6 +543,7 @@
 				DAD90B5627B001B800F5C186 /* KeepingYouAwake-Direct.entitlements */,
 				DA0CA9FE21D0111600879C8B /* KeepingYouAwake.entitlements */,
 				DA4F7F502A3F21E100C7C076 /* Localizable.xcstrings */,
+				AA0000010100000000000001 /* InfoPlist.xcstrings */,
 				DA637B3E19F14693004C8838 /* main.m */,
 				DAD68A7B27C957B30036ED19 /* MainMenu.xib */,
 				DA2D55152A3B80FB003E09E3 /* DefaultTestPlan.xctestplan */,
@@ -725,6 +729,7 @@
 				DAD9838A26F9037900234FB8 /* KYADurationSettingsViewController.xib in Resources */,
 				DAD68A7C27C957B30036ED19 /* MainMenu.xib in Resources */,
 				DA4F7F512A3F21E100C7C076 /* Localizable.xcstrings in Resources */,
+				AA0000010100000000000002 /* InfoPlist.xcstrings in Resources */,
 				DAD982F826F8849A00234FB8 /* KYAGeneralSettingsViewController.xib in Resources */,
 				DAB0700C22EC795F004D5BCA /* KYADurationCell.xib in Resources */,
 				DA99FF682E2ACF49003B3E09 /* AppIcon.icon in Resources */,
@@ -756,6 +761,7 @@
 				DAD3CF7E271186720006CA14 /* KYADurationSettingsViewController.xib in Resources */,
 				DAD68A7D27C957B30036ED19 /* MainMenu.xib in Resources */,
 				DA4F7F522A3F21E100C7C076 /* Localizable.xcstrings in Resources */,
+				AA0000010100000000000003 /* InfoPlist.xcstrings in Resources */,
 				DAD3CF7F271186720006CA14 /* KYAGeneralSettingsViewController.xib in Resources */,
 				DAD3CF81271186720006CA14 /* KYADurationCell.xib in Resources */,
 				DA99FF692E2ACF49003B3E09 /* AppIcon.icon in Resources */,
