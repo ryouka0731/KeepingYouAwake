@@ -54,6 +54,10 @@ KYA_GENERATE_BOOL_PROPERTY(isMenuBarIconHighlightDisabled,
                            menuBarIconHighlightDisabled,
                            MenuBarIconHighlightDisabled);
 
+KYA_GENERATE_BOOL_PROPERTY(isMenuBarCountdownDisabled,
+                           menuBarCountdownDisabled,
+                           MenuBarCountdownDisabled);
+
 KYA_GENERATE_BOOL_PROPERTY(arePreReleaseUpdatesEnabled,
                            preReleaseUpdatesEnabled,
                            PreReleaseUpdatesEnabled);

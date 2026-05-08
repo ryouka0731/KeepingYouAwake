@@ -829,6 +829,17 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     // Update the status item
     self.statusItemController.appearance = KYAStatusItemAppearanceActive;
 
+    Auto fireDate = sleepWakeTimer.fireDate;
+    if(fireDate != nil)
+    {
+        [self.statusItemController startCountdownWithFireDate:fireDate];
+    }
+    else
+    {
+        // Indefinite session — make sure no stale countdown lingers.
+        [self.statusItemController stopCountdown];
+    }
+
     [self enableDevicePowerMonitoring];
     [self startDriveAliveIfEnabled];
 }

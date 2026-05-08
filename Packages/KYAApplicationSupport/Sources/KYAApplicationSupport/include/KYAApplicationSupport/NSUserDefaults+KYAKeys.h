@@ -18,6 +18,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyPreventDiskSleepEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnExternalDisplayConnectedEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDeactivateOnUserSwitchEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyMenuBarIconHighlightDisabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyMenuBarCountdownDisabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyIsQuitOnTimerExpirationEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThresholdEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyBatteryCapacityThreshold;
@@ -44,6 +45,16 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifier
 
 /// Returns YES if the menu bar icon should not be highlighted on left and right click.
 @property (nonatomic, getter = kya_isMenuBarIconHighlightDisabled) BOOL kya_menuBarIconHighlightDisabled;
+
+/// Returns YES if the remaining-time countdown next to the menu bar icon
+/// should be hidden. The countdown is shown by default (key absent / NO);
+/// setting this to YES restores the upstream icon-only look.
+///
+/// Until a settings UI lands, configure via:
+///     defaults write info.marcel-dierkes.KeepingYouAwake \
+///         info.marcel-dierkes.KeepingYouAwake.MenuBarCountdownDisabled \
+///         -bool YES
+@property (nonatomic, getter = kya_isMenuBarCountdownDisabled) BOOL kya_menuBarCountdownDisabled;
 
 /// Returns YES if the sleep wake timer should deactivate below a defined battery capacity threshold.
 @property (nonatomic, getter = kya_isBatteryCapacityThresholdEnabled) BOOL kya_batteryCapacityThresholdEnabled;
