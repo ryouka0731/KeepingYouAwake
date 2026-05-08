@@ -16,4 +16,5 @@ GENERATE_INFOPLIST_FILE = YES
 INFOPLIST_KEY_LSApplicationCategoryType = public.app-category.utilities
 INFOPLIST_KEY_NSPrincipalClass = NSApplication
 INFOPLIST_KEY_NSMainNibFile = MainMenu
+INFOPLIST_KEY_CFBundleDisplayName = KeepingYouAwake (Amphetamine)
 INFOPLIST_KEY_NSHumanReadableCopyright = Copyright © 2014 – 2026 Marcel Dierkes (upstream) / Ryoka Nakai (amphetamine-parity fork). All rights reserved.

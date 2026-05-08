@@ -1,5 +1,7 @@
 # KeepingYouAwake (Amphetamine)
 
+🌐 **English** · [日本語](README.ja.md) · [简体中文](README.zh-CN.md) · [Deutsch](README.de.md) · [Français](README.fr.md)
+
 > **Community fork** of [`newmarcel/KeepingYouAwake`](https://github.com/newmarcel/KeepingYouAwake) by [@ryouka0731](https://github.com/ryouka0731), bringing **Amphetamine-style features** to a familiar `caffeinate` wrapper. The original app's name and icon are kept distinct (orange cup, suffixed display name) per the upstream maintainer's request.
 >
 > EN: This is the *Amphetamine-parity* fork — same caffeinate engine, more triggers and durations.
