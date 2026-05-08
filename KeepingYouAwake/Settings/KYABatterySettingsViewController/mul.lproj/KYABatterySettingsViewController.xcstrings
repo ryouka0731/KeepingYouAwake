@@ -665,6 +665,12 @@
       "comment" : "Class = \"NSButtonCell\"; title = \"Deactivate when Low Power Mode is enabled\"; ObjectID = \"mcf-JV-nyg\";",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低電力モードが有効なときに無効化"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1013,6 +1019,12 @@
       "comment" : "Class = \"NSTextFieldCell\"; title = \"Low Power Mode can be enabled on supported Macs in System Settings › Battery.\"; ObjectID = \"SHH-RQ-HPH\";",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低電力モードはシステム設定 → バッテリー → 低電力モードのドロップダウンから対応 Mac で有効にできます。"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",

@@ -4,6 +4,12 @@
     "(Default)" : {
       "comment" : "(Default)",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "（デフォルト）"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -236,6 +242,12 @@
     "Activate when an external display is connected" : {
       "comment" : "Activate when an external display is connected",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外部ディスプレイ接続時に有効化"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -345,6 +357,12 @@
     "Afterwards your Mac will automatically go to sleep again when unused." : {
       "comment" : "Afterwards your Mac will automatically go to sleep again when unused.",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "その後、Macは使用されていないときに再び自動でスリープします。"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -440,6 +458,12 @@
     "Allow the display to sleep" : {
       "comment" : "Allow the display to sleep",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ディスプレイのスリープを許可"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -535,6 +559,12 @@
     "Allowing Sleep" : {
       "comment" : "Allowing Sleep",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スリープを許可"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -630,6 +660,12 @@
     "Cancel" : {
       "comment" : "Cancel",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1126,6 +1162,12 @@
     "Deactivate when switched to another user account" : {
       "comment" : "Deactivate when switched to another user account",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "他のユーザアカウントへ切り替えたときに無効化"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1203,6 +1245,12 @@
     "Default" : {
       "comment" : "Default",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デフォルト"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1304,6 +1352,12 @@
     "Do you really want to reset the activation durations to the default values?" : {
       "comment" : "Do you really want to reset the activation durations to the default values?",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティベーション時間を初期値にリセットしてよろしいですか?"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1562,6 +1616,12 @@
     "OK" : {
       "comment" : "OK",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1776,6 +1836,12 @@
     "Preventing Sleep" : {
       "comment" : "Preventing Sleep",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スリープを防止中"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1871,6 +1937,12 @@
     "Preventing Sleep for %@" : {
       "comment" : "Preventing Sleep for %@",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スリープを防止中: %@"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2097,6 +2169,12 @@
     "Quit when activation duration is over" : {
       "comment" : "Quit when activation duration is over",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティベーション時間が終了したら終了"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2198,6 +2276,12 @@
     "Reset Activation Durations" : {
       "comment" : "Reset Activation Durations",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクティベーション時間をリセット"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2299,6 +2383,12 @@
     "Set Default: %@" : {
       "comment" : "Set Default: %@",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デフォルトに設定: %@"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2531,6 +2621,12 @@
     "The entered duration is invalid. Please try again." : {
       "comment" : "The entered duration is invalid. Please try again.",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "入力された時間が無効です。もう一度お試しください。"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2632,6 +2728,12 @@
     "This duration has already been added." : {
       "comment" : "This duration has already been added.",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この時間はすでに追加されています。"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2995,6 +3097,12 @@
     "You can still manually enable sleep mode for your Mac." : {
       "comment" : "You can still manually enable sleep mode for your Mac.",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Macのスリープは手動で有効にできます。"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3090,6 +3198,12 @@
     "Your Mac will automatically go to sleep when unused." : {
       "comment" : "Your Mac will automatically go to sleep when unused.",
       "localizations" : {
+                "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Macは使用されていないときに自動でスリープします。"
+          }
+        },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
