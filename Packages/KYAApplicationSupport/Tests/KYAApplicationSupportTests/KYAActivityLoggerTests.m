@@ -1,0 +1,136 @@
+//
+//  KYAActivityLoggerTests.m
+//  KYAApplicationSupport
+//
+
+#import <XCTest/XCTest.h>
+#import <KYACommon/KYACommon.h>
+#import <KYAApplicationSupport/KYAApplicationSupport.h>
+
+@interface KYAActivityLoggerTests : XCTestCase
+@property (nonatomic) NSURL *tmpFile;
+@property (nonatomic) KYAActivityLogger *logger;
+@end
+
+@implementation KYAActivityLoggerTests
+
+- (void)setUp
+{
+    [super setUp];
+    Auto fm = NSFileManager.defaultManager;
+    NSURL *dir = [NSURL fileURLWithPath:NSTemporaryDirectory()];
+    NSString *name = [NSString stringWithFormat:@"kya-activity-%@.jsonl", [NSUUID UUID].UUIDString];
+    self.tmpFile = [dir URLByAppendingPathComponent:name];
+    [fm removeItemAtURL:self.tmpFile error:nil];
+    self.logger = [[KYAActivityLogger alloc] initWithFileURL:self.tmpFile maximumEntries:5];
+}
+
+- (void)tearDown
+{
+    [NSFileManager.defaultManager removeItemAtURL:self.tmpFile error:nil];
+    [super tearDown];
+}
+
+- (void)flush
+{
+    // The logger uses an internal serial queue. -recentEntriesWithLimit:
+    // is dispatch_sync on the same queue, so calling it forces all
+    // earlier async writes to drain.
+    [self.logger recentEntriesWithLimit:1];
+}
+
+- (void)testRecordsStartAndEndForSingleSession
+{
+    [self.logger recordActivationStartedFromSource:KYAActivityLogSourceUser
+                                  requestedDuration:1800];
+    [self.logger recordActivationEnded];
+    [self flush];
+
+    NSArray<KYAActivityLogEntry *> *entries = [self.logger recentEntriesWithLimit:10];
+    XCTAssertEqual(entries.count, 1);
+    KYAActivityLogEntry *entry = entries.firstObject;
+    XCTAssertEqualObjects(entry.source, KYAActivityLogSourceUser);
+    XCTAssertEqual(entry.requestedDuration, 1800);
+    XCTAssertNotNil(entry.startedAt);
+    XCTAssertNotNil(entry.endedAt);
+    XCTAssertGreaterThanOrEqual([entry.endedAt timeIntervalSinceDate:entry.startedAt], 0);
+}
+
+- (void)testIndefiniteSessionStoresMinusOne
+{
+    [self.logger recordActivationStartedFromSource:KYAActivityLogSourceACPower
+                                  requestedDuration:-1];
+    [self.logger recordActivationEnded];
+    [self flush];
+    NSArray<KYAActivityLogEntry *> *entries = [self.logger recentEntriesWithLimit:10];
+    XCTAssertEqual(entries.firstObject.requestedDuration, -1);
+    XCTAssertEqualObjects(entries.firstObject.source, KYAActivityLogSourceACPower);
+}
+
+- (void)testEndWithoutStartIsNoOp
+{
+    [self.logger recordActivationEnded];
+    [self flush];
+    XCTAssertEqual([self.logger recentEntriesWithLimit:10].count, 0);
+}
+
+- (void)testCapsAtMaximumEntries
+{
+    // maximumEntries = 5 from setUp.
+    for(NSUInteger i = 0; i < 8; i++)
+    {
+        NSString *src = [NSString stringWithFormat:@"src-%lu", (unsigned long)i];
+        [self.logger recordActivationStartedFromSource:src requestedDuration:i];
+        [self.logger recordActivationEnded];
+    }
+    [self flush];
+    NSArray<KYAActivityLogEntry *> *entries = [self.logger recentEntriesWithLimit:100];
+    XCTAssertEqual(entries.count, 5, @"capped to maximumEntries=5");
+    // recentEntriesWithLimit returns newest-first
+    XCTAssertEqualObjects(entries.firstObject.source, @"src-7");
+    XCTAssertEqualObjects(entries.lastObject.source, @"src-3");
+}
+
+- (void)testRecentEntriesLimitNarrowsResult
+{
+    for(NSUInteger i = 0; i < 4; i++)
+    {
+        NSString *src = [NSString stringWithFormat:@"src-%lu", (unsigned long)i];
+        [self.logger recordActivationStartedFromSource:src requestedDuration:0];
+        [self.logger recordActivationEnded];
+    }
+    [self flush];
+    NSArray<KYAActivityLogEntry *> *entries = [self.logger recentEntriesWithLimit:2];
+    XCTAssertEqual(entries.count, 2);
+    XCTAssertEqualObjects(entries.firstObject.source, @"src-3");
+    XCTAssertEqualObjects(entries.lastObject.source, @"src-2");
+}
+
+- (void)testCorruptedLineIsSkipped
+{
+    [self.logger recordActivationStartedFromSource:KYAActivityLogSourceUser
+                                  requestedDuration:0];
+    [self.logger recordActivationEnded];
+    [self flush];
+
+    // Manually inject a junk line — the next read should silently skip it.
+    NSString *contents = [NSString stringWithContentsOfURL:self.tmpFile
+                                                  encoding:NSUTF8StringEncoding
+                                                     error:nil];
+    contents = [contents stringByAppendingString:@"not-json\n"];
+    [contents writeToURL:self.tmpFile atomically:YES encoding:NSUTF8StringEncoding error:nil];
+
+    NSArray<KYAActivityLogEntry *> *entries = [self.logger recentEntriesWithLimit:10];
+    XCTAssertEqual(entries.count, 1, @"junk line skipped, valid entry still readable");
+}
+
+- (void)testNilSourceFallsBackToUser
+{
+    [self.logger recordActivationStartedFromSource:nil requestedDuration:0];
+    [self.logger recordActivationEnded];
+    [self flush];
+    XCTAssertEqualObjects([self.logger recentEntriesWithLimit:10].firstObject.source,
+                          KYAActivityLogSourceUser);
+}
+
+@end
