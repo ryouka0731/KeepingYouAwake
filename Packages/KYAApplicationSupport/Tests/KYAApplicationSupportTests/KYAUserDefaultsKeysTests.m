@@ -131,7 +131,9 @@ KYA_GENERATE_BOOL_TEST(isMenuBarCountdownDisabled,
     Auto defaults = self.defaults;
     // Bypass the setter to force a malformed plist underneath. This is
     // exactly how a fat-fingered `defaults write` could land in prefs.
-    [defaults setObject:@[@"Office", @"", @42, [NSNull null], @"Home"]
+    // NSNull isn't plist-compatible and would crash NSUserDefaults; use
+    // NSNumber as the non-string filter probe instead.
+    [defaults setObject:@[@"Office", @"", @42, @YES, @"Home"]
                  forKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
 
     NSArray *result = defaults.kya_watchedWiFiSSIDs;
@@ -141,7 +143,7 @@ KYA_GENERATE_BOOL_TEST(isMenuBarCountdownDisabled,
 - (void)testWatchedWiFiSSIDs_returnsNilWhenEverythingFiltered
 {
     Auto defaults = self.defaults;
-    [defaults setObject:@[@"", @42, [NSNull null]]
+    [defaults setObject:@[@"", @42, @YES]
                  forKey:KYAUserDefaultsKeyWatchedWiFiSSIDs];
     XCTAssertNil(defaults.kya_watchedWiFiSSIDs);
 }
@@ -159,7 +161,7 @@ KYA_GENERATE_BOOL_TEST(isMenuBarCountdownDisabled,
 - (void)testWatchedAppBundleIDs_dropsInvalidEntries
 {
     Auto defaults = self.defaults;
-    [defaults setObject:@[@"com.apple.FinalCut", @"", @0, [NSNull null], @"com.apple.Logic"]
+    [defaults setObject:@[@"com.apple.FinalCut", @"", @0, @YES, @"com.apple.Logic"]
                  forKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers];
 
     NSArray *result = defaults.kya_watchedApplicationBundleIdentifiers;
