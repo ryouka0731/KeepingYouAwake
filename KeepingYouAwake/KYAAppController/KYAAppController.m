@@ -20,16 +20,17 @@
 #define KYA_HOURS(h) (h * 3600.0f)
 
 /// Tracks who started the current activation session. Feature triggers
-/// (watched-app, watched-SSID, AC power) only deactivate when their own
-/// `KYAActivationSource` matches the session, so a feature signal can't
-/// terminate a user-initiated timer. The default is `User`, covering the
-/// status-item click, menu duration, URL scheme, AppleScript, and
-/// kya_isActivatedOnLaunch paths.
+/// (watched-app, watched-SSID, AC power, external-display) only deactivate
+/// when their own `KYAActivationSource` matches the session, so a feature
+/// signal can't terminate a user-initiated timer. The default is `User`,
+/// covering the status-item click, menu duration, URL scheme, AppleScript,
+/// and kya_isActivatedOnLaunch paths.
 typedef NS_ENUM(NSInteger, KYAActivationSource) {
     KYAActivationSourceUser = 0,
     KYAActivationSourceWatchedApp,
     KYAActivationSourceWatchedSSID,
     KYAActivationSourceACPower,
+    KYAActivationSourceExternalDisplay,
 };
 
 @interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate>
@@ -749,24 +750,25 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     {
         return;
     }
-    
+
     NSUInteger numberOfExternalScreens = KYADisplayParametersGetNumberOfExternalDisplays();
     Auto sleepWakeTimer = self.sleepWakeTimer;
-    
+
     if(numberOfExternalScreens == 0)
     {
-        // Only the main screen is connected, deactivate!
-        if([sleepWakeTimer isScheduled])
-        {
-            [self terminateTimer];
-        }
+        // Only the built-in screen is connected. Tear down only if this
+        // very session was started by the external-display trigger; never
+        // touch a user-initiated session.
+        [self terminateTimerIfOwnedBySource:KYAActivationSourceExternalDisplay];
     }
     else
     {
-        // The main screen and at least one external screen, activate!
+        // The main screen plus at least one external screen.
+        // Don't override an existing session (user or any other trigger).
         if([sleepWakeTimer isScheduled] == NO)
         {
-            [self activateTimer];
+            [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                         source:KYAActivationSourceExternalDisplay];
         }
     }
 }
