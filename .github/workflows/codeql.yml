@@ -1,0 +1,48 @@
+name: CodeQL
+
+# GitHub-native SAST. Free unlimited for public OSS repositories.
+# Scans the Objective-C codebase (`c-cpp` extractor covers Obj-C)
+# and the Swift packages under Packages/ in one run; results show
+# up under the repository's Security → Code scanning tab and on
+# the PR as inline annotations.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Weekly catch-all so the database stays current even when no
+    # PRs land for a while.
+    - cron: '17 7 * * 1'
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        # `c-cpp` covers Objective-C; `swift` covers the Packages/.
+        language: [c-cpp, swift]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
