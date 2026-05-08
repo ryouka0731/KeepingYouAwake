@@ -33,6 +33,19 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     KYAActivationSourceExternalDisplay,
 };
 
+static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
+{
+    switch(source)
+    {
+        case KYAActivationSourceWatchedApp:      return KYAActivityLogSourceWatchedApp;
+        case KYAActivationSourceWatchedSSID:     return KYAActivityLogSourceWatchedSSID;
+        case KYAActivationSourceACPower:         return KYAActivityLogSourceACPower;
+        case KYAActivationSourceExternalDisplay: return KYAActivityLogSourceExternalDisplay;
+        case KYAActivationSourceUser:
+        default:                                 return KYAActivityLogSourceUser;
+    }
+}
+
 @interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate>
 @property (nonatomic, readwrite) KYASleepWakeTimer *sleepWakeTimer;
 @property (nonatomic, readwrite) KYAStatusItemController *statusItemController;
@@ -214,6 +227,9 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     self.activationSource = source;
     [self.sleepWakeTimer scheduleWithTimeInterval:timeInterval completion:timerCompletion];
 
+    [[KYAActivityLogger sharedLogger] recordActivationStartedFromSource:KYAActivityLogStringForSource(source)
+                                                      requestedDuration:(timeInterval == KYASleepWakeTimeIntervalIndefinite ? -1 : timeInterval)];
+
     // Post activation notification
     if(@available(macOS 11.0, *))
     {
@@ -228,11 +244,17 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
 {
     [self disableBatteryOverride];
 
-    if([self.sleepWakeTimer isScheduled])
+    BOOL wasScheduled = [self.sleepWakeTimer isScheduled];
+    if(wasScheduled)
     {
         [self.sleepWakeTimer invalidate];
     }
     self.activationSource = KYAActivationSourceUser;
+
+    if(wasScheduled)
+    {
+        [[KYAActivityLogger sharedLogger] recordActivationEnded];
+    }
 }
 
 /// Terminate the timer only if the running session was started by the
