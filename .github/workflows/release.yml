@@ -47,15 +47,22 @@ jobs:
         with:
           ref: ${{ steps.tag.outputs.tag }}
 
-      - name: Select newest available Xcode
-        # Prefer a Tahoe-era Xcode (16.x or newer) so AppIcon.icon
-        # actually gets compiled. Fall back to whatever the runner
-        # has if those aren't installed for some reason.
+      - name: Select Xcode 16 (avoid Xcode 26.0.1 ibtoold bug)
+        # AppIcon.icon (Icon Composer) needs Xcode 16+, but
+        # Xcode 26.0.1 / macOS 26.0 SDK ships an ibtoold that
+        # crashes while compiling our Assets.xcassets in any
+        # configuration:
+        #
+        #   Command CompileAssetCatalogVariant failed with a
+        #   nonzero exit code
+        #
+        # Xcode 16.x has the working ibtool; pick that first
+        # and fall back to Xcode 26 only if 16 isn't installed.
         run: |
           set -e
           for candidate in \
-            /Applications/Xcode_26*.app \
             /Applications/Xcode_16*.app \
+            /Applications/Xcode_26*.app \
             /Applications/Xcode.app
           do
             if [ -d "$candidate" ]; then
