@@ -1,0 +1,57 @@
+name: CodeQL
+
+# GitHub-native SAST. Free unlimited for public OSS repositories.
+# Scans the Objective-C codebase (`c-cpp` extractor covers Obj-C)
+# and the Swift packages under Packages/ in one run; results show
+# up under the repository's Security → Code scanning tab and on
+# the PR as inline annotations.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Weekly catch-all so the database stays current even when no
+    # PRs land for a while.
+    - cron: '17 7 * * 1'
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        # Swift covers the Packages/ test surface area. We tried
+        # adding `c-cpp` for the Obj-C app target too, but CodeQL's
+        # tracer can't observe `xcodebuild` subprocesses on macOS:
+        # System Integrity Protection strips
+        # `DYLD_INSERT_LIBRARIES` from the signed Apple xcodebuild
+        # binary, so the database ends up empty and the run fails
+        # with "CodeQL could not process any code written in C/C++".
+        # Workarounds (running clang directly, mirror builds on
+        # Linux) aren't worth the maintenance overhead — Swift-only
+        # still scans the bulk of the security-relevant logic.
+        language: [swift]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
