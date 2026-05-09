@@ -42,16 +42,21 @@ jobs:
 
       - name: Download Sparkle release tools
         # Pin a known-good Sparkle version. Bump as needed.
+        # Extract into /tmp/sparkle-tools (NOT into the repo root) — the
+        # tarball ships its own LICENSE, README, etc. at top level and
+        # would clobber the repo's tracked files, which then breaks the
+        # later `git switch gh-pages`.
         env:
           SPARKLE_VERSION: 2.6.4
         run: |
           set -e
-          curl -sSL "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz" -o sparkle.tar.xz
-          tar -xf sparkle.tar.xz
-          # The archive lays the binaries down at bin/.
-          if [ -x bin/sign_update ]; then
-            chmod +x bin/sign_update
-            echo "$(pwd)/bin" >> "$GITHUB_PATH"
+          mkdir -p /tmp/sparkle-tools
+          curl -sSL "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz" \
+            -o /tmp/sparkle-tools/sparkle.tar.xz
+          tar -xf /tmp/sparkle-tools/sparkle.tar.xz -C /tmp/sparkle-tools
+          if [ -x /tmp/sparkle-tools/bin/sign_update ]; then
+            chmod +x /tmp/sparkle-tools/bin/sign_update
+            echo "/tmp/sparkle-tools/bin" >> "$GITHUB_PATH"
           else
             echo "::warning::sign_update not found in Sparkle archive layout; signing will be skipped"
           fi
@@ -79,6 +84,12 @@ jobs:
           # Stash the generated appcast so we can switch branches.
           mkdir -p /tmp/appcast-stage
           cp appcast.xml /tmp/appcast-stage/
+
+          # Discard any stray work-tree state (left behind by earlier
+          # steps that may have written into the repo root) so the
+          # branch switch can't fail with "would be overwritten".
+          git reset --hard HEAD
+          git clean -fdx
 
           # Create or fetch gh-pages.
           if git fetch origin gh-pages 2>/dev/null; then
