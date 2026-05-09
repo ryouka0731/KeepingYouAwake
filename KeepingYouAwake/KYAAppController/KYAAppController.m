@@ -325,7 +325,7 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
         // caffeinate child exited at its scheduled fireDate.
         if(cancelled == NO)
         {
-            [[KYAActivityLogger sharedLogger] recordActivationEnded];
+            [[KYAActivityLogger sharedLogger] recordActivationEndedWithReason:KYAActivityLogEndedReasonExpired];
         }
 
         // Quit on timer expiration
@@ -352,6 +352,11 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 
 - (void)terminateTimer
 {
+    [self terminateTimerWithReason:KYAActivityLogEndedReasonUserCancelled];
+}
+
+- (void)terminateTimerWithReason:(NSString *)reason
+{
     [self disableBatteryOverride];
 
     BOOL wasScheduled = [self.sleepWakeTimer isScheduled];
@@ -363,7 +368,7 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 
     if(wasScheduled)
     {
-        [[KYAActivityLogger sharedLogger] recordActivationEnded];
+        [[KYAActivityLogger sharedLogger] recordActivationEndedWithReason:reason];
     }
 }
 
@@ -375,7 +380,7 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 {
     if(self.activationSource != source) { return; }
     if([self.sleepWakeTimer isScheduled] == NO) { return; }
-    [self terminateTimer];
+    [self terminateTimerWithReason:KYAActivityLogEndedReasonTriggerCancelled];
 }
 
 #pragma mark - Default Time Interval

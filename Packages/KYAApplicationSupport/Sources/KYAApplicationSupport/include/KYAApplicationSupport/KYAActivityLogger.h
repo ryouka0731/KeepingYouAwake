@@ -24,6 +24,11 @@ KYA_EXPORT NSString * const KYAActivityLogSourceExternalDisplay;
 KYA_EXPORT NSString * const KYAActivityLogSourceSchedule;
 KYA_EXPORT NSString * const KYAActivityLogSourceDownload;
 
+/// Categorical reason a session ended. Lives in JSONL `endedReason`.
+KYA_EXPORT NSString * const KYAActivityLogEndedReasonExpired;          // timer hit fireDate
+KYA_EXPORT NSString * const KYAActivityLogEndedReasonUserCancelled;    // status-item click, menu, URL scheme
+KYA_EXPORT NSString * const KYAActivityLogEndedReasonTriggerCancelled; // feature trigger ended its own session
+
 /// One entry as decoded from the JSONL file. All values are immutable.
 @interface KYAActivityLogEntry : NSObject
 @property (copy, nonatomic, readonly) NSDate *startedAt;
@@ -32,11 +37,16 @@ KYA_EXPORT NSString * const KYAActivityLogSourceDownload;
 @property (copy, nonatomic, readonly) NSString *source;
 /// Requested duration in seconds; -1 if indefinite.
 @property (nonatomic, readonly) NSTimeInterval requestedDuration;
+/// One of the KYAActivityLogEndedReason* constants. nil while the
+/// session is still open or for entries written by older builds that
+/// didn't record this field.
+@property (copy, nonatomic, readonly, nullable) NSString *endedReason;
 
 - (instancetype)initWithStartedAt:(NSDate *)startedAt
                           endedAt:(nullable NSDate *)endedAt
                            source:(NSString *)source
-                requestedDuration:(NSTimeInterval)requestedDuration;
+                requestedDuration:(NSTimeInterval)requestedDuration
+                      endedReason:(nullable NSString *)endedReason;
 @end
 
 /// Append-only logger with a soft cap on retained entries. Thread-safe
@@ -65,8 +75,12 @@ KYA_EXPORT NSString * const KYAActivityLogSourceDownload;
                         requestedDuration:(NSTimeInterval)requestedDuration;
 
 /// Append a completion marker for the current session. No-op if no
-/// session is open.
+/// session is open. Reason defaults to user-cancelled.
 - (void)recordActivationEnded;
+
+/// Append a completion marker with an explicit reason. Use one of the
+/// KYAActivityLogEndedReason* constants for stable JSONL semantics.
+- (void)recordActivationEndedWithReason:(NSString *)reason;
 
 /// Returns the last `count` entries, newest first. Synchronous read.
 - (NSArray<KYAActivityLogEntry *> *)recentEntriesWithLimit:(NSUInteger)count;

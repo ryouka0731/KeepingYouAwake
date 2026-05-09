@@ -14,6 +14,10 @@ NSString * const KYAActivityLogSourceExternalDisplay = @"external-display";
 NSString * const KYAActivityLogSourceSchedule        = @"schedule";
 NSString * const KYAActivityLogSourceDownload        = @"download";
 
+NSString * const KYAActivityLogEndedReasonExpired          = @"expired";
+NSString * const KYAActivityLogEndedReasonUserCancelled    = @"user-cancelled";
+NSString * const KYAActivityLogEndedReasonTriggerCancelled = @"trigger-cancelled";
+
 #pragma mark - Entry
 
 @interface KYAActivityLogEntry ()
@@ -21,6 +25,7 @@ NSString * const KYAActivityLogSourceDownload        = @"download";
 @property (copy, nonatomic, readwrite, nullable) NSDate *endedAt;
 @property (copy, nonatomic, readwrite) NSString *source;
 @property (nonatomic, readwrite) NSTimeInterval requestedDuration;
+@property (copy, nonatomic, readwrite, nullable) NSString *endedReason;
 @end
 
 @implementation KYAActivityLogEntry
@@ -29,6 +34,7 @@ NSString * const KYAActivityLogSourceDownload        = @"download";
                           endedAt:(NSDate *)endedAt
                            source:(NSString *)source
                 requestedDuration:(NSTimeInterval)requestedDuration
+                      endedReason:(NSString *)endedReason
 {
     self = [super init];
     if(self)
@@ -37,6 +43,7 @@ NSString * const KYAActivityLogSourceDownload        = @"download";
         _endedAt = [endedAt copy];
         _source = [source copy];
         _requestedDuration = requestedDuration;
+        _endedReason = [endedReason copy];
     }
     return self;
 }
@@ -52,6 +59,10 @@ NSString * const KYAActivityLogSourceDownload        = @"download";
     }
     dict[@"source"] = self.source;
     dict[@"requestedDuration"] = @(self.requestedDuration);
+    if(self.endedReason != nil)
+    {
+        dict[@"endedReason"] = self.endedReason;
+    }
     return [dict copy];
 }
 
@@ -82,10 +93,14 @@ NSString * const KYAActivityLogSourceDownload        = @"download";
         requested = requestedNumber.doubleValue;
     }
 
+    NSString *reason = dict[@"endedReason"];
+    if(![reason isKindOfClass:NSString.class]) { reason = nil; }
+
     return [[KYAActivityLogEntry alloc] initWithStartedAt:startedAt
                                                   endedAt:endedAt
                                                    source:source
-                                        requestedDuration:requested];
+                                        requestedDuration:requested
+                                              endedReason:reason];
 }
 
 @end
@@ -147,16 +162,23 @@ NSString * const KYAActivityLogSourceDownload        = @"download";
         Auto entry = [[KYAActivityLogEntry alloc] initWithStartedAt:now
                                                             endedAt:nil
                                                              source:source ?: KYAActivityLogSourceUser
-                                                  requestedDuration:requestedDuration];
+                                                  requestedDuration:requestedDuration
+                                                        endedReason:nil];
         [self appendEntry:entry];
     });
 }
 
 - (void)recordActivationEnded
 {
+    [self recordActivationEndedWithReason:KYAActivityLogEndedReasonUserCancelled];
+}
+
+- (void)recordActivationEndedWithReason:(NSString *)reason
+{
     NSDate *now = [NSDate date];
+    NSString *capturedReason = [reason copy] ?: KYAActivityLogEndedReasonUserCancelled;
     dispatch_async(self.writeQueue, ^{
-        [self closeOpenEntryWithEndedAt:now];
+        [self closeOpenEntryWithEndedAt:now reason:capturedReason];
     });
 }
 
@@ -238,7 +260,7 @@ NSString * const KYAActivityLogSourceDownload        = @"download";
     }
 }
 
-- (void)closeOpenEntryWithEndedAt:(NSDate *)endedAt
+- (void)closeOpenEntryWithEndedAt:(NSDate *)endedAt reason:(NSString *)reason
 {
     if(self.openEntryLineNumber < 0) { return; }
 
@@ -252,6 +274,7 @@ NSString * const KYAActivityLogSourceDownload        = @"download";
     NSMutableDictionary *open = [dicts[(NSUInteger)self.openEntryLineNumber] mutableCopy];
     Auto formatter = [NSISO8601DateFormatter new];
     open[@"endedAt"] = [formatter stringFromDate:endedAt];
+    if(reason.length > 0) { open[@"endedReason"] = reason; }
     dicts[(NSUInteger)self.openEntryLineNumber] = [open copy];
 
     [self writeAllDictionaries:dicts];

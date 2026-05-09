@@ -133,4 +133,44 @@
                           KYAActivityLogSourceUser);
 }
 
+#pragma mark - endedReason
+
+- (void)testDefaultEndedReasonIsUserCancelled
+{
+    [self.logger recordActivationStartedFromSource:KYAActivityLogSourceUser requestedDuration:0];
+    [self.logger recordActivationEnded];   // no-arg variant
+    [self flush];
+    XCTAssertEqualObjects([self.logger recentEntriesWithLimit:10].firstObject.endedReason,
+                          KYAActivityLogEndedReasonUserCancelled);
+}
+
+- (void)testExpiredReasonIsRecorded
+{
+    [self.logger recordActivationStartedFromSource:KYAActivityLogSourceUser requestedDuration:0];
+    [self.logger recordActivationEndedWithReason:KYAActivityLogEndedReasonExpired];
+    [self flush];
+    XCTAssertEqualObjects([self.logger recentEntriesWithLimit:10].firstObject.endedReason,
+                          KYAActivityLogEndedReasonExpired);
+}
+
+- (void)testTriggerCancelledReasonIsRecorded
+{
+    [self.logger recordActivationStartedFromSource:KYAActivityLogSourceACPower requestedDuration:-1];
+    [self.logger recordActivationEndedWithReason:KYAActivityLogEndedReasonTriggerCancelled];
+    [self flush];
+    KYAActivityLogEntry *entry = [self.logger recentEntriesWithLimit:10].firstObject;
+    XCTAssertEqualObjects(entry.endedReason, KYAActivityLogEndedReasonTriggerCancelled);
+    XCTAssertEqualObjects(entry.source, KYAActivityLogSourceACPower);
+}
+
+- (void)testOpenEntryHasNilEndedReason
+{
+    [self.logger recordActivationStartedFromSource:KYAActivityLogSourceUser requestedDuration:0];
+    [self flush];
+    KYAActivityLogEntry *entry = [self.logger recentEntriesWithLimit:10].firstObject;
+    XCTAssertNotNil(entry);
+    XCTAssertNil(entry.endedAt);
+    XCTAssertNil(entry.endedReason);
+}
+
 @end
