@@ -13,7 +13,14 @@ static void KYAScriptingPostURL(NSString *url)
 {
     NSURL *target = [NSURL URLWithString:url];
     if(target == nil) { return; }
-    [NSWorkspace.sharedWorkspace openURL:target];
+    // -openURL: was deprecated in 10.15. Use the modern
+    // openURL:configuration:completionHandler: form. Even though both
+    // round-trip through Launch Services for a self-targeted URL, the
+    // modern variant is non-deprecated and asynchronous (we don't
+    // need the result), so it's strictly nicer than the old API.
+    [NSWorkspace.sharedWorkspace openURL:target
+                           configuration:[NSWorkspaceOpenConfiguration configuration]
+                       completionHandler:nil];
 }
 
 #pragma mark - Commands
@@ -60,6 +67,11 @@ static void KYAScriptingPostURL(NSString *url)
 
 #pragma mark - Proxy
 
+@interface KYAScriptingProxy ()
+@property (nonatomic, nullable) KYAActivityLogEntry *cachedOpenEntry;
+@property (nonatomic) NSTimeInterval cacheStampedAt;
+@end
+
 @implementation KYAScriptingProxy
 
 + (instancetype)sharedProxy
@@ -70,15 +82,49 @@ static void KYAScriptingPostURL(NSString *url)
     return shared;
 }
 
+/// Cache TTL for the open-entry lookup. AppleScript property accessors
+/// (`active`, `remaining seconds`, `source`) are typically polled in
+/// quick succession; a 1-second TTL collapses three reads into one
+/// disk hit while keeping the data fresh enough for human-perceived
+/// state changes.
+static const NSTimeInterval KYAScriptingProxyCacheTTL = 1.0;
+
 - (nullable KYAActivityLogEntry *)mostRecentOpenEntry
 {
+    NSTimeInterval now = [NSDate date].timeIntervalSinceReferenceDate;
+    if(self.cachedOpenEntry != nil && (now - self.cacheStampedAt) < KYAScriptingProxyCacheTTL)
+    {
+        return self.cachedOpenEntry;
+    }
+
     Auto entries = [KYAActivityLogger.sharedLogger recentEntriesWithLimit:50];
-    // recentEntriesWithLimit: returns newest-first.
+    // The activity log holds at most one open entry at a time (entry
+    // is opened on activateTimer:, closed on terminateTimer / natural
+    // expiration). So the open entry, if any, is necessarily the
+    // most-recent activate, well within the 50-entry window.
+
+    // Stale-entry guard: if KYA crashed or was force-quit during a
+    // session, its open entry survives in the JSONL. After a restart
+    // we'd happily call that "active" — false. Only trust an open
+    // entry if it was started AFTER the current process launched.
+    NSDate *launchDate = NSRunningApplication.currentApplication.launchDate;
+
+    KYAActivityLogEntry *found = nil;
     for(KYAActivityLogEntry *entry in entries)
     {
-        if(entry.endedAt == nil) { return entry; }
+        if(entry.endedAt != nil) { continue; }
+        if(launchDate != nil && [entry.startedAt compare:launchDate] == NSOrderedAscending)
+        {
+            // Stale from a prior process. Skip.
+            continue;
+        }
+        found = entry;
+        break;
     }
-    return nil;
+
+    self.cachedOpenEntry = found;
+    self.cacheStampedAt = now;
+    return found;
 }
 
 - (BOOL)isActive
@@ -94,7 +140,10 @@ static void KYAScriptingPostURL(NSString *url)
     NSTimeInterval elapsed = -[entry.startedAt timeIntervalSinceNow];
     NSTimeInterval remaining = entry.requestedDuration - elapsed;
     if(remaining <= 0) { return 0; }
-    return (NSInteger)remaining;
+    // ceil so a script reading "remaining seconds" while the actual
+    // remaining is e.g. 30.4 doesn't see 30 (and then re-poll a moment
+    // later still seeing 30, looking like the timer froze).
+    return (NSInteger)ceil(remaining);
 }
 
 - (NSString *)source
