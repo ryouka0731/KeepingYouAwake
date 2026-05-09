@@ -49,6 +49,7 @@ def list_releases():
     releases = json.loads(raw)
     return [r for r in releases
             if not r["isDraft"]
+            and not r.get("isPrerelease", False)
             and TAG_SUFFIX in r["tagName"]]
 
 
@@ -82,7 +83,14 @@ def parse_build_number(tag, body):
     m = re.match(r"(\d+)\.(\d+)\.(\d+)-amphetamine\.(\d+)", short)
     if m:
         major, minor, patch, suffix = (int(g) for g in m.groups())
-        return f"{major:01d}{minor:02d}{patch:04d}{suffix}"
+        # Must match the CURRENT_PROJECT_VERSION convention used by the
+        # actual build: 1MMmmppp + suffix, e.g. v1.7.0-amphetamine.4
+        # → 1070004 (7 digits). Earlier this used patch:04d which
+        # produced 10700004 (8 digits), and Sparkle saw the appcast
+        # version as numerically greater than the running app's
+        # CFBundleVersion forever, looping the "update available"
+        # prompt.
+        return f"{major:01d}{minor:02d}{patch:03d}{suffix}"
     return "1000000"
 
 

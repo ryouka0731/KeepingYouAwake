@@ -31,10 +31,11 @@
     self.running = YES;
     [self nudgeOnce];
 
+    AutoWeak weakSelf = self;
     Auto timer = [NSTimer scheduledTimerWithTimeInterval:self.interval
                                                  repeats:YES
                                                    block:^(NSTimer * _Nonnull t) {
-        [self nudgeOnce];
+        [weakSelf nudgeOnce];
     }];
     timer.tolerance = MAX(1.0, self.interval * 0.05);
     self.tickTimer = timer;

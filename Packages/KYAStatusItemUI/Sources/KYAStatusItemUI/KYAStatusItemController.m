@@ -146,10 +146,11 @@
     [self renderCountdown];
 
     [self.countdownTimer invalidate];
+    AutoWeak weakSelf = self;
     Auto timer = [NSTimer scheduledTimerWithTimeInterval:1.0
                                                  repeats:YES
                                                    block:^(NSTimer * _Nonnull t) {
-        [self renderCountdown];
+        [weakSelf renderCountdown];
     }];
     timer.tolerance = 0.25;
     self.countdownTimer = timer;

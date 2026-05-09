@@ -129,10 +129,11 @@ NSString * const KYAScheduleWindowKeyEndMinutes   = @"endMinutes";
 
     [self evaluateAndNotify];
 
+    AutoWeak weakSelf = self;
     Auto timer = [NSTimer scheduledTimerWithTimeInterval:60.0
                                                  repeats:YES
                                                    block:^(NSTimer * _Nonnull t) {
-        [self evaluateAndNotify];
+        [weakSelf evaluateAndNotify];
     }];
     timer.tolerance = 5.0;
     self.tickTimer = timer;

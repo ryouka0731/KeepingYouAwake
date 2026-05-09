@@ -54,10 +54,11 @@
 
     [self sampleOnce];
 
+    AutoWeak weakSelf = self;
     Auto timer = [NSTimer scheduledTimerWithTimeInterval:self.samplingInterval
                                                  repeats:YES
                                                    block:^(NSTimer * _Nonnull t) {
-        [self sampleOnce];
+        [weakSelf sampleOnce];
     }];
     timer.tolerance = MAX(0.5, self.samplingInterval * 0.1);
     self.tickTimer = timer;
