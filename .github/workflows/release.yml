@@ -87,9 +87,16 @@ jobs:
         # .app bundle with a working icon and avoids the crash.
         run: |
           set -o pipefail
+          # Use the "(Direct)" scheme for distribution: it builds the
+          # KeepingYouAwake-Direct target which has
+          # GCC_PREPROCESSOR_DEFINITIONS = KYA_APP_UPDATER_ENABLED=1.
+          # The plain "KeepingYouAwake" scheme is the Mac-App-Store-shaped
+          # variant; built dmgs from it lack the Sparkle Update tab in
+          # Settings and the Sparkle code paths in KYAAppUpdater.m
+          # compile out, breaking auto-update.
           xcodebuild build \
             -workspace KeepingYouAwake.xcworkspace \
-            -scheme KeepingYouAwake \
+            -scheme "KeepingYouAwake (Direct)" \
             -configuration Release \
             -destination 'platform=macOS' \
             -derivedDataPath build/derived \
