@@ -15,6 +15,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (IBAction)showSettingsWindow:(id)sender;
 
+/// Open the activity log JSONL file in the user's default text editor.
+/// Touches the file first so the path is valid even if no session has
+/// been recorded yet.
+- (IBAction)showActivityLog:(id)sender;
+
 @end
 
 NS_ASSUME_NONNULL_END
