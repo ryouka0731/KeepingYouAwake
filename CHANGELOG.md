@@ -1,6 +1,62 @@
-# KeepingYouAwake
+# KeepingYouAwake (Amphetamine)
 
-## Changelog
+## Fork Changelog
+
+This fork ([`ryouka0731/KeepingYouAwake-Amphetamine`](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine)) adds Amphetamine-style features on top of the upstream `newmarcel/KeepingYouAwake`. Upstream's history is preserved unchanged below.
+
+### Unreleased
+
+#### Triggers
+- **Schedule trigger** — auto-activate during configurable weekday × time-of-day windows. Defaults: `ScheduleEnabled` (BOOL), `ScheduleWindows` (array of `{weekdays, startMinutes, endMinutes}` dicts; supports past-midnight wrap). [#63](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/63)
+- **Download-in-progress trigger** — auto-activate while any file in `DownloadDirectories` (defaults to `~/Downloads`) has a download suffix (`.crdownload`, `.part`, `.download`, `.partial`). Toggle: `DownloadInProgressActivationEnabled`. [#64](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/64)
+- **External display trigger source-aware fix** — disconnecting an external monitor no longer kills a user-initiated session that happened to overlap. Honors the `KYAActivationSource` invariant introduced in #27. [#58](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/58)
+
+#### UX
+- **Menu bar countdown** — shows `H:MM:SS` / `MM:SS` next to the icon while a finite session is active. Toggle off via `MenuBarCountdownDisabled` (also exposed in Advanced Settings). [#55](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/55), [#62](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/62)
+- **Activity log** — every activate/deactivate event is appended to `~/Library/Application Support/KeepingYouAwake/activity.jsonl` (capped at 1000 entries). New menu item **Show Activity Log…** opens it in the user's default editor. [#59](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/59), [#61](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/61)
+- **Settings UI rows** — new toggles in Advanced for "Hide menu bar countdown", "Activate during scheduled hours", and "Activate while a download is in progress", localized in 22 languages. [#62](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/62), [#65](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/65)
+
+#### Updater
+- **Sparkle URLs re-pointed at the fork** — `KYAAppUpdater` no longer asks upstream's appcast for updates, which was a soft-correctness bug (would have installed upstream binaries over the fork bundle). [#56](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/56)
+- **Auto-update appcast pipeline** — new `appcast.yml` workflow + `scripts/generate-appcast.py` generator. Publishes `appcast.xml` to a `gh-pages` branch on every release. Manual one-time setup remaining (EdDSA key, `SUPublicEDKey` in Info.plist, `SPARKLE_ED_PRIVATE_KEY` secret, GitHub Pages enable) — see [`docs/sparkle-auto-update-setup.md`](docs/sparkle-auto-update-setup.md). [#66](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/66)
+
+#### Tests / infra
+- Unit tests for fork-added defaults keys and array sanitization (Wi-Fi SSIDs, watched apps). [#57](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/57)
+- Unit tests for activity logger (round-trip, cap behaviour, corruption tolerance). [#59](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/59)
+- Unit tests for schedule monitor (window matching, wrap-past-midnight). [#63](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/63)
+- Unit tests for download activity monitor (suffix detection, transition-only callbacks). [#64](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/64)
+- Branch protection on `main` (required Build + Unit tests, strict mode).
+- Repo-level auto-merge enabled.
+
+### v1.7.0-amphetamine.3 (2026-05-08)
+
+- Rebrand of the fork: `CFBundleDisplayName = KeepingYouAwake (Amphetamine)`, dual upstream/fork copyright in About panel, multilingual README (EN/JA/ZH-CN/DE/FR), repo renamed to `KeepingYouAwake-Amphetamine`. [#38](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/38)
+- Release workflow auto-creates the GitHub Release object on tag push (no more manual `gh release create` before the dmg upload). [#39](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/39)
+- macos-15 runner + Xcode 16 (avoids the Xcode 26.0.1 ibtoold crash on `AppIcon.icon`). [#37](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/37)
+- Ad-hoc codesigned dmg (still not Apple-notarised — first launch needs right-click → Open).
+
+### v1.7.0-amphetamine.2 (2026-05-08)
+
+- Phase B: session source tracking (`KYAActivationSource`) so a feature trigger can never deactivate a user-initiated timer.
+- Multi-bundle watched applications. [#27](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/27), [#28](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/28)
+- CI workflow on every PR (build / unit tests / URL-scheme E2E).
+
+### v1.7.0-amphetamine.1 (2026-05-07)
+
+- First Amphetamine-parity release of the fork. Source-only.
+  - Prevent disk sleep ([#8](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/8))
+  - Deactivate when battery is fully charged ([#9](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/9))
+  - Activation duration: until end of day ([#10](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/10))
+  - App Intents / Shortcuts.app integration ([#17](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/17))
+  - Watched Wi-Fi SSID trigger ([#18](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/18))
+  - Activate while on AC power ([#19](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/19))
+  - Drive Alive ([#20](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/20))
+
+---
+
+## Upstream Changelog
+
+The remainder of this file mirrors `newmarcel/KeepingYouAwake`'s history.
 
 ### v.1.6.8 (2025-09-12)
 
