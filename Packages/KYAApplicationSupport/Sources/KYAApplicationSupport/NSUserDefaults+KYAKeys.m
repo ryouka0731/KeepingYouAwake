@@ -99,6 +99,10 @@ KYA_GENERATE_BOOL_PROPERTY(isScheduleEnabled,
                            scheduleEnabled,
                            ScheduleEnabled);
 
+KYA_GENERATE_BOOL_PROPERTY(isDownloadInProgressActivationEnabled,
+                           downloadInProgressActivationEnabled,
+                           DownloadInProgressActivationEnabled);
+
 #pragma mark - Watched Wi-Fi SSIDs
 
 NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs";
@@ -195,6 +199,39 @@ NSString * const KYAUserDefaultsKeyScheduleWindows = @"info.marcel-dierkes.Keepi
     else
     {
         [self setObject:[windows copy] forKey:KYAUserDefaultsKeyScheduleWindows];
+    }
+}
+
+#pragma mark - Download Directories
+
+NSString * const KYAUserDefaultsKeyDownloadDirectories = @"info.marcel-dierkes.KeepingYouAwake.DownloadDirectories";
+
+- (NSArray<NSString *> *)kya_downloadDirectories
+{
+    Auto raw = [self arrayForKey:KYAUserDefaultsKeyDownloadDirectories];
+    if(raw.count == 0) { return nil; }
+
+    Auto sanitized = [NSMutableArray<NSString *> arrayWithCapacity:raw.count];
+    for(id entry in raw)
+    {
+        if([entry isKindOfClass:NSString.class] && [(NSString *)entry length] > 0)
+        {
+            [sanitized addObject:(NSString *)entry];
+        }
+    }
+    if(sanitized.count == 0) { return nil; }
+    return [sanitized copy];
+}
+
+- (void)setKya_downloadDirectories:(NSArray<NSString *> *)directories
+{
+    if(directories.count == 0)
+    {
+        [self removeObjectForKey:KYAUserDefaultsKeyDownloadDirectories];
+    }
+    else
+    {
+        [self setObject:[directories copy] forKey:KYAUserDefaultsKeyDownloadDirectories];
     }
 }
 
