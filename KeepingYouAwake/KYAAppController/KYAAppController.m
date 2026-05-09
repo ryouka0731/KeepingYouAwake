@@ -319,6 +319,15 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
             [KYAUserNotificationCenter.sharedCenter postNotification:notification];
         }
 
+        // Close the activity-log entry on natural expiration. The
+        // cancelled-by-user/trigger path is already covered by
+        // -terminateTimer; this branch handles the case where the
+        // caffeinate child exited at its scheduled fireDate.
+        if(cancelled == NO)
+        {
+            [[KYAActivityLogger sharedLogger] recordActivationEnded];
+        }
+
         // Quit on timer expiration
         if(cancelled == NO && [defaults kya_isQuitOnTimerExpirationEnabled])
         {
