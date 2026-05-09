@@ -18,6 +18,7 @@ on:
 
 permissions:
   contents: write   # needed for `gh release upload`
+  actions: write    # needed for `gh workflow run appcast.yml` chain
 
 jobs:
   build-and-upload:
