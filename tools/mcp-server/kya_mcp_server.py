@@ -92,7 +92,9 @@ def _read_recent_entries(limit: int) -> list[dict[str, Any]]:
     from collections import deque
     if not ACTIVITY_LOG_PATH.exists():
         return []
-    tail: deque[dict[str, Any]] = deque(maxlen=max(1, int(limit)))
+    if int(limit) <= 0:
+        return []
+    tail: deque[dict[str, Any]] = deque(maxlen=int(limit))
     with ACTIVITY_LOG_PATH.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
