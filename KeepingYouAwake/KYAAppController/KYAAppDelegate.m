@@ -68,4 +68,20 @@
     [settingsWindow makeKeyAndOrderFront:sender];
 }
 
+#pragma mark - Activity Log
+
+- (void)showActivityLog:(id)sender
+{
+    NSURL *url = KYAActivityLogger.sharedLogger.fileURL;
+    Auto fileManager = NSFileManager.defaultManager;
+    if(![fileManager fileExistsAtPath:url.path])
+    {
+        // Touch an empty file so the user has something to open even if
+        // no session has been recorded yet (and so the editor's
+        // file-watch picks up future appends without re-opening).
+        [@"" writeToURL:url atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    }
+    [NSWorkspace.sharedWorkspace openURL:url];
+}
+
 @end

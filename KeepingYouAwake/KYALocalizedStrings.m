@@ -18,6 +18,7 @@
 
 #define KYA_L10N_ACTIVATE_FOR_DURATION NSLocalizedString(@"Activate for Duration", @"Activate for Duration")
 #define KYA_L10N_SETTINGS_ELLIPSIS NSLocalizedString(@"Settings…", @"Settings…")
+#define KYA_L10N_SHOW_ACTIVITY_LOG_ELLIPSIS NSLocalizedString(@"Show Activity Log…", @"Show Activity Log…")
 #define KYA_L10N_QUIT NSLocalizedString(@"Quit", @"Quit")
 
 #pragma mark -
