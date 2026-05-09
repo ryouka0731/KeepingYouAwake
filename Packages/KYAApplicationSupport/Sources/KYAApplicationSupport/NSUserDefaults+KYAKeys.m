@@ -103,6 +103,10 @@ KYA_GENERATE_BOOL_PROPERTY(isDownloadInProgressActivationEnabled,
                            downloadInProgressActivationEnabled,
                            DownloadInProgressActivationEnabled);
 
+KYA_GENERATE_BOOL_PROPERTY(isMouseJigglerEnabled,
+                           mouseJigglerEnabled,
+                           MouseJigglerEnabled);
+
 #pragma mark - Watched Wi-Fi SSIDs
 
 NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs";
