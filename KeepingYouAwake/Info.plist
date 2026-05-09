@@ -19,6 +19,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSLocationUsageDescription</key>
@@ -27,13 +29,13 @@
 	<string>KeepingYouAwake reads the joined Wi-Fi network's SSID so it can keep your Mac awake automatically while you are connected to networks you have chosen. macOS requires Location authorization to expose the SSID; no location data is recorded or transmitted.</string>
 	<key>NSRequiresAquaSystemAppearance</key>
 	<false/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUEnableInstallerLauncherService</key>
 	<true/>
 	<key>SUEnableDownloaderService</key>
 	<true/>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
+	<key>SUPublicEDKey</key>
+	<string>lbtMA+d8/BKXBBVQObyDKuWyXcgQBFm2xd6hNFOB5Fc=</string>
 </dict>
 </plist>
