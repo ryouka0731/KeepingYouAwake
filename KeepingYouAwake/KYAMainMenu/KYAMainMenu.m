@@ -37,7 +37,16 @@ NSMenu *KYACreateMainMenuWithActivationDurationsSubMenu(NSMenu *activationDurati
         settings.image = [NSImage imageWithSystemSymbolName:@"gear" accessibilityDescription:nil];
     }
     [mainMenu addItem:settings];
-    
+
+    Auto activityLog = [[NSMenuItem alloc] initWithTitle:KYA_L10N_SHOW_ACTIVITY_LOG_ELLIPSIS
+                                                  action:@selector(showActivityLog:)
+                                           keyEquivalent:@""];
+    if(@available(macOS 26.0, *))
+    {
+        activityLog.image = [NSImage imageWithSystemSymbolName:@"list.bullet.rectangle" accessibilityDescription:nil];
+    }
+    [mainMenu addItem:activityLog];
+
     [mainMenu addItem:NSMenuItem.separatorItem];
     
     Auto quit = [[NSMenuItem alloc] initWithTitle:KYA_L10N_QUIT
