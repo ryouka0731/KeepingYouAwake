@@ -67,6 +67,8 @@
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_DRIVE_ALIVE key:KYAUserDefaultsKeyDriveAliveEnabled]];
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_ACTIVATE_ON_AC_POWER key:KYAUserDefaultsKeyActivateOnACPowerEnabled]];
     [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_HIDE_MENU_BAR_COUNTDOWN key:KYAUserDefaultsKeyMenuBarCountdownDisabled]];
+    [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_ACTIVATE_DURING_SCHEDULE key:KYAUserDefaultsKeyScheduleEnabled]];
+    [settings addObject:[[KYAUserDefaultsSetting alloc] initWithTitle:KYA_L10N_ACTIVATE_WHILE_DOWNLOADING key:KYAUserDefaultsKeyDownloadInProgressActivationEnabled]];
 
     self.settings = [settings copy];
 }
