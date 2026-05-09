@@ -177,6 +177,15 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --clobber
 
+      - name: Refresh Sparkle appcast
+        # GitHub deliberately suppresses the `release: published` trigger
+        # when the release was created by GITHUB_TOKEN inside a workflow
+        # (loop prevention). So we kick off appcast.yml explicitly here.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run appcast.yml --repo "$GITHUB_REPOSITORY"
+
       - name: Upload artifacts on failure for triage
         if: failure()
         uses: actions/upload-artifact@v4
