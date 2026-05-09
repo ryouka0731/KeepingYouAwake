@@ -6,6 +6,10 @@ This fork ([`ryouka0731/KeepingYouAwake-Amphetamine`](https://github.com/ryouka0
 
 ### Unreleased
 
+(no changes since v1.7.0-amphetamine.4 — add new entries here.)
+
+### v1.7.0-amphetamine.4 (2026-05-09)
+
 #### Triggers
 - **Schedule trigger** — auto-activate during configurable weekday × time-of-day windows. Defaults: `ScheduleEnabled` (BOOL), `ScheduleWindows` (array of `{weekdays, startMinutes, endMinutes}` dicts; supports past-midnight wrap). [#63](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/63)
 - **Download-in-progress trigger** — auto-activate while any file in `DownloadDirectories` (defaults to `~/Downloads`) has a download suffix (`.crdownload`, `.part`, `.download`, `.partial`). Toggle: `DownloadInProgressActivationEnabled`. [#64](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/64)
@@ -13,12 +17,13 @@ This fork ([`ryouka0731/KeepingYouAwake-Amphetamine`](https://github.com/ryouka0
 
 #### UX
 - **Menu bar countdown** — shows `H:MM:SS` / `MM:SS` next to the icon while a finite session is active. Toggle off via `MenuBarCountdownDisabled` (also exposed in Advanced Settings). [#55](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/55), [#62](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/62)
-- **Activity log** — every activate/deactivate event is appended to `~/Library/Application Support/KeepingYouAwake/activity.jsonl` (capped at 1000 entries). New menu item **Show Activity Log…** opens it in the user's default editor. [#59](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/59), [#61](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/61)
+- **Activity log** — every activate/deactivate event is appended to `~/Library/Application Support/KeepingYouAwake/activity.jsonl` (capped at 1000 entries). New menu item **Show Activity Log…** opens it in the user's default editor. Records `endedReason` (`expired` / `user-cancelled` / `trigger-cancelled`) for each closed entry. Closes the entry on natural timer expiration, not just on cancellation. [#59](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/59), [#61](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/61), [#69](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/69), [#72](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/72)
 - **Settings UI rows** — new toggles in Advanced for "Hide menu bar countdown", "Activate during scheduled hours", and "Activate while a download is in progress", localized in 22 languages. [#62](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/62), [#65](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/65)
 
-#### Updater
+#### Updater (Sparkle auto-update is now fully active)
 - **Sparkle URLs re-pointed at the fork** — `KYAAppUpdater` no longer asks upstream's appcast for updates, which was a soft-correctness bug (would have installed upstream binaries over the fork bundle). [#56](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/56)
-- **Auto-update appcast pipeline** — new `appcast.yml` workflow + `scripts/generate-appcast.py` generator. Publishes `appcast.xml` to a `gh-pages` branch on every release. Manual one-time setup remaining (EdDSA key, `SUPublicEDKey` in Info.plist, `SPARKLE_ED_PRIVATE_KEY` secret, GitHub Pages enable) — see [`docs/sparkle-auto-update-setup.md`](docs/sparkle-auto-update-setup.md). [#66](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/66)
+- **Auto-update appcast pipeline** — new `appcast.yml` workflow + `scripts/generate-appcast.py` generator publishes a signed `appcast.xml` to `gh-pages` after each release. Tarball isolation fix to avoid clobbering the repo's `LICENSE`. [#66](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/66), [#71](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/71)
+- **`SUPublicEDKey` baked into the bundle** — paired with `SPARKLE_ED_PRIVATE_KEY` repo secret, Sparkle now verifies every fetched dmg before installing. [#70](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/70)
 
 #### Tests / infra
 - Unit tests for fork-added defaults keys and array sanitization (Wi-Fi SSIDs, watched apps). [#57](https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/pull/57)
