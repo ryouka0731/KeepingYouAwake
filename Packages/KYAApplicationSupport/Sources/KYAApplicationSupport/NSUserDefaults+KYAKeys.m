@@ -106,6 +106,9 @@ KYA_GENERATE_BOOL_PROPERTY(isDownloadInProgressActivationEnabled,
 KYA_GENERATE_BOOL_PROPERTY(isMouseJigglerEnabled,
                            mouseJigglerEnabled,
                            MouseJigglerEnabled);
+KYA_GENERATE_BOOL_PROPERTY(isActivateOnExternalAudioOutputEnabled,
+                           activateOnExternalAudioOutputEnabled,
+                           ActivateOnExternalAudioOutputEnabled);
 
 #pragma mark - Watched Wi-Fi SSIDs
 

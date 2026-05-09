@@ -34,6 +34,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyScheduleWindows;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadInProgressActivationEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadDirectories;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyMouseJigglerEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnExternalAudioOutputEnabled;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -164,6 +165,12 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyMouseJigglerEnabled;
 /// Off by default. Requires Accessibility permission for KYA;
 /// without it, `CGEventPost` silently no-ops.
 @property (nonatomic, getter=kya_isMouseJigglerEnabled) BOOL kya_mouseJigglerEnabled;
+
+/// Returns YES if the sleep wake timer should auto-activate while the
+/// system's default audio output is anything other than the built-in
+/// speakers (Bluetooth headphones, USB DAC, HDMI display, AirPods, …).
+/// Useful for "don't sleep while I'm listening to music".
+@property (nonatomic, getter=kya_isActivateOnExternalAudioOutputEnabled) BOOL kya_activateOnExternalAudioOutputEnabled;
 
 @end
 

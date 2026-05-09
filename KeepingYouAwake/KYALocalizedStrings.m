@@ -64,6 +64,7 @@
 #define KYA_L10N_ACTIVATE_DURING_SCHEDULE NSLocalizedString(@"Activate during scheduled hours", @"Activate during scheduled hours")
 #define KYA_L10N_ACTIVATE_WHILE_DOWNLOADING NSLocalizedString(@"Activate while a download is in progress", @"Activate while a download is in progress")
 #define KYA_L10N_MOUSE_JIGGLER NSLocalizedString(@"Nudge the cursor every minute while active (requires Accessibility permission)", @"Nudge the cursor every minute while active (requires Accessibility permission)")
+#define KYA_L10N_ACTIVATE_ON_EXTERNAL_AUDIO NSLocalizedString(@"Activate while audio is routed to an external device (Bluetooth, USB, AirPlay)", @"Activate while audio is routed to an external device (Bluetooth, USB, AirPlay)")
 #define KYA_L10N_DURATIONS_ALERT_REALLY_RESET_TITLE NSLocalizedString(@"Reset Activation Durations", @"Reset Activation Durations")
 #define KYA_L10N_DURATIONS_ALERT_REALLY_RESET_MESSAGE NSLocalizedString(@"Do you really want to reset the activation durations to the default values?", @"Do you really want to reset the activation durations to the default values?")
 

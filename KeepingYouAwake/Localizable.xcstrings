@@ -432,6 +432,32 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "啟用時每分鐘輕推游標（需要輔助使用權限）" } }
       }
     },
+    "Activate while audio is routed to an external device (Bluetooth, USB, AirPlay)" : {
+      "comment" : "Activate while audio is routed to an external device (Bluetooth, USB, AirPlay)",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Aktivér mens lyden går til en ekstern enhed (Bluetooth, USB, AirPlay)" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktivieren, solange Audio über ein externes Gerät läuft (Bluetooth, USB, AirPlay)" } },
+        "el" : { "stringUnit" : { "state" : "translated", "value" : "Ενεργοποίηση όσο ο ήχος δρομολογείται σε εξωτερική συσκευή (Bluetooth, USB, AirPlay)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar mientras el audio se enruta a un dispositivo externo (Bluetooth, USB, AirPlay)" } },
+        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Aktivoi kun ääni reititetään ulkoiseen laitteeseen (Bluetooth, USB, AirPlay)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer lorsque l'audio est routé vers un périphérique externe (Bluetooth, USB, AirPlay)" } },
+        "hi" : { "stringUnit" : { "state" : "translated", "value" : "ऑडियो किसी बाहरी डिवाइस पर भेजा जा रहा हो तब सक्रिय करें (Bluetooth, USB, AirPlay)" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Aktifkan saat audio diarahkan ke perangkat eksternal (Bluetooth, USB, AirPlay)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva quando l'audio viene instradato a un dispositivo esterno (Bluetooth, USB, AirPlay)" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音声が外部デバイス (Bluetooth / USB / AirPlay) に出力されている間は有効にする" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "오디오가 외부 장치(Bluetooth, USB, AirPlay)로 출력될 때 활성화" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Activeren wanneer audio naar een extern apparaat gaat (Bluetooth, USB, AirPlay)" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Aktywuj, gdy dźwięk jest kierowany do urządzenia zewnętrznego (Bluetooth, USB, AirPlay)" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Ativar enquanto o áudio é encaminhado para um dispositivo externo (Bluetooth, USB, AirPlay)" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Включать, когда аудио направлено на внешнее устройство (Bluetooth, USB, AirPlay)" } },
+        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Aktivovať keď sa zvuk smeruje na externé zariadenie (Bluetooth, USB, AirPlay)" } },
+        "tr" : { "stringUnit" : { "state" : "translated", "value" : "Ses harici bir cihaza yönlendirilmişken etkinleştir (Bluetooth, USB, AirPlay)" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Активувати коли звук виводиться на зовнішній пристрій (Bluetooth, USB, AirPlay)" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Kích hoạt khi âm thanh được gửi đến thiết bị ngoài (Bluetooth, USB, AirPlay)" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "音频路由到外部设备（蓝牙、USB、AirPlay）时激活" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "音訊輸出到外部裝置（藍牙、USB、AirPlay）時啟用" } }
+      }
+    },
     "Hide the remaining time countdown in the menu bar" : {
       "comment" : "Hide the remaining time countdown in the menu bar",
       "localizations" : {
