@@ -110,6 +110,27 @@ KYA_GENERATE_BOOL_PROPERTY(isActivateOnExternalAudioOutputEnabled,
                            activateOnExternalAudioOutputEnabled,
                            ActivateOnExternalAudioOutputEnabled);
 
+KYA_GENERATE_BOOL_PROPERTY(isActivateOnCPULoadEnabled,
+                           activateOnCPULoadEnabled,
+                           ActivateOnCPULoadEnabled);
+
+#pragma mark - CPU Load Activation Threshold
+
+NSString * const KYAUserDefaultsKeyCPULoadActivationThreshold = @"info.marcel-dierkes.KeepingYouAwake.CPULoadActivationThreshold";
+
+- (double)kya_cpuLoadActivationThreshold
+{
+    if([self objectForKey:KYAUserDefaultsKeyCPULoadActivationThreshold] == nil) { return 50.0; }
+    double value = [self doubleForKey:KYAUserDefaultsKeyCPULoadActivationThreshold];
+    return MAX(1.0, MIN(99.0, value));
+}
+
+- (void)setKya_cpuLoadActivationThreshold:(double)threshold
+{
+    [self setDouble:MAX(1.0, MIN(99.0, threshold))
+             forKey:KYAUserDefaultsKeyCPULoadActivationThreshold];
+}
+
 #pragma mark - Watched Wi-Fi SSIDs
 
 NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs";

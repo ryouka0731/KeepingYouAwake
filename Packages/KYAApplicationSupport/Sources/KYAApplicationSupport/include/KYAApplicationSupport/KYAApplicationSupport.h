@@ -16,3 +16,4 @@
 #import <KYAApplicationSupport/KYADownloadActivityMonitor.h>
 #import <KYAApplicationSupport/KYAMouseJiggler.h>
 #import <KYAApplicationSupport/KYAAudioOutputMonitor.h>
+#import <KYAApplicationSupport/KYACPULoadMonitor.h>

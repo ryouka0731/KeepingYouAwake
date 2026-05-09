@@ -458,6 +458,32 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "音訊輸出到外部裝置（藍牙、USB、AirPlay）時啟用" } }
       }
     },
+    "Activate while CPU usage stays above the configured threshold" : {
+      "comment" : "Activate while CPU usage stays above the configured threshold",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Aktivér mens CPU-brugen forbliver over den konfigurerede tærskel" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktivieren, solange die CPU-Auslastung über dem festgelegten Schwellenwert bleibt" } },
+        "el" : { "stringUnit" : { "state" : "translated", "value" : "Ενεργοποίηση όσο η χρήση CPU παραμένει πάνω από το ρυθμισμένο όριο" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar mientras el uso de CPU se mantenga por encima del umbral configurado" } },
+        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Aktivoi kun CPU-kuorma pysyy määritellyn rajan yläpuolella" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer tant que l'utilisation du CPU reste au-dessus du seuil configuré" } },
+        "hi" : { "stringUnit" : { "state" : "translated", "value" : "CPU उपयोग कॉन्फ़िगर की गई थ्रेशोल्ड से ऊपर रहने पर सक्रिय करें" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Aktifkan saat penggunaan CPU tetap di atas ambang yang dikonfigurasi" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva mentre l'uso della CPU resta sopra la soglia configurata" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "CPU 使用率が設定したしきい値を超えている間は有効にする" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "CPU 사용량이 설정한 임계값을 초과하는 동안 활성화" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Activeren zolang CPU-gebruik boven de ingestelde drempel blijft" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Aktywuj, gdy użycie CPU pozostaje powyżej skonfigurowanego progu" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Ativar enquanto o uso de CPU permanecer acima do limite configurado" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Включать, пока загрузка ЦП превышает настроенный порог" } },
+        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Aktivovať keď využitie CPU zostáva nad nastavenou hranicou" } },
+        "tr" : { "stringUnit" : { "state" : "translated", "value" : "CPU kullanımı belirlenen eşiğin üzerinde kaldığı sürece etkinleştir" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Активувати поки навантаження ЦП залишається вище заданого порога" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Kích hoạt khi mức sử dụng CPU duy trì trên ngưỡng đã cấu hình" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "CPU 使用率持续高于设定阈值时激活" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "CPU 使用率持續高於設定閾值時啟用" } }
+      }
+    },
     "Hide the remaining time countdown in the menu bar" : {
       "comment" : "Hide the remaining time countdown in the menu bar",
       "localizations" : {
