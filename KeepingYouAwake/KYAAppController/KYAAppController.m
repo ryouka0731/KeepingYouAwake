@@ -33,6 +33,7 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     KYAActivationSourceExternalDisplay,
     KYAActivationSourceSchedule,
     KYAActivationSourceDownload,
+    KYAActivationSourceAudioOutput,
 };
 
 static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
@@ -45,12 +46,13 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
         case KYAActivationSourceExternalDisplay: return KYAActivityLogSourceExternalDisplay;
         case KYAActivationSourceSchedule:        return KYAActivityLogSourceSchedule;
         case KYAActivationSourceDownload:        return KYAActivityLogSourceDownload;
+        case KYAActivationSourceAudioOutput:     return KYAActivityLogSourceAudioOutput;
         case KYAActivationSourceUser:
         default:                                 return KYAActivityLogSourceUser;
     }
 }
 
-@interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate, KYAScheduleMonitorDelegate, KYADownloadActivityMonitorDelegate>
+@interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate, KYAScheduleMonitorDelegate, KYADownloadActivityMonitorDelegate, KYAAudioOutputMonitorDelegate>
 @property (nonatomic, readwrite) KYASleepWakeTimer *sleepWakeTimer;
 @property (nonatomic, readwrite) KYAStatusItemController *statusItemController;
 @property (nonatomic) KYAActivationDurationsMenuController *menuController;
@@ -84,6 +86,8 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 // active so external systems that key off system idle time stay
 // "awake" too. Off by default.
 @property (nonatomic, nullable) KYAMouseJiggler *mouseJiggler;
+// External-audio-output trigger — driven by ActivateOnExternalAudioOutputEnabled.
+@property (nonatomic, nullable) KYAAudioOutputMonitor *audioOutputMonitor;
 
 // Menu
 @property (nonatomic) NSMenu *menu;
@@ -127,6 +131,7 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 
         [self reconcileScheduleTrigger];
         [self reconcileDownloadActivityTrigger];
+        [self reconcileAudioOutputTrigger];
 
         // Reconcile the AC-power trigger when the user toggles the
         // setting at runtime — without this the trigger only honours
@@ -158,6 +163,46 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
     [self reconcileACPowerTrigger];
     [self reconcileScheduleTrigger];
     [self reconcileDownloadActivityTrigger];
+    [self reconcileAudioOutputTrigger];
+}
+
+#pragma mark - External Audio Output Trigger
+
+- (void)reconcileAudioOutputTrigger
+{
+    BOOL enabled = [NSUserDefaults.standardUserDefaults kya_isActivateOnExternalAudioOutputEnabled];
+
+    if(!enabled)
+    {
+        [self.audioOutputMonitor stop];
+        self.audioOutputMonitor = nil;
+        return;
+    }
+
+    if(self.audioOutputMonitor == nil)
+    {
+        Auto monitor = [KYAAudioOutputMonitor new];
+        monitor.delegate = self;
+        self.audioOutputMonitor = monitor;
+    }
+    if(![self.audioOutputMonitor isRunning])
+    {
+        [self.audioOutputMonitor start];
+    }
+}
+
+#pragma mark - KYAAudioOutputMonitorDelegate
+
+- (void)audioOutputMonitorDidStartUsingExternalDevice:(KYAAudioOutputMonitor *)monitor
+{
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                 source:KYAActivationSourceAudioOutput];
+}
+
+- (void)audioOutputMonitorDidReturnToBuiltInDevice:(KYAAudioOutputMonitor *)monitor
+{
+    [self terminateTimerIfOwnedBySource:KYAActivationSourceAudioOutput];
 }
 
 #pragma mark - Schedule Trigger

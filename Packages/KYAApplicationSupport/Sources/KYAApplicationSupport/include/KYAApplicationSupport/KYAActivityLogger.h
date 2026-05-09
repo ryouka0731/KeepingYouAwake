@@ -23,6 +23,7 @@ KYA_EXPORT NSString * const KYAActivityLogSourceACPower;
 KYA_EXPORT NSString * const KYAActivityLogSourceExternalDisplay;
 KYA_EXPORT NSString * const KYAActivityLogSourceSchedule;
 KYA_EXPORT NSString * const KYAActivityLogSourceDownload;
+KYA_EXPORT NSString * const KYAActivityLogSourceAudioOutput;
 
 /// Categorical reason a session ended. Lives in JSONL `endedReason`.
 KYA_EXPORT NSString * const KYAActivityLogEndedReasonExpired;          // timer hit fireDate

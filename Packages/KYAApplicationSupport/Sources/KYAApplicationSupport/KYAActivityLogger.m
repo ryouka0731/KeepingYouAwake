@@ -13,6 +13,7 @@ NSString * const KYAActivityLogSourceACPower         = @"ac-power";
 NSString * const KYAActivityLogSourceExternalDisplay = @"external-display";
 NSString * const KYAActivityLogSourceSchedule        = @"schedule";
 NSString * const KYAActivityLogSourceDownload        = @"download";
+NSString * const KYAActivityLogSourceAudioOutput     = @"audio-output";
 
 NSString * const KYAActivityLogEndedReasonExpired          = @"expired";
 NSString * const KYAActivityLogEndedReasonUserCancelled    = @"user-cancelled";
