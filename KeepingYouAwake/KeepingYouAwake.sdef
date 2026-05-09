@@ -39,25 +39,25 @@
            description="Keep-awake control commands and the kya state object.">
 
         <command name="activate kya" code="KYAaActv"
-                 description="Start a keep-awake session. Pass `for &lt;seconds&gt;` for a finite session, or omit for indefinite.">
+                 description="Dispatch an activate request. Pass `for &lt;seconds&gt;` for a finite session, or omit for indefinite. The actual session start is asynchronous — read `kya.active` after a brief delay to confirm.">
             <cocoa class="KYAActivateScriptCommand"/>
             <parameter name="for" code="KYAd" type="integer" optional="yes"
                        description="Duration in seconds. Omit / 0 / negative = indefinite.">
                 <cocoa key="Duration"/>
             </parameter>
-            <result type="boolean" description="True if a session is now scheduled."/>
+            <result type="boolean" description="True once the request has been dispatched. Read `kya.active` to observe the resulting state."/>
         </command>
 
         <command name="deactivate kya" code="KYAaDact"
-                 description="Stop the current keep-awake session, if any.">
+                 description="Dispatch a deactivate request. The actual session end is asynchronous.">
             <cocoa class="KYADeactivateScriptCommand"/>
-            <result type="boolean" description="True if a session was running and has been stopped."/>
+            <result type="boolean" description="True once the request has been dispatched."/>
         </command>
 
         <command name="toggle kya" code="KYAaTogg"
-                 description="If active, deactivate. If inactive, activate with the default duration.">
+                 description="Dispatch a toggle request. If active, the session ends; if inactive, a new session starts with the default duration. Asynchronous.">
             <cocoa class="KYAToggleScriptCommand"/>
-            <result type="boolean" description="The new active state."/>
+            <result type="boolean" description="True once the request has been dispatched. Read `kya.active` to observe the resulting state."/>
         </command>
 
         <class name="kya" code="KYAk"

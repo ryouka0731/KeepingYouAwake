@@ -25,6 +25,16 @@ static void KYAScriptingPostURL(NSString *url)
 
 #pragma mark - Commands
 
+// Notes on return-value semantics:
+// `openURL:configuration:completionHandler:` is asynchronous, so when
+// these commands return, the actual activation state hasn't propagated
+// yet. Reading the live state in this same method (e.g. wasActive
+// before deactivate) is a TOCTOU race against any other automation
+// client. Instead we report the boolean "the command was dispatched"
+// — and the SDEF documents it that way. A caller who needs to know
+// the resulting state should read `kya.active` after a brief delay
+// (the proxy's 1-second TTL cache makes that cheap).
+
 @implementation KYAActivateScriptCommand
 - (id)performDefaultImplementation
 {
@@ -35,14 +45,14 @@ static void KYAScriptingPostURL(NSString *url)
     {
         seconds = durationArg.integerValue;
     }
-    if(seconds <= 0)
-    {
-        KYAScriptingPostURL(@"keepingyouawake:///activate");
-    }
-    else
-    {
-        KYAScriptingPostURL([NSString stringWithFormat:@"keepingyouawake:///activate?seconds=%ld", (long)seconds]);
-    }
+    // SDEF contract: omit / 0 / negative duration = indefinite. The
+    // URL scheme treats `seconds=0` as KYASleepWakeTimeIntervalIndefinite
+    // explicitly; an absent `seconds` parameter would fall through to
+    // KYAAppController's defaultTimeInterval (whatever the user picked
+    // in the menu), which is *not* indefinite. So always pass an
+    // explicit seconds value.
+    if(seconds < 0) { seconds = 0; }
+    KYAScriptingPostURL([NSString stringWithFormat:@"keepingyouawake:///activate?seconds=%ld", (long)seconds]);
     return @YES;
 }
 @end
@@ -50,18 +60,16 @@ static void KYAScriptingPostURL(NSString *url)
 @implementation KYADeactivateScriptCommand
 - (id)performDefaultImplementation
 {
-    BOOL wasActive = KYAScriptingProxy.sharedProxy.isActive;
     KYAScriptingPostURL(@"keepingyouawake:///deactivate");
-    return @(wasActive);
+    return @YES;
 }
 @end
 
 @implementation KYAToggleScriptCommand
 - (id)performDefaultImplementation
 {
-    BOOL wasActive = KYAScriptingProxy.sharedProxy.isActive;
     KYAScriptingPostURL(@"keepingyouawake:///toggle");
-    return @(!wasActive);
+    return @YES;
 }
 @end
 
