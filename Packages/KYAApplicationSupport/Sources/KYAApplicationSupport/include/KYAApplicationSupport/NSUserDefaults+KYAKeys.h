@@ -33,6 +33,7 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyScheduleEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyScheduleWindows;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadInProgressActivationEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadDirectories;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyMouseJigglerEnabled;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -154,6 +155,15 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadDirectories;
 /// path string (`~` is expanded). Defaults to `["~/Downloads"]` when
 /// the key is absent.
 @property (copy, nonatomic, nullable) NSArray<NSString *> *kya_downloadDirectories;
+
+/// Returns YES if KYA should periodically nudge the cursor by 1px while
+/// a session is active. Useful for keeping IM apps that key off system
+/// idle time (rather than caffeinate's assertions) from marking the
+/// user as "Away".
+///
+/// Off by default. Requires Accessibility permission for KYA;
+/// without it, `CGEventPost` silently no-ops.
+@property (nonatomic, getter=kya_isMouseJigglerEnabled) BOOL kya_mouseJigglerEnabled;
 
 @end
 

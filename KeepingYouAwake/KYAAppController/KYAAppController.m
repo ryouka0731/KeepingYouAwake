@@ -80,6 +80,11 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 // DownloadInProgressActivationEnabled / DownloadDirectories defaults.
 @property (nonatomic, nullable) KYADownloadActivityMonitor *downloadActivityMonitor;
 
+// Mouse jiggler — periodically nudges the cursor while a session is
+// active so external systems that key off system idle time stay
+// "awake" too. Off by default.
+@property (nonatomic, nullable) KYAMouseJiggler *mouseJiggler;
+
 // Menu
 @property (nonatomic) NSMenu *menu;
 @end
@@ -981,6 +986,7 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 
     [self enableDevicePowerMonitoring];
     [self startDriveAliveIfEnabled];
+    [self startMouseJigglerIfEnabled];
 }
 
 - (void)sleepWakeTimerDidDeactivate:(KYASleepWakeTimer *)sleepWakeTimer
@@ -990,6 +996,24 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 
     [self disableDevicePowerMonitoring];
     [self stopDriveAlive];
+    [self stopMouseJiggler];
+}
+
+#pragma mark - Mouse Jiggler
+
+- (void)startMouseJigglerIfEnabled
+{
+    if([NSUserDefaults.standardUserDefaults kya_isMouseJigglerEnabled] == NO) { return; }
+    if(self.mouseJiggler.isRunning) { return; }
+
+    self.mouseJiggler = [KYAMouseJiggler new];
+    [self.mouseJiggler start];
+}
+
+- (void)stopMouseJiggler
+{
+    [self.mouseJiggler stop];
+    self.mouseJiggler = nil;
 }
 
 #pragma mark - Drive Alive

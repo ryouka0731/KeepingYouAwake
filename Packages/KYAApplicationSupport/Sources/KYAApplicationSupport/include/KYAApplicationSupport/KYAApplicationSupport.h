@@ -14,3 +14,4 @@
 #import <KYAApplicationSupport/KYAActivityLogger.h>
 #import <KYAApplicationSupport/KYAScheduleMonitor.h>
 #import <KYAApplicationSupport/KYADownloadActivityMonitor.h>
+#import <KYAApplicationSupport/KYAMouseJiggler.h>
