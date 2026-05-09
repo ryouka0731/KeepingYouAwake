@@ -18,8 +18,12 @@ KeepingYouAwake (Amphetamine) ist ein schlankes Menüleisten-Tool für macOS 10.
 | 6 | Trigger: Netzbetrieb (Übergangs-erkennung) | [#19](https://github.com/ryouka0731/KeepingYouAwake/pull/19) |
 | 7 | Drive Alive — externe Laufwerke während der Aktivierung in Bewegung halten | [#20](https://github.com/ryouka0731/KeepingYouAwake/pull/20) |
 | 8 | Trigger: laufende überwachte Anwendung (mehrere Bundle-IDs) | [#27](https://github.com/ryouka0731/KeepingYouAwake/pull/27) / [#28](https://github.com/ryouka0731/KeepingYouAwake/pull/28) |
+| 9 | Trigger: Zeitplan (Wochentag × Uhrzeit-Fenster) | [#63](https://github.com/ryouka0731/KeepingYouAwake/pull/63) |
+| 10 | Trigger: laufender Download (`*.crdownload`, `*.part`, …) | [#64](https://github.com/ryouka0731/KeepingYouAwake/pull/64) |
+| 11 | Restzeit-Countdown in der Menüleiste neben dem Symbol | [#55](https://github.com/ryouka0731/KeepingYouAwake/pull/55) |
+| 12 | Aktivitätsprotokoll (`~/Library/Application Support/KeepingYouAwake/activity.jsonl`) | [#59](https://github.com/ryouka0731/KeepingYouAwake/pull/59) / [#61](https://github.com/ryouka0731/KeepingYouAwake/pull/61) |
 
-Plus Session-Source-Tracking, damit Feature-Trigger niemals eine vom Benutzer gestartete Sitzung versehentlich beenden.
+Plus Session-Source-Tracking, damit Feature-Trigger niemals eine vom Benutzer gestartete Sitzung versehentlich beenden (Externer-Display-Trigger wurde dafür in [#58](https://github.com/ryouka0731/KeepingYouAwake/pull/58) source-aware nachgezogen). Außerdem ein Sparkle-Auto-Update-Workflow für `appcast.xml` ([#66](https://github.com/ryouka0731/KeepingYouAwake/pull/66) — verbleibende manuelle Schritte in `docs/sparkle-auto-update-setup.md`).
 
 ## Installation
 
@@ -69,6 +73,18 @@ defaults write info.marcel-dierkes.KeepingYouAwake \
 
 defaults write info.marcel-dierkes.KeepingYouAwake \
   info.marcel-dierkes.KeepingYouAwake.DeactivateOnFullChargeEnabled -bool YES
+
+# Zeitplan-Trigger (Fenster via PlistBuddy konfigurieren)
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.ScheduleEnabled -bool YES
+
+# Aktivieren während ein Download läuft
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.DownloadInProgressActivationEnabled -bool YES
+
+# Menüleisten-Countdown ausblenden (Standard: anzeigen)
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.MenuBarCountdownDisabled -bool YES
 ```
 
 Das URL-Schema `keepingyouawake:///activate?seconds=N` / `:///deactivate` / `:///toggle` ist auch über App-Intents in Shortcuts.app verfügbar.
