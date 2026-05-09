@@ -166,6 +166,8 @@
     {
         button.title = @"";
     }
+    // Hide the title slot so the icon centres again.
+    button.imagePosition = NSImageOnly;
 }
 
 - (void)renderCountdown
@@ -188,11 +190,20 @@
         ? (NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond)
         : (NSCalendarUnitMinute | NSCalendarUnitSecond);
     NSString *text = [formatter stringFromTimeInterval:remaining];
-    if(text != nil)
+    if(text == nil) { return; }
+
+    Auto button = self.systemStatusItem.button;
+    // Force image-then-title layout so the countdown sits to the
+    // right of the cup icon. Without this, NSStatusBarButton stays
+    // in the NSImageOnly state it picked when only an image was set
+    // during -configureStatusItem, and the title silently doesn't
+    // render.
+    if(button.imagePosition != NSImageLeft)
     {
-        // Prefix with a hair space so the icon doesn't crowd the digits.
-        self.systemStatusItem.button.title = [@" " stringByAppendingString:text];
+        button.imagePosition = NSImageLeft;
     }
+    // Prefix with a hair space so the icon doesn't crowd the digits.
+    button.title = [@" " stringByAppendingString:text];
 }
 
 #pragma mark - Menu
