@@ -354,6 +354,32 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "源源不絕（連接電源時保持清醒）" } }
       }
     },
+    "Hide the remaining time countdown in the menu bar" : {
+      "comment" : "Hide the remaining time countdown in the menu bar",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Skjul nedtælling af resterende tid i menulinjen" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verbleibende Zeit in der Menüleiste ausblenden" } },
+        "el" : { "stringUnit" : { "state" : "translated", "value" : "Απόκρυψη υπολειπόμενου χρόνου στη γραμμή μενού" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar la cuenta atrás en la barra de menús" } },
+        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Piilota jäljellä oleva aika valikkorivillä" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Masquer le compte à rebours dans la barre des menus" } },
+        "hi" : { "stringUnit" : { "state" : "translated", "value" : "मेनू बार में शेष समय छिपाएँ" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Sembunyikan hitungan mundur sisa waktu di bilah menu" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nascondi il conto alla rovescia nella barra dei menu" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "メニューバーの残り時間カウントダウンを非表示にする" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "메뉴 막대의 남은 시간 카운트다운 숨기기" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Resterende tijd in menubalk verbergen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Ukryj odliczanie pozostałego czasu na pasku menu" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar a contagem decrescente na barra de menus" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Скрыть отсчёт оставшегося времени в строке меню" } },
+        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Skryť odpočítavanie zostávajúceho času v paneli ponúk" } },
+        "tr" : { "stringUnit" : { "state" : "translated", "value" : "Menü çubuğundaki kalan süre geri sayımını gizle" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Сховати відлік часу, що залишився, в рядку меню" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Ẩn đếm ngược thời gian còn lại trên thanh menu" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "在菜单栏中隐藏剩余时间倒计时" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在選單列中隱藏剩餘時間倒數" } }
+      }
+    },
     "Afterwards your Mac will automatically go to sleep again when unused." : {
       "comment" : "Afterwards your Mac will automatically go to sleep again when unused.",
       "localizations" : {
