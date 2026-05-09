@@ -354,6 +354,58 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "源源不絕（連接電源時保持清醒）" } }
       }
     },
+    "Activate during scheduled hours" : {
+      "comment" : "Activate during scheduled hours",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Aktiver inden for planlagte timer" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Während geplanter Zeiten aktivieren" } },
+        "el" : { "stringUnit" : { "state" : "translated", "value" : "Ενεργοποίηση σε προγραμματισμένες ώρες" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar durante el horario programado" } },
+        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Aktivoi aikataulun mukaisina aikoina" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer pendant les heures programmées" } },
+        "hi" : { "stringUnit" : { "state" : "translated", "value" : "निर्धारित समय के दौरान सक्रिय करें" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Aktifkan selama jam terjadwal" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva durante gli orari programmati" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スケジュールされた時間帯に有効にする" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "지정된 시간에 활성화" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Activeren tijdens geplande uren" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Aktywuj w zaplanowanych godzinach" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Ativar durante o horário agendado" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Включать в запланированное время" } },
+        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Aktivovať počas plánovaných hodín" } },
+        "tr" : { "stringUnit" : { "state" : "translated", "value" : "Planlanmış saatlerde etkinleştir" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Активувати у запланований час" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Kích hoạt trong giờ đã lên lịch" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "在计划时段内激活" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在排程時段內啟用" } }
+      }
+    },
+    "Activate while a download is in progress" : {
+      "comment" : "Activate while a download is in progress",
+      "localizations" : {
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Aktiver mens en download er i gang" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktivieren, während ein Download läuft" } },
+        "el" : { "stringUnit" : { "state" : "translated", "value" : "Ενεργοποίηση όσο εκτελείται μια λήψη" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar mientras hay una descarga en curso" } },
+        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Aktivoi kun lataus on käynnissä" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer pendant un téléchargement en cours" } },
+        "hi" : { "stringUnit" : { "state" : "translated", "value" : "डाउनलोड चलते समय सक्रिय करें" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Aktifkan saat unduhan sedang berlangsung" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Attiva durante un download in corso" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ダウンロード進行中は有効にする" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다운로드 진행 중에 활성화" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Activeren tijdens een download" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Aktywuj podczas trwającego pobierania" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Ativar durante uma transferência em curso" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Включать пока идёт загрузка" } },
+        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Aktivovať počas prebiehajúceho sťahovania" } },
+        "tr" : { "stringUnit" : { "state" : "translated", "value" : "İndirme devam ederken etkinleştir" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Активувати під час завантаження" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Kích hoạt khi có tải xuống" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "下载进行时激活" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "下載進行中時啟用" } }
+      }
+    },
     "Hide the remaining time countdown in the menu bar" : {
       "comment" : "Hide the remaining time countdown in the menu bar",
       "localizations" : {
