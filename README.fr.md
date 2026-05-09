@@ -18,8 +18,12 @@ KeepingYouAwake (Amphetamine) est un petit utilitaire de barre de menus pour mac
 | 6 | Déclencheur : sur secteur (transition reconnue) | [#19](https://github.com/ryouka0731/KeepingYouAwake/pull/19) |
 | 7 | Drive Alive — garder les disques externes actifs pendant l'activation | [#20](https://github.com/ryouka0731/KeepingYouAwake/pull/20) |
 | 8 | Déclencheur : application surveillée en cours d'exécution (plusieurs bundle ID) | [#27](https://github.com/ryouka0731/KeepingYouAwake/pull/27) / [#28](https://github.com/ryouka0731/KeepingYouAwake/pull/28) |
+| 9 | Déclencheur : planification (jour de la semaine × créneau horaire) | [#63](https://github.com/ryouka0731/KeepingYouAwake/pull/63) |
+| 10 | Déclencheur : téléchargement en cours (`*.crdownload`, `*.part`, …) | [#64](https://github.com/ryouka0731/KeepingYouAwake/pull/64) |
+| 11 | Compte à rebours dans la barre des menus à côté de l'icône | [#55](https://github.com/ryouka0731/KeepingYouAwake/pull/55) |
+| 12 | Journal d'activité (`~/Library/Application Support/KeepingYouAwake/activity.jsonl`) | [#59](https://github.com/ryouka0731/KeepingYouAwake/pull/59) / [#61](https://github.com/ryouka0731/KeepingYouAwake/pull/61) |
 
-Avec un suivi de la source de session pour qu'un déclencheur de fonctionnalité ne puisse jamais désactiver une session lancée par l'utilisateur.
+Avec un suivi de la source de session pour qu'un déclencheur de fonctionnalité ne puisse jamais désactiver une session lancée par l'utilisateur (le déclencheur d'écran externe a été aligné sur ce contrat dans [#58](https://github.com/ryouka0731/KeepingYouAwake/pull/58)). Plus une chaîne d'auto-mise à jour Sparkle ([#66](https://github.com/ryouka0731/KeepingYouAwake/pull/66) — étapes manuelles restantes dans `docs/sparkle-auto-update-setup.md`).
 
 ## Installation
 
@@ -69,6 +73,18 @@ defaults write info.marcel-dierkes.KeepingYouAwake \
 
 defaults write info.marcel-dierkes.KeepingYouAwake \
   info.marcel-dierkes.KeepingYouAwake.DeactivateOnFullChargeEnabled -bool YES
+
+# Déclencheur de planification (configurer les fenêtres via PlistBuddy)
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.ScheduleEnabled -bool YES
+
+# Activer pendant un téléchargement en cours
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.DownloadInProgressActivationEnabled -bool YES
+
+# Masquer le compte à rebours dans la barre des menus (par défaut : affiché)
+defaults write info.marcel-dierkes.KeepingYouAwake \
+  info.marcel-dierkes.KeepingYouAwake.MenuBarCountdownDisabled -bool YES
 ```
 
 Le schéma URL `keepingyouawake:///activate?seconds=N` / `:///deactivate` / `:///toggle` est également exposé en App Intents pour Shortcuts.app.
