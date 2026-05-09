@@ -35,6 +35,8 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadInProgressActivationEnable
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadDirectories;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyMouseJigglerEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnExternalAudioOutputEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnCPULoadEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyCPULoadActivationThreshold;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -171,6 +173,18 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyActivateOnExternalAudioOutputEnabl
 /// speakers (Bluetooth headphones, USB DAC, HDMI display, AirPods, …).
 /// Useful for "don't sleep while I'm listening to music".
 @property (nonatomic, getter=kya_isActivateOnExternalAudioOutputEnabled) BOOL kya_activateOnExternalAudioOutputEnabled;
+
+/// Returns YES if the sleep wake timer should auto-activate while
+/// CPU load stays sustained above `kya_cpuLoadActivationThreshold`.
+/// Useful for long builds, video encodes, scientific computations
+/// where the user walked away but doesn't want the box to sleep
+/// mid-job.
+@property (nonatomic, getter=kya_isActivateOnCPULoadEnabled) BOOL kya_activateOnCPULoadEnabled;
+
+/// CPU load percentage above which the trigger fires (0..100).
+/// Defaults to 50 when the key is absent. Anything below 1 is clamped
+/// to 1; anything above 99 is clamped to 99.
+@property (nonatomic) double kya_cpuLoadActivationThreshold;
 
 @end
 

@@ -14,6 +14,7 @@ NSString * const KYAActivityLogSourceExternalDisplay = @"external-display";
 NSString * const KYAActivityLogSourceSchedule        = @"schedule";
 NSString * const KYAActivityLogSourceDownload        = @"download";
 NSString * const KYAActivityLogSourceAudioOutput     = @"audio-output";
+NSString * const KYAActivityLogSourceCPULoad         = @"cpu-load";
 
 NSString * const KYAActivityLogEndedReasonExpired          = @"expired";
 NSString * const KYAActivityLogEndedReasonUserCancelled    = @"user-cancelled";

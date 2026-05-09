@@ -34,6 +34,7 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     KYAActivationSourceSchedule,
     KYAActivationSourceDownload,
     KYAActivationSourceAudioOutput,
+    KYAActivationSourceCPULoad,
 };
 
 static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
@@ -47,12 +48,13 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
         case KYAActivationSourceSchedule:        return KYAActivityLogSourceSchedule;
         case KYAActivationSourceDownload:        return KYAActivityLogSourceDownload;
         case KYAActivationSourceAudioOutput:     return KYAActivityLogSourceAudioOutput;
+        case KYAActivationSourceCPULoad:         return KYAActivityLogSourceCPULoad;
         case KYAActivationSourceUser:
         default:                                 return KYAActivityLogSourceUser;
     }
 }
 
-@interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate, KYAScheduleMonitorDelegate, KYADownloadActivityMonitorDelegate, KYAAudioOutputMonitorDelegate>
+@interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate, KYAScheduleMonitorDelegate, KYADownloadActivityMonitorDelegate, KYAAudioOutputMonitorDelegate, KYACPULoadMonitorDelegate>
 @property (nonatomic, readwrite) KYASleepWakeTimer *sleepWakeTimer;
 @property (nonatomic, readwrite) KYAStatusItemController *statusItemController;
 @property (nonatomic) KYAActivationDurationsMenuController *menuController;
@@ -88,6 +90,9 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 @property (nonatomic, nullable) KYAMouseJiggler *mouseJiggler;
 // External-audio-output trigger — driven by ActivateOnExternalAudioOutputEnabled.
 @property (nonatomic, nullable) KYAAudioOutputMonitor *audioOutputMonitor;
+
+// CPU load trigger.
+@property (nonatomic, nullable) KYACPULoadMonitor *cpuLoadMonitor;
 
 // Menu
 @property (nonatomic) NSMenu *menu;
@@ -132,6 +137,7 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
         [self reconcileScheduleTrigger];
         [self reconcileDownloadActivityTrigger];
         [self reconcileAudioOutputTrigger];
+        [self reconcileCPULoadTrigger];
 
         // Reconcile the AC-power trigger when the user toggles the
         // setting at runtime — without this the trigger only honours
@@ -164,6 +170,48 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
     [self reconcileScheduleTrigger];
     [self reconcileDownloadActivityTrigger];
     [self reconcileAudioOutputTrigger];
+    [self reconcileCPULoadTrigger];
+}
+
+#pragma mark - CPU Load Trigger
+
+- (void)reconcileCPULoadTrigger
+{
+    Auto defaults = NSUserDefaults.standardUserDefaults;
+    BOOL enabled = [defaults kya_isActivateOnCPULoadEnabled];
+
+    if(!enabled)
+    {
+        [self.cpuLoadMonitor stop];
+        self.cpuLoadMonitor = nil;
+        return;
+    }
+
+    if(self.cpuLoadMonitor == nil)
+    {
+        Auto monitor = [KYACPULoadMonitor new];
+        monitor.delegate = self;
+        self.cpuLoadMonitor = monitor;
+    }
+    self.cpuLoadMonitor.thresholdPercent = defaults.kya_cpuLoadActivationThreshold;
+    if(![self.cpuLoadMonitor isRunning])
+    {
+        [self.cpuLoadMonitor start];
+    }
+}
+
+#pragma mark - KYACPULoadMonitorDelegate
+
+- (void)cpuLoadMonitorDidCrossAboveThreshold:(KYACPULoadMonitor *)monitor
+{
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                 source:KYAActivationSourceCPULoad];
+}
+
+- (void)cpuLoadMonitorDidFallBelowThreshold:(KYACPULoadMonitor *)monitor
+{
+    [self terminateTimerIfOwnedBySource:KYAActivationSourceCPULoad];
 }
 
 #pragma mark - External Audio Output Trigger
