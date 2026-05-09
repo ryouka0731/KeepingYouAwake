@@ -69,6 +69,13 @@ static OSStatus KYAAudioOutputMonitorPropertyCallback(AudioObjectID inObjectID,
 
 - (void)refresh
 {
+    // Honour the documented "no-op when stopped" contract. The Core
+    // Audio listener callback hops to the main queue before invoking
+    // -refresh, so a stop() racing with an in-flight callback could
+    // otherwise still flip activation state after the trigger was
+    // disabled.
+    if(!self.running) { return; }
+
     BOOL isExternal = [self currentDefaultOutputIsExternal];
     if(isExternal == self.hasExternalAudioOutput) { return; }
     self.hasExternalAudioOutput = isExternal;

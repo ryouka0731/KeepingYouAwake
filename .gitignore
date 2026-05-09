@@ -4,3 +4,4 @@ build
 dist
 .claude/
 .serena/
+tools/mcp-server/__pycache__/

@@ -59,19 +59,33 @@ def parse_duration(text: str) -> int:
 
 
 def _read_recent_entries(limit: int = 50) -> list[dict]:
+    """Newest-first up to `limit`. Bounded deque keeps memory O(limit)."""
+    from collections import deque
     if not ACTIVITY_LOG_PATH.exists():
         return []
-    entries: list[dict] = []
+    if int(limit) <= 0:
+        return []
+    tail: deque[dict] = deque(maxlen=int(limit))
     with ACTIVITY_LOG_PATH.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
             try:
-                entries.append(json.loads(line))
+                tail.append(json.loads(line))
             except json.JSONDecodeError:
                 continue
-    return list(reversed(entries[-limit:]))
+    return list(reversed(tail))
+
+
+def _safe_iso_to_epoch(s) -> float | None:
+    """Tolerant ISO-8601 → epoch seconds. Returns None on malformation."""
+    if not isinstance(s, str):
+        return None
+    try:
+        return datetime.fromisoformat(s.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return None
 
 
 def _current_status() -> dict:
@@ -82,9 +96,9 @@ def _current_status() -> dict:
             requested = entry.get("requestedDuration")
             fire_iso = None
             remaining = None
-            if started and isinstance(requested, (int, float)) and requested > 0:
-                started_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
-                fire_dt = started_dt.timestamp() + float(requested)
+            started_epoch = _safe_iso_to_epoch(started)
+            if started_epoch is not None and isinstance(requested, (int, float)) and requested > 0:
+                fire_dt = started_epoch + float(requested)
                 now = datetime.now(timezone.utc).timestamp()
                 remaining = max(0.0, fire_dt - now)
                 fire_iso = datetime.fromtimestamp(fire_dt, tz=timezone.utc).isoformat()

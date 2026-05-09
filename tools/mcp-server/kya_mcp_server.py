@@ -82,23 +82,48 @@ def _open_url(url: str) -> None:
 
 
 def _read_recent_entries(limit: int) -> list[dict[str, Any]]:
+    """Return up to `limit` most recent entries, newest-first.
+
+    Uses a bounded `deque` so memory + post-iteration slice cost stay
+    O(limit) rather than O(file size). On a long-lived install the
+    JSONL log is capped at 1000 lines anyway, but `limit` here can be
+    much smaller, and there's no reason to materialise more than that.
+    """
+    from collections import deque
     if not ACTIVITY_LOG_PATH.exists():
         return []
-    entries: list[dict[str, Any]] = []
+    if int(limit) <= 0:
+        return []
+    tail: deque[dict[str, Any]] = deque(maxlen=int(limit))
     with ACTIVITY_LOG_PATH.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
             try:
-                entries.append(json.loads(line))
+                tail.append(json.loads(line))
             except json.JSONDecodeError:
                 continue
-    return list(reversed(entries[-limit:]))
+    return list(reversed(tail))
+
+
+def _safe_iso_to_epoch(s: Any) -> float | None:
+    """Tolerant ISO-8601 → epoch seconds. Returns None on any malformation."""
+    if not isinstance(s, str):
+        return None
+    try:
+        return datetime.fromisoformat(s.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return None
 
 
 def _current_status() -> dict[str, Any]:
-    """Best-effort: the most recent log entry without `endedAt` is "active"."""
+    """Best-effort: the most recent log entry without `endedAt` is "active".
+
+    Tolerant to malformed `startedAt` — if the timestamp can't be
+    parsed we still return `active=True` but omit `fireDate` /
+    `remainingSeconds` rather than crashing the MCP call.
+    """
     entries = _read_recent_entries(50)
     for entry in entries:
         if "endedAt" not in entry or entry.get("endedAt") is None:
@@ -106,9 +131,9 @@ def _current_status() -> dict[str, Any]:
             requested = entry.get("requestedDuration")
             fire_iso = None
             remaining = None
-            if started and isinstance(requested, (int, float)) and requested > 0:
-                started_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
-                fire_dt = started_dt.timestamp() + float(requested)
+            started_epoch = _safe_iso_to_epoch(started)
+            if started_epoch is not None and isinstance(requested, (int, float)) and requested > 0:
+                fire_dt = started_epoch + float(requested)
                 now = datetime.now(timezone.utc).timestamp()
                 remaining = max(0.0, fire_dt - now)
                 fire_iso = datetime.fromtimestamp(fire_dt, tz=timezone.utc).isoformat()

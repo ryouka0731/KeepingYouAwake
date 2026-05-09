@@ -46,6 +46,26 @@
         [expanded addObject:[path stringByExpandingTildeInPath]];
     }
     self.expandedDirectories = [expanded copy];
+
+    if(expanded.count == 0)
+    {
+        // Match the documented "nil/empty effectively disables the
+        // monitor" contract — stop the 10s timer so we don't keep
+        // re-scanning an empty list, and surface the transition to
+        // 'no downloads' if we were active.
+        if(self.running && self.hasInProgressDownload)
+        {
+            self.hasInProgressDownload = NO;
+            Auto delegate = self.delegate;
+            if([delegate respondsToSelector:@selector(downloadActivityMonitorDidFinishDownloads:)])
+            {
+                [delegate downloadActivityMonitorDidFinishDownloads:self];
+            }
+        }
+        [self stop];
+        return;
+    }
+
     if(self.running) { [self scanNow]; }
 }
 
@@ -57,10 +77,11 @@
 
     [self scanNow];
 
+    AutoWeak weakSelf = self;
     Auto timer = [NSTimer scheduledTimerWithTimeInterval:10.0
                                                  repeats:YES
                                                    block:^(NSTimer * _Nonnull t) {
-        [self scanNow];
+        [weakSelf scanNow];
     }];
     timer.tolerance = 1.0;
     self.tickTimer = timer;

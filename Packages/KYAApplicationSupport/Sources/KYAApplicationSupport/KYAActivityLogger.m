@@ -279,8 +279,14 @@ NSString * const KYAActivityLogEndedReasonTriggerCancelled = @"trigger-cancelled
     if(reason.length > 0) { open[@"endedReason"] = reason; }
     dicts[(NSUInteger)self.openEntryLineNumber] = [open copy];
 
-    [self writeAllDictionaries:dicts];
-    self.openEntryLineNumber = -1;
+    // Mirror -appendEntry:'s pattern — only forget the open-entry
+    // pointer if the write actually persisted. Otherwise the entry
+    // stays "open" and the next attempt can retry rather than
+    // silently orphaning the row forever.
+    if([self writeAllDictionaries:dicts])
+    {
+        self.openEntryLineNumber = -1;
+    }
 }
 
 @end

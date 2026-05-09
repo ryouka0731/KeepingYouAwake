@@ -406,30 +406,30 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "下載進行中時啟用" } }
       }
     },
-    "Nudge the cursor every minute while active (requires Accessibility permission)" : {
-      "comment" : "Nudge the cursor every minute while active (requires Accessibility permission)",
+    "Periodically nudge the cursor while active (requires Accessibility permission)" : {
+      "comment" : "Periodically nudge the cursor while active (requires Accessibility permission)",
       "localizations" : {
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Skub markøren hvert minut mens aktiv (kræver tilladelse til Tilgængelighed)" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Cursor jede Minute leicht bewegen, solange aktiv (Bedienungshilfen-Berechtigung erforderlich)" } },
-        "el" : { "stringUnit" : { "state" : "translated", "value" : "Σπρώξε τον δείκτη κάθε λεπτό όσο είναι ενεργό (απαιτεί άδεια Προσβασιμότητας)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mover el cursor cada minuto mientras está activo (requiere permiso de Accesibilidad)" } },
-        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Liikuta osoitinta kerran minuutissa aktiivisena (vaatii Käytettävyys-luvan)" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déplacer le curseur chaque minute lorsque actif (autorisation Accessibilité requise)" } },
-        "hi" : { "stringUnit" : { "state" : "translated", "value" : "सक्रिय होने पर हर मिनट कर्सर हिलाएँ (Accessibility अनुमति आवश्यक)" } },
-        "id" : { "stringUnit" : { "state" : "translated", "value" : "Geser kursor setiap menit saat aktif (memerlukan izin Aksesibilitas)" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Muovi il cursore ogni minuto mentre attivo (richiede autorizzazione Accessibilità)" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アクティブ中、1分毎にカーソルを微小に動かす (アクセシビリティ権限が必要)" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "활성화 중 1분마다 커서를 살짝 움직임 (손쉬운 사용 권한 필요)" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Cursor elke minuut bewegen wanneer actief (toegankelijkheidstoestemming vereist)" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Poruszaj kursorem co minutę gdy aktywne (wymaga uprawnień Dostępności)" } },
-        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Mover o cursor a cada minuto enquanto ativo (requer permissão de Acessibilidade)" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сдвигать курсор каждую минуту во время сессии (требуется разрешение «Универсальный доступ»)" } },
-        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Posunúť kurzor každú minútu počas aktivácie (vyžaduje povolenie Prístupnosť)" } },
-        "tr" : { "stringUnit" : { "state" : "translated", "value" : "Etkinken her dakika imleci hafifçe oynat (Erişilebilirlik izni gerektirir)" } },
-        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Рухати курсор щохвилини під час активації (потрібен дозвіл «Універсальний доступ»)" } },
-        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đẩy con trỏ mỗi phút khi hoạt động (cần quyền Trợ năng)" } },
-        "zh" : { "stringUnit" : { "state" : "translated", "value" : "激活时每分钟轻推一次光标（需要辅助功能权限）" } },
-        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "啟用時每分鐘輕推游標（需要輔助使用權限）" } }
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Skub markøren periodisk mens aktiv (kræver tilladelse til Tilgængelighed)" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Cursor regelmäßig leicht bewegen, solange aktiv (Bedienungshilfen-Berechtigung erforderlich)" } },
+        "el" : { "stringUnit" : { "state" : "translated", "value" : "Περιοδικά σπρώξε τον δείκτη όσο είναι ενεργό (απαιτεί άδεια Προσβασιμότητας)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mover el cursor periódicamente mientras está activo (requiere permiso de Accesibilidad)" } },
+        "fi" : { "stringUnit" : { "state" : "translated", "value" : "Liikuta osoitinta säännöllisesti aktiivisena (vaatii Käytettävyys-luvan)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déplacer le curseur périodiquement lorsque actif (autorisation Accessibilité requise)" } },
+        "hi" : { "stringUnit" : { "state" : "translated", "value" : "सक्रिय होने पर समय-समय पर कर्सर हिलाएँ (Accessibility अनुमति आवश्यक)" } },
+        "id" : { "stringUnit" : { "state" : "translated", "value" : "Geser kursor secara berkala saat aktif (memerlukan izin Aksesibilitas)" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Muovi periodicamente il cursore mentre attivo (richiede autorizzazione Accessibilità)" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アクティブ中、定期的にカーソルを微小に動かす (アクセシビリティ権限が必要)" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "활성화 중 주기적으로 커서를 살짝 움직임 (손쉬운 사용 권한 필요)" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Cursor periodiek bewegen wanneer actief (toegankelijkheidstoestemming vereist)" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Okresowo poruszaj kursorem gdy aktywne (wymaga uprawnień Dostępności)" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Mover o cursor periodicamente enquanto ativo (requer permissão de Acessibilidade)" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Периодически сдвигать курсор во время сессии (требуется разрешение «Универсальный доступ»)" } },
+        "sk" : { "stringUnit" : { "state" : "translated", "value" : "Periodicky posúvať kurzor počas aktivácie (vyžaduje povolenie Prístupnosť)" } },
+        "tr" : { "stringUnit" : { "state" : "translated", "value" : "Etkinken imleci periyodik olarak hafifçe oynat (Erişilebilirlik izni gerektirir)" } },
+        "uk" : { "stringUnit" : { "state" : "translated", "value" : "Періодично рухати курсор під час активації (потрібен дозвіл «Універсальний доступ»)" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đẩy con trỏ định kỳ khi hoạt động (cần quyền Trợ năng)" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "激活时定期轻推光标（需要辅助功能权限）" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "啟用時定期輕推游標（需要輔助使用權限）" } }
       }
     },
     "Activate while audio is routed to an external device (Bluetooth, USB, AirPlay)" : {
