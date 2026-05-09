@@ -12,6 +12,7 @@ NSString * const KYAActivityLogSourceWatchedSSID     = @"watched-ssid";
 NSString * const KYAActivityLogSourceACPower         = @"ac-power";
 NSString * const KYAActivityLogSourceExternalDisplay = @"external-display";
 NSString * const KYAActivityLogSourceSchedule        = @"schedule";
+NSString * const KYAActivityLogSourceDownload        = @"download";
 
 #pragma mark - Entry
 

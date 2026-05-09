@@ -32,6 +32,7 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     KYAActivationSourceACPower,
     KYAActivationSourceExternalDisplay,
     KYAActivationSourceSchedule,
+    KYAActivationSourceDownload,
 };
 
 static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
@@ -43,12 +44,13 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
         case KYAActivationSourceACPower:         return KYAActivityLogSourceACPower;
         case KYAActivationSourceExternalDisplay: return KYAActivityLogSourceExternalDisplay;
         case KYAActivationSourceSchedule:        return KYAActivityLogSourceSchedule;
+        case KYAActivationSourceDownload:        return KYAActivityLogSourceDownload;
         case KYAActivationSourceUser:
         default:                                 return KYAActivityLogSourceUser;
     }
 }
 
-@interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate, KYAScheduleMonitorDelegate>
+@interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate, KYAScheduleMonitorDelegate, KYADownloadActivityMonitorDelegate>
 @property (nonatomic, readwrite) KYASleepWakeTimer *sleepWakeTimer;
 @property (nonatomic, readwrite) KYAStatusItemController *statusItemController;
 @property (nonatomic) KYAActivationDurationsMenuController *menuController;
@@ -73,6 +75,10 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 // Schedule trigger monitor — driven by ScheduleEnabled / ScheduleWindows
 // defaults keys. nil while the trigger is disabled.
 @property (nonatomic, nullable) KYAScheduleMonitor *scheduleMonitor;
+
+// Download-in-progress activity monitor — driven by the
+// DownloadInProgressActivationEnabled / DownloadDirectories defaults.
+@property (nonatomic, nullable) KYADownloadActivityMonitor *downloadActivityMonitor;
 
 // Menu
 @property (nonatomic) NSMenu *menu;
@@ -115,6 +121,7 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
         [self reconcileWatchedApplicationState];
 
         [self reconcileScheduleTrigger];
+        [self reconcileDownloadActivityTrigger];
 
         // Reconcile the AC-power trigger when the user toggles the
         // setting at runtime — without this the trigger only honours
@@ -145,6 +152,7 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 {
     [self reconcileACPowerTrigger];
     [self reconcileScheduleTrigger];
+    [self reconcileDownloadActivityTrigger];
 }
 
 #pragma mark - Schedule Trigger
@@ -187,6 +195,48 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 - (void)scheduleMonitorDidLeaveWindow:(KYAScheduleMonitor *)monitor
 {
     [self terminateTimerIfOwnedBySource:KYAActivationSourceSchedule];
+}
+
+#pragma mark - Download Activity Trigger
+
+- (void)reconcileDownloadActivityTrigger
+{
+    Auto defaults = NSUserDefaults.standardUserDefaults;
+    BOOL enabled = [defaults kya_isDownloadInProgressActivationEnabled];
+
+    if(!enabled)
+    {
+        [self.downloadActivityMonitor stop];
+        self.downloadActivityMonitor = nil;
+        return;
+    }
+
+    if(self.downloadActivityMonitor == nil)
+    {
+        Auto monitor = [KYADownloadActivityMonitor new];
+        monitor.delegate = self;
+        self.downloadActivityMonitor = monitor;
+    }
+    NSArray<NSString *> *dirs = defaults.kya_downloadDirectories ?: @[@"~/Downloads"];
+    [self.downloadActivityMonitor setDirectories:dirs];
+    if(![self.downloadActivityMonitor isRunning])
+    {
+        [self.downloadActivityMonitor start];
+    }
+}
+
+#pragma mark - KYADownloadActivityMonitorDelegate
+
+- (void)downloadActivityMonitorDidStartDownloads:(KYADownloadActivityMonitor *)monitor
+{
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                 source:KYAActivationSourceDownload];
+}
+
+- (void)downloadActivityMonitorDidFinishDownloads:(KYADownloadActivityMonitor *)monitor
+{
+    [self terminateTimerIfOwnedBySource:KYAActivationSourceDownload];
 }
 
 - (void)reconcileACPowerTrigger

@@ -31,6 +31,8 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyScheduleEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyScheduleWindows;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadInProgressActivationEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyDownloadDirectories;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -143,6 +145,15 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyScheduleWindows;
 ///
 /// or via PlistBuddy for clarity.
 @property (copy, nonatomic, nullable) NSArray<NSDictionary<NSString *, id> *> *kya_scheduleWindows;
+
+/// Returns YES if KYA should auto-activate while a download is in
+/// progress (browser writes to a suffixed temporary file).
+@property (nonatomic, getter=kya_isDownloadInProgressActivationEnabled) BOOL kya_downloadInProgressActivationEnabled;
+
+/// Directories scanned for in-progress download files. Each entry is a
+/// path string (`~` is expanded). Defaults to `["~/Downloads"]` when
+/// the key is absent.
+@property (copy, nonatomic, nullable) NSArray<NSString *> *kya_downloadDirectories;
 
 @end
 
