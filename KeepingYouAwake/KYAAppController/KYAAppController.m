@@ -31,6 +31,7 @@ typedef NS_ENUM(NSInteger, KYAActivationSource) {
     KYAActivationSourceWatchedSSID,
     KYAActivationSourceACPower,
     KYAActivationSourceExternalDisplay,
+    KYAActivationSourceSchedule,
 };
 
 static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
@@ -41,12 +42,13 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
         case KYAActivationSourceWatchedSSID:     return KYAActivityLogSourceWatchedSSID;
         case KYAActivationSourceACPower:         return KYAActivityLogSourceACPower;
         case KYAActivationSourceExternalDisplay: return KYAActivityLogSourceExternalDisplay;
+        case KYAActivationSourceSchedule:        return KYAActivityLogSourceSchedule;
         case KYAActivationSourceUser:
         default:                                 return KYAActivityLogSourceUser;
     }
 }
 
-@interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate>
+@interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate, KYAScheduleMonitorDelegate>
 @property (nonatomic, readwrite) KYASleepWakeTimer *sleepWakeTimer;
 @property (nonatomic, readwrite) KYAStatusItemController *statusItemController;
 @property (nonatomic) KYAActivationDurationsMenuController *menuController;
@@ -67,6 +69,10 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 // Who started the active session. Only meaningful while the timer is
 // scheduled; reset to User on terminateTimer.
 @property (nonatomic) KYAActivationSource activationSource;
+
+// Schedule trigger monitor — driven by ScheduleEnabled / ScheduleWindows
+// defaults keys. nil while the trigger is disabled.
+@property (nonatomic, nullable) KYAScheduleMonitor *scheduleMonitor;
 
 // Menu
 @property (nonatomic) NSMenu *menu;
@@ -108,6 +114,8 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
         [self registerForWatchedApplicationNotifications];
         [self reconcileWatchedApplicationState];
 
+        [self reconcileScheduleTrigger];
+
         // Reconcile the AC-power trigger when the user toggles the
         // setting at runtime — without this the trigger only honours
         // the value that was set at app launch.
@@ -136,6 +144,49 @@ static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
 - (void)userDefaultsDidChange:(NSNotification *)notification
 {
     [self reconcileACPowerTrigger];
+    [self reconcileScheduleTrigger];
+}
+
+#pragma mark - Schedule Trigger
+
+- (void)reconcileScheduleTrigger
+{
+    Auto defaults = NSUserDefaults.standardUserDefaults;
+    BOOL enabled = [defaults kya_isScheduleEnabled];
+    NSArray *windows = defaults.kya_scheduleWindows;
+
+    if(!enabled || windows.count == 0)
+    {
+        [self.scheduleMonitor stop];
+        self.scheduleMonitor = nil;
+        return;
+    }
+
+    if(self.scheduleMonitor == nil)
+    {
+        Auto monitor = [KYAScheduleMonitor new];
+        monitor.delegate = self;
+        self.scheduleMonitor = monitor;
+    }
+    [self.scheduleMonitor setWindows:windows];
+    if(![self.scheduleMonitor isRunning])
+    {
+        [self.scheduleMonitor start];
+    }
+}
+
+#pragma mark - KYAScheduleMonitorDelegate
+
+- (void)scheduleMonitorDidEnterWindow:(KYAScheduleMonitor *)monitor
+{
+    if([self.sleepWakeTimer isScheduled]) { return; }
+    [self activateTimerWithTimeInterval:KYASleepWakeTimeIntervalIndefinite
+                                 source:KYAActivationSourceSchedule];
+}
+
+- (void)scheduleMonitorDidLeaveWindow:(KYAScheduleMonitor *)monitor
+{
+    [self terminateTimerIfOwnedBySource:KYAActivationSourceSchedule];
 }
 
 - (void)reconcileACPowerTrigger

@@ -29,6 +29,8 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyPreReleaseUpdatesEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyDriveAliveEnabled;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs;
 KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyScheduleEnabled;
+KYA_EXPORT NSString * const KYAUserDefaultsKeyScheduleWindows;
 
 @interface NSUserDefaults (KYAKeys)
 
@@ -121,6 +123,26 @@ KYA_EXPORT NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifier
 ///         info.marcel-dierkes.KeepingYouAwake.WatchedApplicationBundleIdentifiers \
 ///         -array com.apple.FinalCut com.apple.Logic
 @property (copy, nonatomic, nullable) NSArray<NSString *> *kya_watchedApplicationBundleIdentifiers;
+
+/// Returns YES if the schedule trigger is enabled. The schedule still
+/// requires `kya_scheduleWindows` to be non-empty to do anything.
+@property (nonatomic, getter=kya_isScheduleEnabled) BOOL kya_scheduleEnabled;
+
+/// Time-of-day windows during which the sleep wake timer should be
+/// active. Each window is a dictionary with three keys:
+/// - `weekdays`: array of NSNumber 1..7 (1 = Sunday, per NSCalendar).
+/// - `startMinutes`: minutes since local midnight, 0..1439.
+/// - `endMinutes`: minutes since local midnight, 0..1439. May be less
+///   than `startMinutes`, in which case the window wraps past midnight
+///   into the next day.
+///
+/// Until a settings UI lands, configure via:
+///     defaults write info.marcel-dierkes.KeepingYouAwake \
+///         info.marcel-dierkes.KeepingYouAwake.ScheduleWindows \
+///         -array '<dict><key>weekdays</key><array>...</array>...</dict>'
+///
+/// or via PlistBuddy for clarity.
+@property (copy, nonatomic, nullable) NSArray<NSDictionary<NSString *, id> *> *kya_scheduleWindows;
 
 @end
 
