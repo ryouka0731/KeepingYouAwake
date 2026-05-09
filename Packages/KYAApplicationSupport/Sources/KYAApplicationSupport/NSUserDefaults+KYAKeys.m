@@ -95,6 +95,10 @@ KYA_GENERATE_BOOL_PROPERTY(isActivateOnACPowerEnabled,
                            activateOnACPowerEnabled,
                            ActivateOnACPowerEnabled);
 
+KYA_GENERATE_BOOL_PROPERTY(isScheduleEnabled,
+                           scheduleEnabled,
+                           ScheduleEnabled);
+
 #pragma mark - Watched Wi-Fi SSIDs
 
 NSString * const KYAUserDefaultsKeyWatchedWiFiSSIDs = @"info.marcel-dierkes.KeepingYouAwake.WatchedWiFiSSIDs";
@@ -158,6 +162,39 @@ NSString * const KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers = @"info.
     else
     {
         [self setObject:[bundleIdentifiers copy] forKey:KYAUserDefaultsKeyWatchedApplicationBundleIdentifiers];
+    }
+}
+
+#pragma mark - Schedule Windows
+
+NSString * const KYAUserDefaultsKeyScheduleWindows = @"info.marcel-dierkes.KeepingYouAwake.ScheduleWindows";
+
+- (NSArray<NSDictionary<NSString *, id> *> *)kya_scheduleWindows
+{
+    Auto raw = [self arrayForKey:KYAUserDefaultsKeyScheduleWindows];
+    if(raw.count == 0) { return nil; }
+
+    Auto sanitized = [NSMutableArray<NSDictionary<NSString *, id> *> arrayWithCapacity:raw.count];
+    for(id entry in raw)
+    {
+        if([entry isKindOfClass:NSDictionary.class])
+        {
+            [sanitized addObject:(NSDictionary *)entry];
+        }
+    }
+    if(sanitized.count == 0) { return nil; }
+    return [sanitized copy];
+}
+
+- (void)setKya_scheduleWindows:(NSArray<NSDictionary<NSString *, id> *> *)windows
+{
+    if(windows.count == 0)
+    {
+        [self removeObjectForKey:KYAUserDefaultsKeyScheduleWindows];
+    }
+    else
+    {
+        [self setObject:[windows copy] forKey:KYAUserDefaultsKeyScheduleWindows];
     }
 }
 

@@ -21,6 +21,7 @@ KYA_EXPORT NSString * const KYAActivityLogSourceWatchedApp;
 KYA_EXPORT NSString * const KYAActivityLogSourceWatchedSSID;
 KYA_EXPORT NSString * const KYAActivityLogSourceACPower;
 KYA_EXPORT NSString * const KYAActivityLogSourceExternalDisplay;
+KYA_EXPORT NSString * const KYAActivityLogSourceSchedule;
 
 /// One entry as decoded from the JSONL file. All values are immutable.
 @interface KYAActivityLogEntry : NSObject
