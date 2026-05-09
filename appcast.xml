@@ -12,7 +12,7 @@
             <sparkle:shortVersionString>1.7.0-amphetamine.4</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>10.13</sparkle:minimumSystemVersion>
             <sparkle:releaseNotesLink>https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/releases/tag/v1.7.0-amphetamine.4</sparkle:releaseNotesLink>
-            <enclosure url="https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/releases/download/v1.7.0-amphetamine.4/KeepingYouAwake-v1.7.0-amphetamine.4.dmg" length="1400044" type="application/octet-stream" sparkle:edSignature="TWW2JjfUZ2FAYNfG2QXrFWd+/od1wipEPaUy+JwyR52bFDdWwMKXzzxnqWAkmF0its6mqd46vpUNaRQvu88yBg=="/>
+            <enclosure url="https://github.com/ryouka0731/KeepingYouAwake-Amphetamine/releases/download/v1.7.0-amphetamine.4/KeepingYouAwake-v1.7.0-amphetamine.4.dmg" length="1398285" type="application/octet-stream" sparkle:edSignature="pgIYgZ1Aj4jg7KdL/rF06RXBLLYGlFk8vqzEnOIyejodW4AD74UIAG0Ip5rJwQgPr/O35D7WVlF28ew8OSq3AA=="/>
         </item>
         <item>
             <title>1.7.0-amphetamine.3</title>
