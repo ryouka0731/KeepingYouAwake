@@ -208,6 +208,23 @@ def test_call_kya_status(patched_log):
     assert out == {"active": False}
 
 
+def test_call_kya_status_active(patched_log):
+    started = datetime.now(timezone.utc) - timedelta(seconds=10)
+    patched_log([
+        {
+            "startedAt": started.isoformat().replace("+00:00", "Z"),
+            "source": "url-scheme",
+            "requestedDuration": 3600,
+        },
+    ])
+    out = json.loads(_text(_call("kya_status")))
+    assert out["active"] is True
+    assert out["source"] == "url-scheme"
+    assert out["requestedDuration"] == 3600
+    assert out["remainingSeconds"] == pytest.approx(3600 - 10, abs=30)
+    assert out["fireDate"] is not None
+
+
 def test_call_kya_list_recent_sessions(patched_log):
     patched_log([{"n": 1}, {"n": 2}, {"n": 3}])
     out = json.loads(_text(_call("kya_list_recent_sessions", {"limit": 2})))
@@ -282,3 +299,21 @@ def test_set_default_accepts_allowed_key_int_value(monkeypatch):
     assert out == {"set": allowed_key, "value": 80}
     assert "-int" in captured["cmd"]
     assert "80" in captured["cmd"]
+
+
+def test_set_default_accepts_allowed_key_false_value(monkeypatch):
+    allowed_key = next(iter(srv.ALLOWED_DEFAULT_KEYS))
+    captured = {}
+
+    class _Completed:
+        stderr = b""
+
+    monkeypatch.setattr(srv.subprocess, "run", lambda cmd, *a, **k: captured.setdefault("cmd", cmd) or _Completed())
+    out = json.loads(_text(_call("kya_set_default", {"key": allowed_key, "value": False})))
+    assert out == {"set": allowed_key, "value": False}
+    # Source emits `defaults write <domain> <key> -bool NO` for a false value.
+    assert captured["cmd"][:2] == ["defaults", "write"]
+    assert allowed_key in captured["cmd"]
+    assert "-bool" in captured["cmd"]
+    assert "NO" in captured["cmd"]
+    assert "YES" not in captured["cmd"]
