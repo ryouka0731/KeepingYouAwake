@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		63D0E83755D768F7C92ABEC6 /* KYAWatchedItemsSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36CE5CEAE7027816B8A95C94 /* KYAWatchedItemsSettingsViewController.m */; };
 		6B70A995C914FE326908733C /* KeepingYouAwake.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 411A25D692ACBE44E57B72C7 /* KeepingYouAwake.sdef */; };
 		8212C2BF01E7BA55AB6B9110 /* KeepingYouAwake.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 411A25D692ACBE44E57B72C7 /* KeepingYouAwake.sdef */; };
 		A3A2676F1F8794B3AD492B91 /* KYAAppIntents in Frameworks */ = {isa = PBXBuildFile; productRef = CA0111CB3151E818AEE22F85 /* KYAAppIntents */; };
@@ -112,6 +113,7 @@
 		DF98276B6223DD7F9467B2D4 /* KYAScripting.m in Sources */ = {isa = PBXBuildFile; fileRef = 2747028D82039898FDF3D873 /* KYAScripting.m */; };
 		E1B7CD66B28C91AFFEE4261F /* KYADriveAliveTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8DB2373A80CC1BCE57B9F488 /* KYADriveAliveTimer.m */; };
 		F59B5DDB9F676C38CE33E868 /* KYADriveAliveTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8DB2373A80CC1BCE57B9F488 /* KYADriveAliveTimer.m */; };
+		FB90043DB1C609666673B823 /* KYAWatchedItemsSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36CE5CEAE7027816B8A95C94 /* KYAWatchedItemsSettingsViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -178,6 +180,7 @@
 
 /* Begin PBXFileReference section */
 		2747028D82039898FDF3D873 /* KYAScripting.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = KYAScripting.m; sourceTree = "<group>"; };
+		36CE5CEAE7027816B8A95C94 /* KYAWatchedItemsSettingsViewController.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = KYAWatchedItemsSettingsViewController.m; sourceTree = "<group>"; };
 		411A25D692ACBE44E57B72C7 /* KeepingYouAwake.sdef */ = {isa = PBXFileReference; includeInIndex = 1; path = KeepingYouAwake.sdef; sourceTree = "<group>"; };
 		41A952DFAF1E078C49CFA0D4 /* KYADriveAliveTimer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = KYADriveAliveTimer.h; sourceTree = "<group>"; };
 		8DB2373A80CC1BCE57B9F488 /* KYADriveAliveTimer.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = KYADriveAliveTimer.m; sourceTree = "<group>"; };
@@ -262,6 +265,7 @@
 		DAD9838B26F9037900234FB8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/KYADurationSettingsViewController.xib; sourceTree = "<group>"; };
 		DAD983A826F9C46600234FB8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/KYAAddDurationViewController.xib; sourceTree = "<group>"; };
 		DAE9C00D26107E1A00F9ED76 /* Configuration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Configuration.xcconfig; sourceTree = SOURCE_ROOT; };
+		F6705731DA2210B706D620AF /* KYAWatchedItemsSettingsViewController.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = KYAWatchedItemsSettingsViewController.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -316,6 +320,16 @@
 			);
 			name = KYADriveAlive;
 			path = KYADriveAlive;
+			sourceTree = "<group>";
+		};
+		C9E1D5011B6C34E8556C6E67 /* KYAWatchedItemsSettingsViewController */ = {
+			isa = PBXGroup;
+			children = (
+				F6705731DA2210B706D620AF /* KYAWatchedItemsSettingsViewController.h */,
+				36CE5CEAE7027816B8A95C94 /* KYAWatchedItemsSettingsViewController.m */,
+			);
+			name = KYAWatchedItemsSettingsViewController;
+			path = KYAWatchedItemsSettingsViewController;
 			sourceTree = "<group>";
 		};
 		DA25062727C244240052CCD8 /* Frameworks */ = {
@@ -483,6 +497,7 @@
 				DA51E7E01C2562C4008AA96C /* KYAAdvancedSettingsViewController */,
 				DA5680182115FF140039C979 /* KYAUpdateSettingsViewController */,
 				DA51E7E11C2562CA008AA96C /* KYAAboutSettingsViewController */,
+				C9E1D5011B6C34E8556C6E67 /* KYAWatchedItemsSettingsViewController */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -819,6 +834,7 @@
 				DA52096327C6BE6400ECFDA6 /* KYAActivationDuration+KYALocalizedTitle.m in Sources */,
 				F59B5DDB9F676C38CE33E868 /* KYADriveAliveTimer.m in Sources */,
 				DF98276B6223DD7F9467B2D4 /* KYAScripting.m in Sources */,
+				63D0E83755D768F7C92ABEC6 /* KYAWatchedItemsSettingsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -858,6 +874,7 @@
 				DA52096427C6BE6400ECFDA6 /* KYAActivationDuration+KYALocalizedTitle.m in Sources */,
 				E1B7CD66B28C91AFFEE4261F /* KYADriveAliveTimer.m in Sources */,
 				D0F04B348282A39E564A2D0F /* KYAScripting.m in Sources */,
+				FB90043DB1C609666673B823 /* KYAWatchedItemsSettingsViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
