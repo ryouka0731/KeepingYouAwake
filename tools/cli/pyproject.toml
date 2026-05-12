@@ -8,6 +8,9 @@ license = { text = "MIT" }
 authors = [{ name = "Ryoka Nakai", email = "ryouka0731@gmail.com" }]
 dependencies = []
 
+[project.optional-dependencies]
+test = ["pytest"]
+
 [project.scripts]
 kya = "kya:main"
 
