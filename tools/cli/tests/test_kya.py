@@ -8,6 +8,7 @@ end-to-end via ``subprocess`` with a monkeypatched ``HOME``.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -214,7 +215,10 @@ _KYA_PY = str(Path(kya.__file__).resolve())
 
 
 def _run_status(tmp_home: Path, *args):
-    env = {"HOME": str(tmp_home), "PATH": "/usr/bin:/bin"}
+    # Copy the real environment and only override HOME so the child keeps
+    # PATH / LANG / etc. — a bare {"HOME": ...} dict breaks in stripped envs.
+    env = os.environ.copy()
+    env["HOME"] = str(tmp_home)
     return subprocess.run(
         [sys.executable, _KYA_PY, "status", *args],
         capture_output=True,
