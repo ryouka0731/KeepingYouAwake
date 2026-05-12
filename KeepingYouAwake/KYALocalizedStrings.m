@@ -70,3 +70,16 @@
 #define KYA_L10N_DURATIONS_ALERT_REALLY_RESET_MESSAGE NSLocalizedString(@"Do you really want to reset the activation durations to the default values?", @"Do you really want to reset the activation durations to the default values?")
 
 #define KYA_L10N_SET_DEFAULT_ACTIVATION_DURATION(_str) [NSString stringWithFormat:NSLocalizedString(@"Set Default: %@", @"Set Default: %@"), (NSString *)(_str)]
+
+#pragma mark - Watched Items
+
+#define KYA_L10N_WATCHED_WIFI_SSIDS NSLocalizedString(@"Watched Wi-Fi Networks", @"Watched Wi-Fi Networks")
+#define KYA_L10N_WATCHED_WIFI_SSIDS_HINT NSLocalizedString(@"Stay active while connected to one of these Wi-Fi networks (SSIDs).", @"Stay active while connected to one of these Wi-Fi networks (SSIDs).")
+#define KYA_L10N_WATCHED_APPLICATIONS NSLocalizedString(@"Watched Applications", @"Watched Applications")
+#define KYA_L10N_WATCHED_APPLICATIONS_HINT NSLocalizedString(@"Stay active while one of these applications is running.", @"Stay active while one of these applications is running.")
+#define KYA_L10N_WATCHED_DOWNLOAD_DIRECTORIES NSLocalizedString(@"Watched Download Folders", @"Watched Download Folders")
+#define KYA_L10N_WATCHED_DOWNLOAD_DIRECTORIES_HINT NSLocalizedString(@"Stay active while a download is in progress in one of these folders.", @"Stay active while a download is in progress in one of these folders.")
+#define KYA_L10N_WATCHED_ITEMS_CHOOSE_APPLICATION NSLocalizedString(@"Choose Application", @"Choose Application")
+#define KYA_L10N_WATCHED_ITEMS_CHOOSE_FOLDER NSLocalizedString(@"Choose Folder", @"Choose Folder")
+#define KYA_L10N_WATCHED_ITEMS_NO_BUNDLE_IDENTIFIER_TITLE NSLocalizedString(@"Could Not Add Application", @"Could Not Add Application")
+#define KYA_L10N_WATCHED_ITEMS_NO_BUNDLE_IDENTIFIER_MESSAGE NSLocalizedString(@"The selected item does not have a bundle identifier.", @"The selected item does not have a bundle identifier.")
