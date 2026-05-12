@@ -55,17 +55,20 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 
 - (BOOL)resizesView
 {
-    return NO;
+    // The view is built programmatically and is taller than the settings
+    // window's default content size, so let the base class size the tab
+    // view to our fittingSize.
+    return YES;
 }
 
 #pragma mark - Life Cycle
 
 - (instancetype)init
 {
-    // Bypass KYASettingsContentViewController's Nib-loading -init by
-    // going straight to NSViewController's designated initializer with a
-    // nil Nib name. We build the view hierarchy in -loadView.
-    self = [super initWithNibName:nil bundle:nil];
+    // The base KYASettingsContentViewController -init is the designated
+    // initializer; it sets nibName to the class name but since we override
+    // -loadView the Nib is never loaded, so this is safe.
+    self = [super init];
     if(self)
     {
         self.title = [[self class] preferredTitle];
@@ -89,6 +92,8 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
     [rootView addSubview:stackView];
 
     [NSLayoutConstraint activateConstraints:@[
+        // Pin the stack view to every edge so the root view derives its
+        // fittingSize (~480 x ~460) from the stack view's content.
         [stackView.topAnchor constraintEqualToAnchor:rootView.topAnchor],
         [stackView.bottomAnchor constraintEqualToAnchor:rootView.bottomAnchor],
         [stackView.leadingAnchor constraintEqualToAnchor:rootView.leadingAnchor],
@@ -155,7 +160,11 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
     Auto hintLabel = [NSTextField wrappingLabelWithString:hint];
     hintLabel.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
     hintLabel.textColor = NSColor.secondaryLabelColor;
+    // Pin the wrapping label to the section width so its intrinsic height
+    // is deterministic (otherwise fittingSize can be wrong/collapsed).
+    hintLabel.preferredMaxLayoutWidth = 440.0;
     [section addArrangedSubview:hintLabel];
+    [hintLabel.widthAnchor constraintEqualToConstant:440.0].active = YES;
 
     // Table view inside a scroll view.
     Auto tableView = [NSTableView new];
