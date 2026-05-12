@@ -224,6 +224,7 @@ def _run_status(tmp_home: Path, *args):
         capture_output=True,
         text=True,
         env=env,
+        timeout=10,  # a regressed/blocking `kya status` must not hang CI
     )
 
 
