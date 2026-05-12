@@ -138,8 +138,8 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 - (NSView *)sectionViewWithTitle:(NSString *)title
                             hint:(NSString *)hint
                         editable:(BOOL)editable
-                       tableView:(NSTableView * _Nullable * _Nonnull)outTableView
-                         control:(NSSegmentedControl * _Nullable * _Nonnull)outControl
+                       tableView:(NSTableView * _Nullable __autoreleasing * _Nonnull)outTableView
+                         control:(NSSegmentedControl * _Nullable __autoreleasing * _Nonnull)outControl
                             kind:(KYAWatchedItemsListKind)kind
 {
     Auto section = [NSStackView new];
@@ -367,6 +367,8 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 
     __weak typeof(self) weakSelf = self;
     [panel beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse result) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if(strongSelf == nil) { return; }
         if(result != NSModalResponseOK) { return; }
         NSURL *url = panel.URL;
         if(url == nil) { return; }
@@ -380,10 +382,10 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
             alert.messageText = KYA_L10N_WATCHED_ITEMS_NO_BUNDLE_IDENTIFIER_TITLE;
             alert.informativeText = KYA_L10N_WATCHED_ITEMS_NO_BUNDLE_IDENTIFIER_MESSAGE;
             [alert addButtonWithTitle:KYA_L10N_OK];
-            [alert beginSheetModalForWindow:weakSelf.view.window completionHandler:nil];
+            [alert beginSheetModalForWindow:strongSelf.view.window completionHandler:nil];
             return;
         }
-        [weakSelf addString:bundleIdentifier toKind:KYAWatchedItemsListKindApplications];
+        [strongSelf addString:bundleIdentifier toKind:KYAWatchedItemsListKindApplications];
     }];
 }
 
@@ -399,11 +401,13 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 
     __weak typeof(self) weakSelf = self;
     [panel beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse result) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if(strongSelf == nil) { return; }
         if(result != NSModalResponseOK) { return; }
         NSURL *url = panel.URL;
         if(url == nil) { return; }
         NSString *path = [url.path stringByAbbreviatingWithTildeInPath];
-        [weakSelf addString:path toKind:KYAWatchedItemsListKindDownloadDirectories];
+        [strongSelf addString:path toKind:KYAWatchedItemsListKindDownloadDirectories];
     }];
 }
 
@@ -411,9 +415,10 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 
 - (void)updateRemoveButtonsEnabledState
 {
-    NSArray<NSSegmentedControl *> *controls = @[ self.ssidControl, self.applicationsControl, self.directoriesControl ];
-    for(NSSegmentedControl *control in controls)
+    NSSegmentedControl *controls[] = { self.ssidControl, self.applicationsControl, self.directoriesControl };
+    for(size_t i = 0; i < sizeof(controls) / sizeof(controls[0]); i++)
     {
+        NSSegmentedControl *control = controls[i];
         if(control == nil) { continue; }
         Auto kind = (KYAWatchedItemsListKind)control.tag;
         BOOL hasSelection = ([self tableViewForKind:kind].selectedRow >= 0);
@@ -446,7 +451,9 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 
     if(row < 0 || row >= (NSInteger)self.ssids.count) { return; }
 
-    // Drop empty / duplicate edits — remove the (placeholder) row instead.
+    Auto previousValue = self.ssids[(NSUInteger)row];
+    BOOL wasPlaceholder = (previousValue.length == 0);
+
     BOOL isDuplicate = NO;
     for(NSInteger i = 0; i < (NSInteger)self.ssids.count; i++)
     {
@@ -454,9 +461,19 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
         if([self.ssids[(NSUInteger)i] caseInsensitiveCompare:trimmed] == NSOrderedSame) { isDuplicate = YES; break; }
     }
 
-    if(trimmed.length == 0 || isDuplicate)
+    if(trimmed.length == 0 || (isDuplicate && wasPlaceholder))
     {
+        // Empty input, or a freshly-added placeholder row resolved to a
+        // duplicate — discard the row.
         [self.ssids removeObjectAtIndex:(NSUInteger)row];
+    }
+    else if(isDuplicate)
+    {
+        // Editing an existing entry into a duplicate of another — keep the
+        // previous value, do not destroy the row.
+        [tableView reloadData];
+        [self updateRemoveButtonsEnabledState];
+        return;
     }
     else
     {
