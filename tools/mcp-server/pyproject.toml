@@ -10,6 +10,9 @@ dependencies = [
     "mcp>=1.0.0",
 ]
 
+[project.optional-dependencies]
+test = ["pytest"]
+
 [project.scripts]
 kya-mcp-server = "kya_mcp_server:main"
 
