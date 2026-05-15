@@ -8,6 +8,7 @@
 
 #import "KYAAppController.h"
 #import "KYAActivationSource.h"
+#import "KYAActivationOwnership.h"
 #import <KYACommon/KYACommon.h>
 #import "KYALocalizedStrings.h"
 #import "KYAMainMenu.h"
@@ -38,9 +39,11 @@
 // transitions (unplugged → AC) instead of every battery notification.
 @property (nonatomic) BOOL acTriggerWasOnAC;
 
-// Who started the active session. Only meaningful while the timer is
-// scheduled; reset to User on terminateTimer.
-@property (nonatomic) KYAActivationSource activationSource;
+// Who started the active session. Holds the activation source for the
+// running timer and naturally encodes the invariant "a feature trigger
+// never deactivates a user-initiated session" via
+// -terminateIfOwnedBySource:. See KYAActivationOwnership.h.
+@property (nonatomic) KYAActivationOwnership *ownership;
 
 // Schedule trigger monitor — driven by ScheduleEnabled / ScheduleWindows
 // defaults keys. nil while the trigger is disabled.
@@ -73,6 +76,8 @@
     self = [super init];
     if(self)
     {
+        _ownership = [[KYAActivationOwnership alloc] init];
+
         [self configureStatusItemController];
         [self configureSleepWakeTimer];
         [self configureEventHandler];
@@ -398,7 +403,7 @@
             [NSApplication.sharedApplication terminate:nil];
         }
     };
-    self.activationSource = source;
+    [self.ownership startWithSource:source];
     [self.sleepWakeTimer scheduleWithTimeInterval:timeInterval completion:timerCompletion];
 
     [[KYAActivityLogger sharedLogger] recordActivationStartedFromSource:KYAActivityLogStringForSource(source)
@@ -428,7 +433,7 @@
     {
         [self.sleepWakeTimer invalidate];
     }
-    self.activationSource = KYAActivationSourceUser;
+    [self.ownership terminate];
 
     if(wasScheduled)
     {
@@ -442,8 +447,12 @@
 /// session that happened to be running at the same time.
 - (void)terminateTimerIfOwnedBySource:(KYAActivationSource)source
 {
-    if(self.activationSource != source) { return; }
     if([self.sleepWakeTimer isScheduled] == NO) { return; }
+    if([self.ownership terminateIfOwnedBySource:source] == NO) { return; }
+    // Re-enter the canonical teardown path so battery override,
+    // activity-log entry, and timer invalidation stay co-located with
+    // -terminateTimerWithReason:. The ownership object is already
+    // reset; -terminateTimerWithReason: re-terminates idempotently.
     [self terminateTimerWithReason:KYAActivityLogEndedReasonTriggerCancelled];
 }
 
