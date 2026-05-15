@@ -67,6 +67,16 @@
                ReferencedContainer = "container:Packages/KYAApplicationSupport">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "KYASleepWakeTimerTests"
+               BuildableName = "KYASleepWakeTimerTests"
+               BlueprintName = "KYASleepWakeTimerTests"
+               ReferencedContainer = "container:Packages/KYASleepWakeTimer">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

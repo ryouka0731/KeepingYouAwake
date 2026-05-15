@@ -11,9 +11,17 @@ let package = Package(
         .library(name: "KYASleepWakeTimer", targets: ["KYASleepWakeTimer"]),
     ],
     dependencies: [
-        .package(name: "KYAApplicationSupport", path: "../KYAApplicationSupport")
+        .package(name: "KYAApplicationSupport", path: "../KYAApplicationSupport"),
+        .package(name: "KYACommon", path: "../KYACommon"),
     ],
     targets: [
         .target(name: "KYASleepWakeTimer", dependencies: ["KYAApplicationSupport"]),
+        .testTarget(
+            name: "KYASleepWakeTimerTests",
+            dependencies: [
+                "KYASleepWakeTimer",
+                .product(name: "KYACommon", package: "KYACommon"),
+            ]
+        ),
     ]
 )
