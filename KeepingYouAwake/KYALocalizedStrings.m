@@ -83,3 +83,10 @@
 #define KYA_L10N_WATCHED_ITEMS_CHOOSE_FOLDER NSLocalizedString(@"Choose Folder", @"Choose Folder")
 #define KYA_L10N_WATCHED_ITEMS_NO_BUNDLE_IDENTIFIER_TITLE NSLocalizedString(@"Could Not Add Application", @"Could Not Add Application")
 #define KYA_L10N_WATCHED_ITEMS_NO_BUNDLE_IDENTIFIER_MESSAGE NSLocalizedString(@"The selected item does not have a bundle identifier.", @"The selected item does not have a bundle identifier.")
+
+#pragma mark - Schedule Windows
+
+#define KYA_L10N_SCHEDULE_WINDOWS NSLocalizedString(@"Active Hours", @"Active Hours")
+#define KYA_L10N_SCHEDULE_WINDOWS_HINT NSLocalizedString(@"Stay active during these weekday and time windows. If the end time is earlier than the start time, the window wraps past midnight into the next day.", @"Stay active during these weekday and time windows. If the end time is earlier than the start time, the window wraps past midnight into the next day.")
+#define KYA_L10N_SCHEDULE_WINDOWS_FROM NSLocalizedString(@"From", @"From (start time label in a schedule window row)")
+#define KYA_L10N_SCHEDULE_WINDOWS_TO NSLocalizedString(@"To", @"To (end time label in a schedule window row)")

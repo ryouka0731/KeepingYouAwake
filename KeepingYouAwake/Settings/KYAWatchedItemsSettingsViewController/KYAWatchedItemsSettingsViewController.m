@@ -18,20 +18,35 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
     KYAWatchedItemsListKindWiFiSSIDs = 0,
     KYAWatchedItemsListKindApplications,
     KYAWatchedItemsListKindDownloadDirectories,
+    KYAWatchedItemsListKindScheduleWindows,
 };
+
+/// Minutes in one day; valid minute-of-day values are 0..(this - 1).
+static const NSInteger KYAMinutesPerDay = 24 * 60;
+
+/// Reuse identifier for the schedule-section row stack view.
+static NSString * const KYAScheduleWindowRowIdentifier = @"KYAScheduleWindowRowView";
 
 @interface KYAWatchedItemsSettingsViewController ()
 @property (nonatomic) NSTableView *ssidTableView;
 @property (nonatomic) NSTableView *applicationsTableView;
 @property (nonatomic) NSTableView *directoriesTableView;
+@property (nonatomic) NSTableView *scheduleTableView;
 
 @property (nonatomic) NSSegmentedControl *ssidControl;
 @property (nonatomic) NSSegmentedControl *applicationsControl;
 @property (nonatomic) NSSegmentedControl *directoriesControl;
+@property (nonatomic) NSSegmentedControl *scheduleControl;
 
 @property (nonatomic) NSMutableArray<NSString *> *ssids;
 @property (nonatomic) NSMutableArray<NSString *> *bundleIdentifiers;
 @property (nonatomic) NSMutableArray<NSString *> *directories;
+
+/// Each entry is a mutable copy of a `kya_scheduleWindows` dictionary:
+/// keys `KYAScheduleWindowKeyWeekdays` (NSArray<NSNumber*> of 1..7),
+/// `KYAScheduleWindowKeyStartMinutes` and `KYAScheduleWindowKeyEndMinutes`
+/// (NSNumber, 0..1439).
+@property (nonatomic) NSMutableArray<NSMutableDictionary<NSString *, id> *> *scheduleWindows;
 @end
 
 @implementation KYAWatchedItemsSettingsViewController
@@ -133,6 +148,13 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
     self.directoriesTableView = directoriesTableView;
     self.directoriesControl = directoriesControl;
 
+    NSTableView *scheduleTableView = nil;
+    NSSegmentedControl *scheduleControl = nil;
+    [stackView addArrangedSubview:[self scheduleSectionViewWithTableView:&scheduleTableView
+                                                                control:&scheduleControl]];
+    self.scheduleTableView = scheduleTableView;
+    self.scheduleControl = scheduleControl;
+
     self.view = rootView;
 
     [self updateRemoveButtonsEnabledState];
@@ -222,6 +244,85 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
     return section;
 }
 
+/// Builds the "Active Hours" section: a view-based table whose rows each
+/// represent one schedule window (weekday picker + start/end time pickers)
+/// plus a +/- segmented control. Mirrors the layout of the cell-based
+/// sections above but with richer per-row controls.
+- (NSView *)scheduleSectionViewWithTableView:(NSTableView * _Nullable __autoreleasing * _Nonnull)outTableView
+                                     control:(NSSegmentedControl * _Nullable __autoreleasing * _Nonnull)outControl
+{
+    Auto section = [NSStackView new];
+    section.translatesAutoresizingMaskIntoConstraints = NO;
+    section.orientation = NSUserInterfaceLayoutOrientationVertical;
+    section.alignment = NSLayoutAttributeLeading;
+    section.spacing = 6.0;
+
+    Auto titleLabel = [NSTextField labelWithString:KYA_L10N_SCHEDULE_WINDOWS];
+    titleLabel.font = [NSFont boldSystemFontOfSize:[NSFont systemFontSize]];
+    [section addArrangedSubview:titleLabel];
+
+    Auto hintLabel = [NSTextField wrappingLabelWithString:KYA_L10N_SCHEDULE_WINDOWS_HINT];
+    hintLabel.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    hintLabel.textColor = NSColor.secondaryLabelColor;
+    hintLabel.preferredMaxLayoutWidth = 440.0;
+    [section addArrangedSubview:hintLabel];
+    [hintLabel.widthAnchor constraintEqualToConstant:440.0].active = YES;
+
+    Auto tableView = [NSTableView new];
+    tableView.headerView = nil;
+    tableView.usesAlternatingRowBackgroundColors = YES;
+    tableView.allowsMultipleSelection = NO;
+    tableView.rowSizeStyle = NSTableViewRowSizeStyleCustom;
+    tableView.rowHeight = 32.0;
+    tableView.dataSource = self;
+    tableView.delegate = self;
+    tableView.tag = KYAWatchedItemsListKindScheduleWindows;
+
+    Auto column = [[NSTableColumn alloc] initWithIdentifier:@"window"];
+    column.editable = NO;
+    column.resizingMask = NSTableColumnAutoresizingMask;
+    [tableView addTableColumn:column];
+    tableView.columnAutoresizingStyle = NSTableViewUniformColumnAutoresizingStyle;
+
+    Auto scrollView = [NSScrollView new];
+    scrollView.translatesAutoresizingMaskIntoConstraints = NO;
+    scrollView.hasVerticalScroller = YES;
+    scrollView.borderType = NSBezelBorder;
+    scrollView.documentView = tableView;
+    [section addArrangedSubview:scrollView];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [scrollView.heightAnchor constraintEqualToConstant:120.0],
+        [scrollView.widthAnchor constraintEqualToConstant:440.0],
+    ]];
+
+    Auto control = [NSSegmentedControl new];
+    control.translatesAutoresizingMaskIntoConstraints = NO;
+    control.segmentStyle = NSSegmentStyleSmallSquare;
+    control.trackingMode = NSSegmentSwitchTrackingMomentary;
+    control.segmentCount = 2;
+    if(@available(macOS 11.0, *))
+    {
+        [control setImage:[NSImage imageWithSystemSymbolName:@"plus" accessibilityDescription:NSLocalizedString(@"Add", @"Add")] forSegment:0];
+        [control setImage:[NSImage imageWithSystemSymbolName:@"minus" accessibilityDescription:NSLocalizedString(@"Remove", @"Remove")] forSegment:1];
+    }
+    else
+    {
+        [control setImage:[NSImage imageNamed:NSImageNameAddTemplate] forSegment:0];
+        [control setImage:[NSImage imageNamed:NSImageNameRemoveTemplate] forSegment:1];
+    }
+    [control setWidth:28.0 forSegment:0];
+    [control setWidth:28.0 forSegment:1];
+    control.target = self;
+    control.action = @selector(segmentedControlAction:);
+    control.tag = KYAWatchedItemsListKindScheduleWindows;
+    [section addArrangedSubview:control];
+
+    *outTableView = tableView;
+    *outControl = control;
+    return section;
+}
+
 #pragma mark - Model
 
 - (void)loadModel
@@ -230,6 +331,46 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
     self.ssids = [[defaults kya_watchedWiFiSSIDs] mutableCopy] ?: [NSMutableArray new];
     self.bundleIdentifiers = [[defaults kya_watchedApplicationBundleIdentifiers] mutableCopy] ?: [NSMutableArray new];
     self.directories = [[defaults kya_downloadDirectories] mutableCopy] ?: [NSMutableArray new];
+
+    Auto windows = [NSMutableArray new];
+    for(id entry in (defaults.kya_scheduleWindows ?: @[]))
+    {
+        if(![entry isKindOfClass:[NSDictionary class]]) { continue; }
+        [windows addObject:[self normalizedScheduleWindowFromDictionary:(NSDictionary *)entry]];
+    }
+    self.scheduleWindows = windows;
+}
+
+/// Coerces an arbitrary persisted dictionary into a clean mutable window
+/// dictionary with all three keys present and clamped to valid ranges.
+- (NSMutableDictionary<NSString *, id> *)normalizedScheduleWindowFromDictionary:(NSDictionary *)dictionary
+{
+    Auto weekdays = [NSMutableArray new];
+    Auto seen = [NSMutableSet new];
+    for(id day in [dictionary[KYAScheduleWindowKeyWeekdays] isKindOfClass:[NSArray class]] ? dictionary[KYAScheduleWindowKeyWeekdays] : @[])
+    {
+        if(![day isKindOfClass:[NSNumber class]]) { continue; }
+        NSInteger value = ((NSNumber *)day).integerValue;
+        if(value < 1 || value > 7) { continue; }
+        Auto boxed = @(value);
+        if([seen containsObject:boxed]) { continue; }
+        [seen addObject:boxed];
+        [weekdays addObject:boxed];
+    }
+    [weekdays sortUsingSelector:@selector(compare:)];
+
+    NSInteger start = [dictionary[KYAScheduleWindowKeyStartMinutes] isKindOfClass:[NSNumber class]]
+        ? ((NSNumber *)dictionary[KYAScheduleWindowKeyStartMinutes]).integerValue : 9 * 60;
+    NSInteger end = [dictionary[KYAScheduleWindowKeyEndMinutes] isKindOfClass:[NSNumber class]]
+        ? ((NSNumber *)dictionary[KYAScheduleWindowKeyEndMinutes]).integerValue : 18 * 60;
+    start = MAX((NSInteger)0, MIN(KYAMinutesPerDay - 1, start));
+    end = MAX((NSInteger)0, MIN(KYAMinutesPerDay - 1, end));
+
+    return [@{
+        KYAScheduleWindowKeyWeekdays: weekdays,
+        KYAScheduleWindowKeyStartMinutes: @(start),
+        KYAScheduleWindowKeyEndMinutes: @(end),
+    } mutableCopy];
 }
 
 - (NSMutableArray<NSString *> *)modelForKind:(KYAWatchedItemsListKind)kind
@@ -239,6 +380,7 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
         case KYAWatchedItemsListKindWiFiSSIDs: return self.ssids;
         case KYAWatchedItemsListKindApplications: return self.bundleIdentifiers;
         case KYAWatchedItemsListKindDownloadDirectories: return self.directories;
+        case KYAWatchedItemsListKindScheduleWindows: break; // not a string list; handled separately
     }
     return [NSMutableArray new];
 }
@@ -250,6 +392,7 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
         case KYAWatchedItemsListKindWiFiSSIDs: return self.ssidTableView;
         case KYAWatchedItemsListKindApplications: return self.applicationsTableView;
         case KYAWatchedItemsListKindDownloadDirectories: return self.directoriesTableView;
+        case KYAWatchedItemsListKindScheduleWindows: return self.scheduleTableView;
     }
     return nil;
 }
@@ -268,7 +411,27 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
         case KYAWatchedItemsListKindDownloadDirectories:
             defaults.kya_downloadDirectories = (self.directories.count > 0) ? [self.directories copy] : nil;
             break;
+        case KYAWatchedItemsListKindScheduleWindows:
+            [self persistScheduleWindows];
+            break;
     }
+}
+
+/// Writes the whole `scheduleWindows` model back to user defaults as an
+/// immutable array of immutable dictionaries (or nil when empty).
+- (void)persistScheduleWindows
+{
+    if(self.scheduleWindows.count == 0)
+    {
+        NSUserDefaults.standardUserDefaults.kya_scheduleWindows = nil;
+        return;
+    }
+    Auto out = [NSMutableArray new];
+    for(NSDictionary *window in self.scheduleWindows)
+    {
+        [out addObject:[window copy]];
+    }
+    NSUserDefaults.standardUserDefaults.kya_scheduleWindows = [out copy];
 }
 
 /// Inserts `string` (trimmed) into the given list unless it is empty or a
@@ -318,7 +481,28 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
         case KYAWatchedItemsListKindDownloadDirectories:
             [self presentDirectoryOpenPanel];
             break;
+        case KYAWatchedItemsListKindScheduleWindows:
+            [self addDefaultScheduleWindow];
+            break;
     }
+}
+
+- (void)addDefaultScheduleWindow
+{
+    // A sensible default: weekdays Monday–Friday (NSCalendar 2..6),
+    // 09:00 to 18:00.
+    Auto window = [@{
+        KYAScheduleWindowKeyWeekdays: @[ @2, @3, @4, @5, @6 ],
+        KYAScheduleWindowKeyStartMinutes: @(9 * 60),
+        KYAScheduleWindowKeyEndMinutes: @(18 * 60),
+    } mutableCopy];
+    [self.scheduleWindows addObject:window];
+    [self persistScheduleWindows];
+    [self.scheduleTableView reloadData];
+    Auto row = (NSInteger)(self.scheduleWindows.count - 1);
+    [self.scheduleTableView scrollRowToVisible:row];
+    [self.scheduleTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)row] byExtendingSelection:NO];
+    [self updateRemoveButtonsEnabledState];
 }
 
 - (void)addEmptySSIDRowAndBeginEditing
@@ -338,6 +522,17 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 {
     Auto tableView = [self tableViewForKind:kind];
     Auto selectedRow = tableView.selectedRow;
+
+    if(kind == KYAWatchedItemsListKindScheduleWindows)
+    {
+        if(selectedRow < 0 || selectedRow >= (NSInteger)self.scheduleWindows.count) { return; }
+        [self.scheduleWindows removeObjectAtIndex:(NSUInteger)selectedRow];
+        [self persistScheduleWindows];
+        [tableView reloadData];
+        [self updateRemoveButtonsEnabledState];
+        return;
+    }
+
     Auto model = [self modelForKind:kind];
     if(selectedRow < 0 || selectedRow >= (NSInteger)model.count) { return; }
 
@@ -424,7 +619,7 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 
 - (void)updateRemoveButtonsEnabledState
 {
-    NSSegmentedControl *controls[] = { self.ssidControl, self.applicationsControl, self.directoriesControl };
+    NSSegmentedControl *controls[] = { self.ssidControl, self.applicationsControl, self.directoriesControl, self.scheduleControl };
     for(size_t i = 0; i < sizeof(controls) / sizeof(controls[0]); i++)
     {
         NSSegmentedControl *control = controls[i];
@@ -439,11 +634,17 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
+    if((KYAWatchedItemsListKind)tableView.tag == KYAWatchedItemsListKindScheduleWindows)
+    {
+        return (NSInteger)self.scheduleWindows.count;
+    }
     return (NSInteger)[self modelForKind:(KYAWatchedItemsListKind)tableView.tag].count;
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
+    // The schedule table is view-based; it has no string object value.
+    if((KYAWatchedItemsListKind)tableView.tag == KYAWatchedItemsListKindScheduleWindows) { return nil; }
     Auto model = [self modelForKind:(KYAWatchedItemsListKind)tableView.tag];
     if(row < 0 || row >= (NSInteger)model.count) { return @""; }
     return model[(NSUInteger)row];
@@ -499,6 +700,220 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 - (void)tableViewSelectionDidChange:(NSNotification *)notification
 {
     [self updateRemoveButtonsEnabledState];
+}
+
+- (nullable NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row
+{
+    // Only the schedule table is view-based; the others are cell-based and
+    // never reach this method.
+    if((KYAWatchedItemsListKind)tableView.tag != KYAWatchedItemsListKindScheduleWindows) { return nil; }
+    if(row < 0 || row >= (NSInteger)self.scheduleWindows.count) { return nil; }
+
+    NSStackView *rowStack = (NSStackView *)[tableView makeViewWithIdentifier:KYAScheduleWindowRowIdentifier owner:self];
+    NSSegmentedControl *weekdayControl = nil;
+    NSDatePicker *startPicker = nil;
+    NSDatePicker *endPicker = nil;
+
+    if(rowStack != nil)
+    {
+        for(NSView *subview in rowStack.arrangedSubviews)
+        {
+            if([subview.identifier isEqualToString:@"weekdays"]) { weekdayControl = (NSSegmentedControl *)subview; }
+            else if([subview.identifier isEqualToString:@"start"]) { startPicker = (NSDatePicker *)subview; }
+            else if([subview.identifier isEqualToString:@"end"]) { endPicker = (NSDatePicker *)subview; }
+        }
+        // Defensive: if a reused row view is missing any of its expected
+        // subviews (e.g. someone added an unrelated subview to the stack,
+        // or an identifier collision returns an unrelated view), drop the
+        // reused container and rebuild from scratch instead of dereferencing
+        // a nil control below.
+        if(weekdayControl == nil || startPicker == nil || endPicker == nil)
+        {
+            rowStack = nil;
+            weekdayControl = nil;
+            startPicker = nil;
+            endPicker = nil;
+        }
+    }
+
+    if(rowStack == nil)
+    {
+        rowStack = [self makeFreshScheduleRowViewWithWeekdayControl:&weekdayControl
+                                                        startPicker:&startPicker
+                                                          endPicker:&endPicker];
+    }
+
+    Auto window = self.scheduleWindows[(NSUInteger)row];
+    Auto weekdays = [window[KYAScheduleWindowKeyWeekdays] isKindOfClass:[NSArray class]] ? window[KYAScheduleWindowKeyWeekdays] : @[];
+    for(NSInteger segment = 0; segment < 7; segment++)
+    {
+        // Segment 0 = Sunday (weekday 1) … segment 6 = Saturday (weekday 7).
+        BOOL on = [weekdays containsObject:@(segment + 1)];
+        [weekdayControl setSelected:on forSegment:segment];
+    }
+    NSInteger startMinutes = [window[KYAScheduleWindowKeyStartMinutes] isKindOfClass:[NSNumber class]] ? ((NSNumber *)window[KYAScheduleWindowKeyStartMinutes]).integerValue : 0;
+    NSInteger endMinutes = [window[KYAScheduleWindowKeyEndMinutes] isKindOfClass:[NSNumber class]] ? ((NSNumber *)window[KYAScheduleWindowKeyEndMinutes]).integerValue : 0;
+    startPicker.dateValue = [self dateForMinutesSinceMidnight:startMinutes];
+    endPicker.dateValue = [self dateForMinutesSinceMidnight:endMinutes];
+
+    return rowStack;
+}
+
+/// Builds a brand-new schedule-row stack view with its three input
+/// controls wired up. Used both for the initial inflation path and as
+/// the recovery path when a reused view came back missing a subview.
+- (NSStackView *)makeFreshScheduleRowViewWithWeekdayControl:(NSSegmentedControl * _Nullable __autoreleasing * _Nonnull)outWeekday
+                                                startPicker:(NSDatePicker * _Nullable __autoreleasing * _Nonnull)outStart
+                                                  endPicker:(NSDatePicker * _Nullable __autoreleasing * _Nonnull)outEnd
+{
+    Auto rowStack = [NSStackView new];
+    rowStack.identifier = KYAScheduleWindowRowIdentifier;
+    rowStack.orientation = NSUserInterfaceLayoutOrientationHorizontal;
+    rowStack.alignment = NSLayoutAttributeCenterY;
+    rowStack.spacing = 6.0;
+    rowStack.translatesAutoresizingMaskIntoConstraints = NO;
+
+    Auto weekdayControl = [NSSegmentedControl new];
+    weekdayControl.identifier = @"weekdays";
+    weekdayControl.segmentStyle = NSSegmentStyleSmallSquare;
+    weekdayControl.trackingMode = NSSegmentSwitchTrackingSelectAny;
+    weekdayControl.segmentCount = 7;
+    weekdayControl.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    Auto symbols = [self sundayFirstShortWeekdaySymbols];
+    for(NSInteger i = 0; i < 7; i++)
+    {
+        [weekdayControl setLabel:symbols[(NSUInteger)i] forSegment:i];
+        [weekdayControl setWidth:24.0 forSegment:i];
+    }
+    weekdayControl.target = self;
+    weekdayControl.action = @selector(scheduleWeekdayControlChanged:);
+    [rowStack addArrangedSubview:weekdayControl];
+
+    Auto fromLabel = [NSTextField labelWithString:KYA_L10N_SCHEDULE_WINDOWS_FROM];
+    fromLabel.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    fromLabel.textColor = NSColor.secondaryLabelColor;
+    [rowStack addArrangedSubview:fromLabel];
+
+    Auto startPicker = [self makeTimeDatePickerWithIdentifier:@"start" action:@selector(scheduleStartPickerChanged:)];
+    [rowStack addArrangedSubview:startPicker];
+
+    Auto toLabel = [NSTextField labelWithString:KYA_L10N_SCHEDULE_WINDOWS_TO];
+    toLabel.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    toLabel.textColor = NSColor.secondaryLabelColor;
+    [rowStack addArrangedSubview:toLabel];
+
+    Auto endPicker = [self makeTimeDatePickerWithIdentifier:@"end" action:@selector(scheduleEndPickerChanged:)];
+    [rowStack addArrangedSubview:endPicker];
+
+    *outWeekday = weekdayControl;
+    *outStart = startPicker;
+    *outEnd = endPicker;
+    return rowStack;
+}
+
+#pragma mark - Schedule Row Helpers
+
+/// The localized short weekday symbols ordered Sunday-first so that index
+/// `i` corresponds to NSCalendar weekday number `i + 1`.
+- (NSArray<NSString *> *)sundayFirstShortWeekdaySymbols
+{
+    Auto formatter = [NSDateFormatter new];
+    formatter.locale = NSLocale.currentLocale;
+    // -veryShortWeekdaySymbols / -shortWeekdaySymbols are always indexed
+    // 0 = Sunday … 6 = Saturday regardless of the locale's first weekday.
+    Auto symbols = formatter.veryShortWeekdaySymbols ?: formatter.shortWeekdaySymbols;
+    if(symbols.count == 7) { return symbols; }
+    return @[ @"S", @"M", @"T", @"W", @"T", @"F", @"S" ];
+}
+
+/// A UTC gregorian calendar used as the conversion frame between an
+/// integer minute-of-day (0..1439) and the NSDate values shown by an
+/// NSDatePicker. Using UTC eliminates DST: minute arithmetic on local
+/// `startOfDay` is off by an hour on the spring-forward / fall-back day,
+/// so a stored 23:50 can round-trip as 00:50 (or vice versa).
++ (NSCalendar *)kya_utcGregorianCalendar
+{
+    static NSCalendar *calendar = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+        calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    });
+    return calendar;
+}
+
+- (NSDate *)dateForMinutesSinceMidnight:(NSInteger)minutes
+{
+    minutes = MAX((NSInteger)0, MIN(KYAMinutesPerDay - 1, minutes));
+    Auto components = [NSDateComponents new];
+    components.year = 2001;
+    components.month = 1;
+    components.day = 1;
+    components.hour = minutes / 60;
+    components.minute = minutes % 60;
+    components.second = 0;
+    Auto calendar = [[self class] kya_utcGregorianCalendar];
+    return [calendar dateFromComponents:components] ?: [NSDate dateWithTimeIntervalSinceReferenceDate:0];
+}
+
+- (NSInteger)minutesSinceMidnightForDate:(NSDate *)date
+{
+    Auto calendar = [[self class] kya_utcGregorianCalendar];
+    Auto components = [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:date];
+    NSInteger minutes = components.hour * 60 + components.minute;
+    return MAX((NSInteger)0, MIN(KYAMinutesPerDay - 1, minutes));
+}
+
+- (NSDatePicker *)makeTimeDatePickerWithIdentifier:(NSString *)identifier action:(SEL)action
+{
+    Auto picker = [NSDatePicker new];
+    picker.identifier = identifier;
+    picker.datePickerStyle = NSDatePickerStyleTextFieldAndStepper;
+    picker.datePickerElements = NSDatePickerElementFlagHourMinute;
+    picker.datePickerMode = NSDatePickerModeSingle;
+    picker.bezeled = YES;
+    picker.drawsBackground = NO;
+    picker.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    // Render and parse in the same UTC calendar/timezone we use for
+    // minute-of-day conversion, so the hour the user sees in the picker
+    // is exactly the hour we persist (no DST shift on transition days).
+    picker.calendar = [[self class] kya_utcGregorianCalendar];
+    picker.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    picker.target = self;
+    picker.action = action;
+    return picker;
+}
+
+#pragma mark - Schedule Row Actions
+
+- (void)scheduleWeekdayControlChanged:(NSSegmentedControl *)sender
+{
+    NSInteger row = [self.scheduleTableView rowForView:sender];
+    if(row < 0 || row >= (NSInteger)self.scheduleWindows.count) { return; }
+
+    Auto weekdays = [NSMutableArray new];
+    for(NSInteger segment = 0; segment < 7; segment++)
+    {
+        if([sender isSelectedForSegment:segment]) { [weekdays addObject:@(segment + 1)]; }
+    }
+    self.scheduleWindows[(NSUInteger)row][KYAScheduleWindowKeyWeekdays] = weekdays;
+    [self persistScheduleWindows];
+}
+
+- (void)scheduleStartPickerChanged:(NSDatePicker *)sender
+{
+    NSInteger row = [self.scheduleTableView rowForView:sender];
+    if(row < 0 || row >= (NSInteger)self.scheduleWindows.count) { return; }
+    self.scheduleWindows[(NSUInteger)row][KYAScheduleWindowKeyStartMinutes] = @([self minutesSinceMidnightForDate:sender.dateValue]);
+    [self persistScheduleWindows];
+}
+
+- (void)scheduleEndPickerChanged:(NSDatePicker *)sender
+{
+    NSInteger row = [self.scheduleTableView rowForView:sender];
+    if(row < 0 || row >= (NSInteger)self.scheduleWindows.count) { return; }
+    self.scheduleWindows[(NSUInteger)row][KYAScheduleWindowKeyEndMinutes] = @([self minutesSinceMidnightForDate:sender.dateValue]);
+    [self persistScheduleWindows];
 }
 
 @end
