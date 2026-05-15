@@ -30,4 +30,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, copy, nonatomic) NSString *source;       // "" if inactive
 @end
 
+/// Block signature for the testable URL-dispatch seam. The activate /
+/// deactivate / toggle script commands route their URL emission through
+/// a single dispatcher block so tests can capture the URL without
+/// triggering Launch Services.
+typedef void (^KYAScriptingURLDispatcher)(NSURL *url);
+
+@interface KYAScriptingProxy (Testing)
+/// Override the URL dispatch used by the AppleScript command classes.
+/// Pass `nil` to restore the default (which routes through
+/// `-[NSWorkspace openURL:configuration:completionHandler:]`). Tests
+/// MUST reset this in `tearDown` to avoid leaking state across tests.
++ (void)kya_setURLDispatcherForTesting:(KYAScriptingURLDispatcher _Nullable)dispatcher;
+@end
+
 NS_ASSUME_NONNULL_END
