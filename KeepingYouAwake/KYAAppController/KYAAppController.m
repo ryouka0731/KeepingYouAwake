@@ -7,6 +7,7 @@
 //
 
 #import "KYAAppController.h"
+#import "KYAActivationSource.h"
 #import <KYACommon/KYACommon.h>
 #import "KYALocalizedStrings.h"
 #import "KYAMainMenu.h"
@@ -18,41 +19,6 @@
 // Deprecated!
 #define KYA_MINUTES(m) (m * 60.0f)
 #define KYA_HOURS(h) (h * 3600.0f)
-
-/// Tracks who started the current activation session. Feature triggers
-/// (watched-app, watched-SSID, AC power, external-display) only deactivate
-/// when their own `KYAActivationSource` matches the session, so a feature
-/// signal can't terminate a user-initiated timer. The default is `User`,
-/// covering the status-item click, menu duration, URL scheme, AppleScript,
-/// and kya_isActivatedOnLaunch paths.
-typedef NS_ENUM(NSInteger, KYAActivationSource) {
-    KYAActivationSourceUser = 0,
-    KYAActivationSourceWatchedApp,
-    KYAActivationSourceWatchedSSID,
-    KYAActivationSourceACPower,
-    KYAActivationSourceExternalDisplay,
-    KYAActivationSourceSchedule,
-    KYAActivationSourceDownload,
-    KYAActivationSourceAudioOutput,
-    KYAActivationSourceCPULoad,
-};
-
-static NSString * KYAActivityLogStringForSource(KYAActivationSource source)
-{
-    switch(source)
-    {
-        case KYAActivationSourceWatchedApp:      return KYAActivityLogSourceWatchedApp;
-        case KYAActivationSourceWatchedSSID:     return KYAActivityLogSourceWatchedSSID;
-        case KYAActivationSourceACPower:         return KYAActivityLogSourceACPower;
-        case KYAActivationSourceExternalDisplay: return KYAActivityLogSourceExternalDisplay;
-        case KYAActivationSourceSchedule:        return KYAActivityLogSourceSchedule;
-        case KYAActivationSourceDownload:        return KYAActivityLogSourceDownload;
-        case KYAActivationSourceAudioOutput:     return KYAActivityLogSourceAudioOutput;
-        case KYAActivationSourceCPULoad:         return KYAActivityLogSourceCPULoad;
-        case KYAActivationSourceUser:
-        default:                                 return KYAActivityLogSourceUser;
-    }
-}
 
 @interface KYAAppController () <KYAStatusItemControllerDataSource, KYAStatusItemControllerDelegate, KYAActivationDurationsMenuControllerDelegate, KYASleepWakeTimerDelegate, KYAScheduleMonitorDelegate, KYADownloadActivityMonitorDelegate, KYAAudioOutputMonitorDelegate, KYACPULoadMonitorDelegate>
 @property (nonatomic, readwrite) KYASleepWakeTimer *sleepWakeTimer;

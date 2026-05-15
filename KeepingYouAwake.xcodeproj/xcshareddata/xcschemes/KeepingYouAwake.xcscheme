@@ -41,6 +41,16 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A7A59AE6AA8DEDF372707C94"
+               BuildableName = "KeepingYouAwakeTests.xctest"
+               BlueprintName = "KeepingYouAwakeTests"
+               ReferencedContainer = "container:KeepingYouAwake.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "KYAActivationDurationsTests"
                BuildableName = "KYAActivationDurationsTests"
                BlueprintName = "KYAActivationDurationsTests"

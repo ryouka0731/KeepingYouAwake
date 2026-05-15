@@ -20,6 +20,13 @@
   "testTargets" : [
     {
       "target" : {
+        "containerPath" : "container:KeepingYouAwake.xcodeproj",
+        "identifier" : "A7A59AE6AA8DEDF372707C94",
+        "name" : "KeepingYouAwakeTests"
+      }
+    },
+    {
+      "target" : {
         "containerPath" : "container:Packages\/KYAActivationDurations",
         "identifier" : "KYAActivationDurationsTests",
         "name" : "KYAActivationDurationsTests"
