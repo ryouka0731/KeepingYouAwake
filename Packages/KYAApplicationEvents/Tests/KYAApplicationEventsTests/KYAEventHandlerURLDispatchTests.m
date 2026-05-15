@@ -118,10 +118,8 @@
     [eventHandler registerActionNamed:@"activate" block:^(KYAEvent *event) {
         XCTFail(@"No block should be invoked for a nil URL.");
     }];
-    // A syntactically invalid string yields a nil NSURL.
-    NSURL *malformedURL = [NSURL URLWithString:@"%%%"];
-    XCTAssertNil(malformedURL);
-    XCTAssertNoThrow([eventHandler handleEventForURL:malformedURL]);
+    NSURL *nilURL = nil;
+    XCTAssertNoThrow([eventHandler handleEventForURL:nilURL]);
 }
 
 - (void)testRemovedActionIsNoLongerInvoked
