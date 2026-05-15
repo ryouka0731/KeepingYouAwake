@@ -34,8 +34,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// Defaults to `NO`.
 @property (nonatomic, readonly, getter=isActive) BOOL active;
 
-/// Who owns the currently active session. Undefined when `active == NO`;
-/// callers must gate on `active` before reading.
+/// Who owns the current session. Always has a concrete value (the
+/// implementation resets to `KYAActivationSourceUser` from `-init` and
+/// `-terminate`), but the value is only meaningful while
+/// `active == YES`. Callers must gate on `active` before making
+/// decisions based on this property.
 @property (nonatomic, readonly) KYAActivationSource source;
 
 /// Mark the session as active and record `source` as the owner. Calling
