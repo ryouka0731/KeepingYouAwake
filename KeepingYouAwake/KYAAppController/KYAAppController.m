@@ -8,6 +8,7 @@
 
 #import "KYAAppController.h"
 #import "KYAActivationSource.h"
+#import "KYAActivationOwnership.h"
 #import <KYACommon/KYACommon.h>
 #import "KYALocalizedStrings.h"
 #import "KYAMainMenu.h"
@@ -38,9 +39,11 @@
 // transitions (unplugged → AC) instead of every battery notification.
 @property (nonatomic) BOOL acTriggerWasOnAC;
 
-// Who started the active session. Only meaningful while the timer is
-// scheduled; reset to User on terminateTimer.
-@property (nonatomic) KYAActivationSource activationSource;
+// Who started the active session. Holds the activation source for the
+// running timer and naturally encodes the invariant "a feature trigger
+// never deactivates a user-initiated session" via
+// -terminateIfOwnedBySource:. See KYAActivationOwnership.h.
+@property (nonatomic) KYAActivationOwnership *ownership;
 
 // Schedule trigger monitor — driven by ScheduleEnabled / ScheduleWindows
 // defaults keys. nil while the trigger is disabled.
@@ -73,6 +76,8 @@
     self = [super init];
     if(self)
     {
+        _ownership = [[KYAActivationOwnership alloc] init];
+
         [self configureStatusItemController];
         [self configureSleepWakeTimer];
         [self configureEventHandler];
@@ -398,7 +403,7 @@
             [NSApplication.sharedApplication terminate:nil];
         }
     };
-    self.activationSource = source;
+    [self.ownership startWithSource:source];
     [self.sleepWakeTimer scheduleWithTimeInterval:timeInterval completion:timerCompletion];
 
     [[KYAActivityLogger sharedLogger] recordActivationStartedFromSource:KYAActivityLogStringForSource(source)
@@ -416,9 +421,17 @@
 
 - (void)terminateTimer
 {
+    // Unconditional user/internal path. Clear ownership at the entry
+    // point so -terminateTimerWithReason: stays purely about the
+    // caffeinate-side teardown and activity-log write.
+    [self.ownership terminate];
     [self terminateTimerWithReason:KYAActivityLogEndedReasonUserCancelled];
 }
 
+/// Caffeinate-side teardown + activity-log write. Does NOT touch
+/// ownership state — every caller is required to clear ownership
+/// itself before invoking this method, so ownership is cleared
+/// exactly once at the entry point of each teardown path.
 - (void)terminateTimerWithReason:(NSString *)reason
 {
     [self disableBatteryOverride];
@@ -428,7 +441,6 @@
     {
         [self.sleepWakeTimer invalidate];
     }
-    self.activationSource = KYAActivationSourceUser;
 
     if(wasScheduled)
     {
@@ -442,8 +454,12 @@
 /// session that happened to be running at the same time.
 - (void)terminateTimerIfOwnedBySource:(KYAActivationSource)source
 {
-    if(self.activationSource != source) { return; }
     if([self.sleepWakeTimer isScheduled] == NO) { return; }
+    // -terminateIfOwnedBySource: atomically checks the invariant and
+    // clears ownership when it matches. -terminateTimerWithReason:
+    // then performs the caffeinate-side teardown without re-touching
+    // ownership state.
+    if([self.ownership terminateIfOwnedBySource:source] == NO) { return; }
     [self terminateTimerWithReason:KYAActivityLogEndedReasonTriggerCancelled];
 }
 
