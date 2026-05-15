@@ -7,8 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0AAA46B959C3B4F8E6AC3409 /* KYAActivationSourceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 28FF4ACC4437E1F15D36040A /* KYAActivationSourceTests.m */; };
+		31D46D55AE9D3118655EBEA4 /* KYAActivationSource.m in Sources */ = {isa = PBXBuildFile; fileRef = A80F72AA7A4977CA75B43CED /* KYAActivationSource.m */; };
+		4C42F498AE03E379C6199AA3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94CC22AE9B44AFF478D07B71 /* Cocoa.framework */; };
 		63D0E83755D768F7C92ABEC6 /* KYAWatchedItemsSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36CE5CEAE7027816B8A95C94 /* KYAWatchedItemsSettingsViewController.m */; };
 		6B70A995C914FE326908733C /* KeepingYouAwake.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 411A25D692ACBE44E57B72C7 /* KeepingYouAwake.sdef */; };
+		7A8B8FA2007F7636B407B516 /* KYAActivationSource.m in Sources */ = {isa = PBXBuildFile; fileRef = A80F72AA7A4977CA75B43CED /* KYAActivationSource.m */; };
 		8212C2BF01E7BA55AB6B9110 /* KeepingYouAwake.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 411A25D692ACBE44E57B72C7 /* KeepingYouAwake.sdef */; };
 		A3A2676F1F8794B3AD492B91 /* KYAAppIntents in Frameworks */ = {isa = PBXBuildFile; productRef = CA0111CB3151E818AEE22F85 /* KYAAppIntents */; };
 		AA0000010100000000000002 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA0000010100000000000001 /* InfoPlist.xcstrings */; };
@@ -117,6 +121,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1BC8D7BC145FF219303AE08F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA637B3119F14693004C8838 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DA637B3819F14693004C8838;
+			remoteInfo = KeepingYouAwake;
+		};
 		DA87FF5E21D42525009045F3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = DA637B3119F14693004C8838 /* Project object */;
@@ -180,12 +191,17 @@
 
 /* Begin PBXFileReference section */
 		2747028D82039898FDF3D873 /* KYAScripting.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = KYAScripting.m; sourceTree = "<group>"; };
+		28FF4ACC4437E1F15D36040A /* KYAActivationSourceTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = KYAActivationSourceTests.m; sourceTree = "<group>"; };
 		36CE5CEAE7027816B8A95C94 /* KYAWatchedItemsSettingsViewController.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = KYAWatchedItemsSettingsViewController.m; sourceTree = "<group>"; };
 		411A25D692ACBE44E57B72C7 /* KeepingYouAwake.sdef */ = {isa = PBXFileReference; includeInIndex = 1; path = KeepingYouAwake.sdef; sourceTree = "<group>"; };
 		41A952DFAF1E078C49CFA0D4 /* KYADriveAliveTimer.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = KYADriveAliveTimer.h; sourceTree = "<group>"; };
+		821B5F43959951A18C3CFF00 /* KYAActivationSource.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = KYAActivationSource.h; sourceTree = "<group>"; };
 		8DB2373A80CC1BCE57B9F488 /* KYADriveAliveTimer.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = KYADriveAliveTimer.m; sourceTree = "<group>"; };
+		94CC22AE9B44AFF478D07B71 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		A80F72AA7A4977CA75B43CED /* KYAActivationSource.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = KYAActivationSource.m; sourceTree = "<group>"; };
 		AA0000010100000000000001 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		D5E39378D5A0D668562966D3 /* KYAScripting.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = KYAScripting.h; sourceTree = "<group>"; };
+		D8E7C899F5AF43501DDC9A7F /* KeepingYouAwakeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeepingYouAwakeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA085D0F21D6BAB6003D9B1B /* container-migration.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "container-migration.plist"; sourceTree = "<group>"; };
 		DA0CA9FE21D0111600879C8B /* KeepingYouAwake.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KeepingYouAwake.entitlements; sourceTree = "<group>"; };
 		DA13771925E969FF00FB0FAD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -269,6 +285,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1478F3A036FCB2C940B82BEE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C42F498AE03E379C6199AA3 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DA637B3619F14693004C8838 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -312,6 +336,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		36D375C037BFB1547D729362 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				94CC22AE9B44AFF478D07B71 /* Cocoa.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
+		6A5696F49C208DE19ABC8221 /* KeepingYouAwakeTests */ = {
+			isa = PBXGroup;
+			children = (
+				28FF4ACC4437E1F15D36040A /* KYAActivationSourceTests.m */,
+			);
+			name = KeepingYouAwakeTests;
+			path = KeepingYouAwakeTests;
+			sourceTree = SOURCE_ROOT;
+		};
 		BA25E74678D6085B7157CE15 /* KYADriveAlive */ = {
 			isa = PBXGroup;
 			children = (
@@ -335,6 +376,7 @@
 		DA25062727C244240052CCD8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				36D375C037BFB1547D729362 /* OS X */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -426,6 +468,7 @@
 				DA658E6C21CE907B0049F4C1 /* KYALauncher */,
 				DA637B3A19F14693004C8838 /* Products */,
 				DA25062727C244240052CCD8 /* Frameworks */,
+				6A5696F49C208DE19ABC8221 /* KeepingYouAwakeTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -435,6 +478,7 @@
 				DA637B3919F14693004C8838 /* KeepingYouAwake.app */,
 				DA658E6B21CE907B0049F4C1 /* KeepingYouAwake Launcher.app */,
 				DAD3CF8F271186720006CA14 /* KeepingYouAwake.app */,
+				D8E7C899F5AF43501DDC9A7F /* KeepingYouAwakeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -542,6 +586,8 @@
 				DA637B4119F14693004C8838 /* KYAAppDelegate.m */,
 				DA637B5C19F146B6004C8838 /* KYAAppController.h */,
 				DA637B5D19F146B6004C8838 /* KYAAppController.m */,
+				821B5F43959951A18C3CFF00 /* KYAActivationSource.h */,
+				A80F72AA7A4977CA75B43CED /* KYAActivationSource.m */,
 			);
 			path = KYAAppController;
 			sourceTree = "<group>";
@@ -589,6 +635,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A7A59AE6AA8DEDF372707C94 /* KeepingYouAwakeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65A348B6AB7F2C0B123A41E9 /* Build configuration list for PBXNativeTarget "KeepingYouAwakeTests" */;
+			buildPhases = (
+				A8E00802F75F55BA46A5FAB7 /* Sources */,
+				1478F3A036FCB2C940B82BEE /* Frameworks */,
+				4936C9F0AD0064CF42B78ADB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AC19AD46AC3D1C83A5665962 /* PBXTargetDependency */,
+			);
+			name = KeepingYouAwakeTests;
+			productName = KeepingYouAwakeTests;
+			productReference = D8E7C899F5AF43501DDC9A7F /* KeepingYouAwakeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DA637B3819F14693004C8838 /* KeepingYouAwake */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DA637B5619F14694004C8838 /* Build configuration list for PBXNativeTarget "KeepingYouAwake" */;
@@ -742,11 +806,19 @@
 				DA637B3819F14693004C8838 /* KeepingYouAwake */,
 				DAD3CF56271186720006CA14 /* KeepingYouAwake (Direct) */,
 				DA658E6A21CE907B0049F4C1 /* KeepingYouAwake Launcher */,
+				A7A59AE6AA8DEDF372707C94 /* KeepingYouAwakeTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4936C9F0AD0064CF42B78ADB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DA637B3719F14693004C8838 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -807,6 +879,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A8E00802F75F55BA46A5FAB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0AAA46B959C3B4F8E6AC3409 /* KYAActivationSourceTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DA637B3519F14693004C8838 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -835,6 +915,7 @@
 				F59B5DDB9F676C38CE33E868 /* KYADriveAliveTimer.m in Sources */,
 				DF98276B6223DD7F9467B2D4 /* KYAScripting.m in Sources */,
 				63D0E83755D768F7C92ABEC6 /* KYAWatchedItemsSettingsViewController.m in Sources */,
+				7A8B8FA2007F7636B407B516 /* KYAActivationSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -875,12 +956,19 @@
 				E1B7CD66B28C91AFFEE4261F /* KYADriveAliveTimer.m in Sources */,
 				D0F04B348282A39E564A2D0F /* KYAScripting.m in Sources */,
 				FB90043DB1C609666673B823 /* KYAWatchedItemsSettingsViewController.m in Sources */,
+				31D46D55AE9D3118655EBEA4 /* KYAActivationSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		AC19AD46AC3D1C83A5665962 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KeepingYouAwake;
+			target = DA637B3819F14693004C8838 /* KeepingYouAwake */;
+			targetProxy = 1BC8D7BC145FF219303AE08F /* PBXContainerItemProxy */;
+		};
 		DA87FF5F21D42525009045F3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DA658E6A21CE907B0049F4C1 /* KeepingYouAwake Launcher */;
@@ -951,6 +1039,41 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		95A8934B9860F95ADEA3A1E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/KeepingYouAwake/KYAAppController",
+				);
+				INFOPLIST_FILE = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = "info.marcel-dierkes.KeepingYouAwakeTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KeepingYouAwake.app/Contents/MacOS/KeepingYouAwake";
+			};
+			name = Debug;
+		};
 		DA637B5419F14694004C8838 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DAE9C00D26107E1A00F9ED76 /* Configuration.xcconfig */;
@@ -1262,9 +1385,53 @@
 			};
 			name = Release;
 		};
+		EC50396750B7C1DEA97D6F0D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/KeepingYouAwake/KYAAppController",
+				);
+				INFOPLIST_FILE = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = "info.marcel-dierkes.KeepingYouAwakeTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KeepingYouAwake.app/Contents/MacOS/KeepingYouAwake";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		65A348B6AB7F2C0B123A41E9 /* Build configuration list for PBXNativeTarget "KeepingYouAwakeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EC50396750B7C1DEA97D6F0D /* Release */,
+				95A8934B9860F95ADEA3A1E3 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		DA637B3419F14693004C8838 /* Build configuration list for PBXProject "KeepingYouAwake" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
