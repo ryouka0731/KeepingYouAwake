@@ -124,8 +124,13 @@ static NSString * const KYATestSuiteName = @"info.marcel-dierkes.KeepingYouAwake
 - (void)testResetRestoresDefaultsAndIndefiniteDefaultDuration
 {
     Auto controller = [self makeController];
-    [controller addActivationDuration:[[KYAActivationDuration alloc] initWithSeconds:777.0]];
-    controller.defaultActivationDuration = controller.activationDurations[2];
+    // Add a custom duration and mark it as the default so that reset must
+    // both rebuild the durations array AND fall back to the indefinite
+    // sentinel for the default (since the custom duration disappears).
+    Auto custom = [[KYAActivationDuration alloc] initWithSeconds:777.0];
+    [controller addActivationDuration:custom];
+    controller.defaultActivationDuration = custom;
+    XCTAssertEqualObjects(controller.defaultActivationDuration, custom);
 
     [controller resetActivationDurations];
 
@@ -133,6 +138,11 @@ static NSString * const KYATestSuiteName = @"info.marcel-dierkes.KeepingYouAwake
                      arrayWithObject:KYAActivationDuration.indefiniteActivationDuration];
     [expected addObjectsFromArray:KYAActivationDuration.defaultActivationDurations];
     XCTAssertEqualObjects(controller.activationDurations, expected);
+
+    // Reset must also restore the default duration to the indefinite sentinel,
+    // matching the test method's name.
+    XCTAssertEqualObjects(controller.defaultActivationDuration,
+                          KYAActivationDuration.indefiniteActivationDuration);
 }
 
 @end
