@@ -24,6 +24,9 @@ typedef NS_ENUM(NSInteger, KYAWatchedItemsListKind) {
 /// Minutes in one day; valid minute-of-day values are 0..(this - 1).
 static const NSInteger KYAMinutesPerDay = 24 * 60;
 
+/// Reuse identifier for the schedule-section row stack view.
+static NSString * const KYAScheduleWindowRowIdentifier = @"KYAScheduleWindowRowView";
+
 @interface KYAWatchedItemsSettingsViewController ()
 @property (nonatomic) NSTableView *ssidTableView;
 @property (nonatomic) NSTableView *applicationsTableView;
@@ -360,8 +363,8 @@ static const NSInteger KYAMinutesPerDay = 24 * 60;
         ? ((NSNumber *)dictionary[KYAScheduleWindowKeyStartMinutes]).integerValue : 9 * 60;
     NSInteger end = [dictionary[KYAScheduleWindowKeyEndMinutes] isKindOfClass:[NSNumber class]]
         ? ((NSNumber *)dictionary[KYAScheduleWindowKeyEndMinutes]).integerValue : 18 * 60;
-    if(start < 0) { start = 0; } if(start > KYAMinutesPerDay - 1) { start = KYAMinutesPerDay - 1; }
-    if(end < 0) { end = 0; } if(end > KYAMinutesPerDay - 1) { end = KYAMinutesPerDay - 1; }
+    start = MAX((NSInteger)0, MIN(KYAMinutesPerDay - 1, start));
+    end = MAX((NSInteger)0, MIN(KYAMinutesPerDay - 1, end));
 
     return [@{
         KYAScheduleWindowKeyWeekdays: weekdays,
@@ -706,54 +709,12 @@ static const NSInteger KYAMinutesPerDay = 24 * 60;
     if((KYAWatchedItemsListKind)tableView.tag != KYAWatchedItemsListKindScheduleWindows) { return nil; }
     if(row < 0 || row >= (NSInteger)self.scheduleWindows.count) { return nil; }
 
-    static NSString * const rowIdentifier = @"KYAScheduleWindowRowView";
-    NSStackView *rowStack = (NSStackView *)[tableView makeViewWithIdentifier:rowIdentifier owner:self];
+    NSStackView *rowStack = (NSStackView *)[tableView makeViewWithIdentifier:KYAScheduleWindowRowIdentifier owner:self];
     NSSegmentedControl *weekdayControl = nil;
     NSDatePicker *startPicker = nil;
     NSDatePicker *endPicker = nil;
 
-    if(rowStack == nil)
-    {
-        rowStack = [NSStackView new];
-        rowStack.identifier = rowIdentifier;
-        rowStack.orientation = NSUserInterfaceLayoutOrientationHorizontal;
-        rowStack.alignment = NSLayoutAttributeCenterY;
-        rowStack.spacing = 6.0;
-        rowStack.translatesAutoresizingMaskIntoConstraints = NO;
-
-        weekdayControl = [NSSegmentedControl new];
-        weekdayControl.identifier = @"weekdays";
-        weekdayControl.segmentStyle = NSSegmentStyleSmallSquare;
-        weekdayControl.trackingMode = NSSegmentSwitchTrackingSelectAny;
-        weekdayControl.segmentCount = 7;
-        weekdayControl.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
-        Auto symbols = [self sundayFirstShortWeekdaySymbols];
-        for(NSInteger i = 0; i < 7; i++)
-        {
-            [weekdayControl setLabel:symbols[(NSUInteger)i] forSegment:i];
-            [weekdayControl setWidth:24.0 forSegment:i];
-        }
-        weekdayControl.target = self;
-        weekdayControl.action = @selector(scheduleWeekdayControlChanged:);
-        [rowStack addArrangedSubview:weekdayControl];
-
-        Auto fromLabel = [NSTextField labelWithString:KYA_L10N_SCHEDULE_WINDOWS_FROM];
-        fromLabel.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
-        fromLabel.textColor = NSColor.secondaryLabelColor;
-        [rowStack addArrangedSubview:fromLabel];
-
-        startPicker = [self makeTimeDatePickerWithIdentifier:@"start" action:@selector(scheduleStartPickerChanged:)];
-        [rowStack addArrangedSubview:startPicker];
-
-        Auto toLabel = [NSTextField labelWithString:KYA_L10N_SCHEDULE_WINDOWS_TO];
-        toLabel.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
-        toLabel.textColor = NSColor.secondaryLabelColor;
-        [rowStack addArrangedSubview:toLabel];
-
-        endPicker = [self makeTimeDatePickerWithIdentifier:@"end" action:@selector(scheduleEndPickerChanged:)];
-        [rowStack addArrangedSubview:endPicker];
-    }
-    else
+    if(rowStack != nil)
     {
         for(NSView *subview in rowStack.arrangedSubviews)
         {
@@ -761,6 +722,25 @@ static const NSInteger KYAMinutesPerDay = 24 * 60;
             else if([subview.identifier isEqualToString:@"start"]) { startPicker = (NSDatePicker *)subview; }
             else if([subview.identifier isEqualToString:@"end"]) { endPicker = (NSDatePicker *)subview; }
         }
+        // Defensive: if a reused row view is missing any of its expected
+        // subviews (e.g. someone added an unrelated subview to the stack,
+        // or an identifier collision returns an unrelated view), drop the
+        // reused container and rebuild from scratch instead of dereferencing
+        // a nil control below.
+        if(weekdayControl == nil || startPicker == nil || endPicker == nil)
+        {
+            rowStack = nil;
+            weekdayControl = nil;
+            startPicker = nil;
+            endPicker = nil;
+        }
+    }
+
+    if(rowStack == nil)
+    {
+        rowStack = [self makeFreshScheduleRowViewWithWeekdayControl:&weekdayControl
+                                                        startPicker:&startPicker
+                                                          endPicker:&endPicker];
     }
 
     Auto window = self.scheduleWindows[(NSUInteger)row];
@@ -779,6 +759,58 @@ static const NSInteger KYAMinutesPerDay = 24 * 60;
     return rowStack;
 }
 
+/// Builds a brand-new schedule-row stack view with its three input
+/// controls wired up. Used both for the initial inflation path and as
+/// the recovery path when a reused view came back missing a subview.
+- (NSStackView *)makeFreshScheduleRowViewWithWeekdayControl:(NSSegmentedControl * _Nullable __autoreleasing * _Nonnull)outWeekday
+                                                startPicker:(NSDatePicker * _Nullable __autoreleasing * _Nonnull)outStart
+                                                  endPicker:(NSDatePicker * _Nullable __autoreleasing * _Nonnull)outEnd
+{
+    Auto rowStack = [NSStackView new];
+    rowStack.identifier = KYAScheduleWindowRowIdentifier;
+    rowStack.orientation = NSUserInterfaceLayoutOrientationHorizontal;
+    rowStack.alignment = NSLayoutAttributeCenterY;
+    rowStack.spacing = 6.0;
+    rowStack.translatesAutoresizingMaskIntoConstraints = NO;
+
+    Auto weekdayControl = [NSSegmentedControl new];
+    weekdayControl.identifier = @"weekdays";
+    weekdayControl.segmentStyle = NSSegmentStyleSmallSquare;
+    weekdayControl.trackingMode = NSSegmentSwitchTrackingSelectAny;
+    weekdayControl.segmentCount = 7;
+    weekdayControl.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    Auto symbols = [self sundayFirstShortWeekdaySymbols];
+    for(NSInteger i = 0; i < 7; i++)
+    {
+        [weekdayControl setLabel:symbols[(NSUInteger)i] forSegment:i];
+        [weekdayControl setWidth:24.0 forSegment:i];
+    }
+    weekdayControl.target = self;
+    weekdayControl.action = @selector(scheduleWeekdayControlChanged:);
+    [rowStack addArrangedSubview:weekdayControl];
+
+    Auto fromLabel = [NSTextField labelWithString:KYA_L10N_SCHEDULE_WINDOWS_FROM];
+    fromLabel.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    fromLabel.textColor = NSColor.secondaryLabelColor;
+    [rowStack addArrangedSubview:fromLabel];
+
+    Auto startPicker = [self makeTimeDatePickerWithIdentifier:@"start" action:@selector(scheduleStartPickerChanged:)];
+    [rowStack addArrangedSubview:startPicker];
+
+    Auto toLabel = [NSTextField labelWithString:KYA_L10N_SCHEDULE_WINDOWS_TO];
+    toLabel.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    toLabel.textColor = NSColor.secondaryLabelColor;
+    [rowStack addArrangedSubview:toLabel];
+
+    Auto endPicker = [self makeTimeDatePickerWithIdentifier:@"end" action:@selector(scheduleEndPickerChanged:)];
+    [rowStack addArrangedSubview:endPicker];
+
+    *outWeekday = weekdayControl;
+    *outStart = startPicker;
+    *outEnd = endPicker;
+    return rowStack;
+}
+
 #pragma mark - Schedule Row Helpers
 
 /// The localized short weekday symbols ordered Sunday-first so that index
@@ -794,30 +826,42 @@ static const NSInteger KYAMinutesPerDay = 24 * 60;
     return @[ @"S", @"M", @"T", @"W", @"T", @"F", @"S" ];
 }
 
-/// A fixed reference date (today's local midnight) so only the time-of-day
-/// part of an NSDatePicker value is meaningful.
-- (NSDate *)referenceMidnightDate
+/// A UTC gregorian calendar used as the conversion frame between an
+/// integer minute-of-day (0..1439) and the NSDate values shown by an
+/// NSDatePicker. Using UTC eliminates DST: minute arithmetic on local
+/// `startOfDay` is off by an hour on the spring-forward / fall-back day,
+/// so a stored 23:50 can round-trip as 00:50 (or vice versa).
++ (NSCalendar *)kya_utcGregorianCalendar
 {
-    return [NSCalendar.currentCalendar startOfDayForDate:[NSDate date]];
+    static NSCalendar *calendar = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+        calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    });
+    return calendar;
 }
 
 - (NSDate *)dateForMinutesSinceMidnight:(NSInteger)minutes
 {
-    if(minutes < 0) { minutes = 0; }
-    if(minutes > KYAMinutesPerDay - 1) { minutes = KYAMinutesPerDay - 1; }
-    return [NSCalendar.currentCalendar dateByAddingUnit:NSCalendarUnitMinute
-                                                  value:minutes
-                                                 toDate:[self referenceMidnightDate]
-                                                options:0] ?: [self referenceMidnightDate];
+    minutes = MAX((NSInteger)0, MIN(KYAMinutesPerDay - 1, minutes));
+    Auto components = [NSDateComponents new];
+    components.year = 2001;
+    components.month = 1;
+    components.day = 1;
+    components.hour = minutes / 60;
+    components.minute = minutes % 60;
+    components.second = 0;
+    Auto calendar = [[self class] kya_utcGregorianCalendar];
+    return [calendar dateFromComponents:components] ?: [NSDate dateWithTimeIntervalSinceReferenceDate:0];
 }
 
 - (NSInteger)minutesSinceMidnightForDate:(NSDate *)date
 {
-    Auto components = [NSCalendar.currentCalendar components:(NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:date];
+    Auto calendar = [[self class] kya_utcGregorianCalendar];
+    Auto components = [calendar components:(NSCalendarUnitHour | NSCalendarUnitMinute) fromDate:date];
     NSInteger minutes = components.hour * 60 + components.minute;
-    if(minutes < 0) { minutes = 0; }
-    if(minutes > KYAMinutesPerDay - 1) { minutes = KYAMinutesPerDay - 1; }
-    return minutes;
+    return MAX((NSInteger)0, MIN(KYAMinutesPerDay - 1, minutes));
 }
 
 - (NSDatePicker *)makeTimeDatePickerWithIdentifier:(NSString *)identifier action:(SEL)action
@@ -830,6 +874,11 @@ static const NSInteger KYAMinutesPerDay = 24 * 60;
     picker.bezeled = YES;
     picker.drawsBackground = NO;
     picker.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
+    // Render and parse in the same UTC calendar/timezone we use for
+    // minute-of-day conversion, so the hour the user sees in the picker
+    // is exactly the hour we persist (no DST shift on transition days).
+    picker.calendar = [[self class] kya_utcGregorianCalendar];
+    picker.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
     picker.target = self;
     picker.action = action;
     return picker;
