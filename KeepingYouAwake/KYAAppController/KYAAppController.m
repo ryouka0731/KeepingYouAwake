@@ -421,9 +421,17 @@
 
 - (void)terminateTimer
 {
+    // Unconditional user/internal path. Clear ownership at the entry
+    // point so -terminateTimerWithReason: stays purely about the
+    // caffeinate-side teardown and activity-log write.
+    [self.ownership terminate];
     [self terminateTimerWithReason:KYAActivityLogEndedReasonUserCancelled];
 }
 
+/// Caffeinate-side teardown + activity-log write. Does NOT touch
+/// ownership state — every caller is required to clear ownership
+/// itself before invoking this method, so ownership is cleared
+/// exactly once at the entry point of each teardown path.
 - (void)terminateTimerWithReason:(NSString *)reason
 {
     [self disableBatteryOverride];
@@ -433,7 +441,6 @@
     {
         [self.sleepWakeTimer invalidate];
     }
-    [self.ownership terminate];
 
     if(wasScheduled)
     {
@@ -448,11 +455,11 @@
 - (void)terminateTimerIfOwnedBySource:(KYAActivationSource)source
 {
     if([self.sleepWakeTimer isScheduled] == NO) { return; }
+    // -terminateIfOwnedBySource: atomically checks the invariant and
+    // clears ownership when it matches. -terminateTimerWithReason:
+    // then performs the caffeinate-side teardown without re-touching
+    // ownership state.
     if([self.ownership terminateIfOwnedBySource:source] == NO) { return; }
-    // Re-enter the canonical teardown path so battery override,
-    // activity-log entry, and timer invalidation stay co-located with
-    // -terminateTimerWithReason:. The ownership object is already
-    // reset; -terminateTimerWithReason: re-terminates idempotently.
     [self terminateTimerWithReason:KYAActivityLogEndedReasonTriggerCancelled];
 }
 
