@@ -57,6 +57,11 @@
 
 - (void)tearDown
 {
+    // Drop any retained completion block (and delegate) first so a trailing
+    // invalidate cannot re-fire and double-fulfill the previous test's
+    // expectation, which would make the whole suite flaky.
+    self.timer.completionBlock = nil;
+    self.timer.delegate = nil;
     [self.timer invalidate];
     self.timer = nil;
 
@@ -146,7 +151,9 @@
     Auto timer = self.timer;
     Auto expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
 
-    [timer scheduleWithTimeInterval:600.0 completion:^(BOOL cancelled) {
+    // Use indefinite scheduling so the assertion does not couple to the
+    // caffeinate launch / `-t N` timing.
+    [timer scheduleWithTimeInterval:KYASleepWakeTimeIntervalIndefinite completion:^(BOOL cancelled) {
         XCTAssertTrue(cancelled);
         [expectation fulfill];
     }];
@@ -178,7 +185,10 @@
     Auto expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
     delegate.onDeactivate = ^{ [expectation fulfill]; };
 
-    [timer scheduleWithTimeInterval:600.0 completion:nil];
+    // Indefinite scheduling: deactivation semantics on invalidate don't need
+    // a finite caffeinate timer, and indefinite avoids process-launch timing
+    // coupling.
+    [timer scheduleWithTimeInterval:KYASleepWakeTimeIntervalIndefinite completion:nil];
     [timer invalidate];
 
     [self waitForExpectations:@[expectation] timeout:5.0];
