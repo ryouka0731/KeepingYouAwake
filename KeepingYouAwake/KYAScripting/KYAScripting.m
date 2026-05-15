@@ -9,10 +9,48 @@
 
 #pragma mark - URL-scheme bridge
 
+/// Class-level URL dispatcher seam. The three AppleScript command
+/// classes call into a single helper that delegates to this block. In
+/// production this is nil — the helper falls back to the default
+/// Launch Services path. Tests inject a capturing block via
+/// `+[KYAScriptingProxy kya_setURLDispatcherForTesting:]` so the URL
+/// can be asserted on without actually opening anything.
+///
+/// Access is guarded by a queue because AppleScript commands may be
+/// dispatched on the main thread while a test set the block on the
+/// test queue.
+static KYAScriptingURLDispatcher gKYAScriptingURLDispatcher = nil;
+
+static dispatch_queue_t KYAScriptingDispatcherQueue(void)
+{
+    static dispatch_queue_t queue;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        queue = dispatch_queue_create("info.marcel-dierkes.KeepingYouAwake.scripting.dispatcher",
+                                      DISPATCH_QUEUE_SERIAL);
+    });
+    return queue;
+}
+
+static KYAScriptingURLDispatcher KYAScriptingCurrentDispatcher(void)
+{
+    __block KYAScriptingURLDispatcher current = nil;
+    dispatch_sync(KYAScriptingDispatcherQueue(), ^{
+        current = gKYAScriptingURLDispatcher;
+    });
+    return current;
+}
+
 static void KYAScriptingPostURL(NSString *url)
 {
     NSURL *target = [NSURL URLWithString:url];
     if(target == nil) { return; }
+    KYAScriptingURLDispatcher dispatcher = KYAScriptingCurrentDispatcher();
+    if(dispatcher != nil)
+    {
+        dispatcher(target);
+        return;
+    }
     // -openURL: was deprecated in 10.15. Use the modern
     // openURL:configuration:completionHandler: form. Even though both
     // round-trip through Launch Services for a self-targeted URL, the
@@ -159,6 +197,21 @@ static const NSTimeInterval KYAScriptingProxyCacheTTL = 1.0;
     KYAActivityLogEntry *entry = [self mostRecentOpenEntry];
     if(entry == nil) { return @""; }
     return entry.source ?: @"";
+}
+
+@end
+
+#pragma mark - Testing seam
+
+@implementation KYAScriptingProxy (Testing)
+
++ (void)kya_setURLDispatcherForTesting:(KYAScriptingURLDispatcher _Nullable)dispatcher
+{
+    // Copy onto the heap so the caller can pass a stack block literal.
+    KYAScriptingURLDispatcher copied = [dispatcher copy];
+    dispatch_sync(KYAScriptingDispatcherQueue(), ^{
+        gKYAScriptingURLDispatcher = copied;
+    });
 }
 
 @end
