@@ -102,7 +102,7 @@ jobs:
           xcodebuild build $XCODEBUILD_ARGS -configuration Debug \
             -derivedDataPath build/
 
-      - name: Smoke-test E2E paths (URL scheme + AppleScript + CLI + activity log)
+      - name: Smoke-test E2E paths (URL scheme + CLI + activity log)
         run: |
           set -euo pipefail
 
@@ -157,28 +157,16 @@ jobs:
           fi
           echo "PASS: caffeinate stopped after URL-scheme deactivate"
 
-          echo "--- AppleScript path ---"
-          # Driven through the sdef-defined "activate kya for N" / "deactivate kya"
-          # commands. Pre-condition: app is already running from above; no caffeinate.
-          osascript -e 'tell application "KeepingYouAwake" to activate kya for 10'
-          sleep 3
-
-          if ! pgrep -f "caffeinate.*-di" >/dev/null; then
-            echo "::error::caffeinate did not spawn after AppleScript activate"
-            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
-            exit 1
-          fi
-          echo "PASS: caffeinate is running after AppleScript activate"
-
-          osascript -e 'tell application "KeepingYouAwake" to deactivate kya'
-          sleep 3
-
-          if pgrep -f "caffeinate.*-di" >/dev/null; then
-            echo "::error::caffeinate still running after AppleScript deactivate"
-            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
-            exit 1
-          fi
-          echo "PASS: caffeinate stopped after AppleScript deactivate"
+          # AppleScript dispatch is NOT smoke-tested in CI: GitHub's macos-14
+          # runner reliably times out on Apple Events sent to apps launched
+          # with `open -j -g` (`-1712`, 120s deadline). The AppleScript
+          # command surface (`KYAActivateScriptCommand` /
+          # `KYADeactivateScriptCommand` / `KYAToggleScriptCommand`'s
+          # `-performDefaultImplementation`) is covered by unit tests in
+          # `KeepingYouAwakeTests/KYAScriptingCommandTests.m` (PR #92), which
+          # drives each command directly via an injectable URL-dispatcher
+          # seam — that's the right test bed for this surface. Manual smoke
+          # remains the on-device check.
 
           echo "--- CLI path ---"
           # tools/cli/kya.py is a stdlib-only Python 3 script. It drives KYA
