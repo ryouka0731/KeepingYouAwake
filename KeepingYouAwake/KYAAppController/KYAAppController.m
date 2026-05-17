@@ -832,17 +832,14 @@
 - (BOOL)isAnyWatchedApplicationRunning
 {
     Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifiers;
+    // Early-out before enumerating every running process — iterating
+    // `NSWorkspace.sharedWorkspace.runningApplications` is not free.
     if(watched.count == 0) { return NO; }
     for(NSRunningApplication *runningApp in NSWorkspace.sharedWorkspace.runningApplications)
     {
-        Auto bid = runningApp.bundleIdentifier;
-        if(bid.length == 0) { continue; }
-        for(NSString *candidate in watched)
+        if(KYAWatchedBundleIdentifiers_Contains(watched, runningApp.bundleIdentifier))
         {
-            if([bid caseInsensitiveCompare:candidate] == NSOrderedSame)
-            {
-                return YES;
-            }
+            return YES;
         }
     }
     return NO;
