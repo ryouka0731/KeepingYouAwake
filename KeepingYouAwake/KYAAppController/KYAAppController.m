@@ -9,6 +9,7 @@
 #import "KYAAppController.h"
 #import "KYAActivationSource.h"
 #import "KYAActivationOwnership.h"
+#import "KYAWatchedApplications.h"
 #import <KYACommon/KYACommon.h>
 #import "KYALocalizedStrings.h"
 #import "KYAMainMenu.h"
@@ -823,16 +824,9 @@
 
 - (BOOL)isWatchedBundleIdentifier:(NSString *)bundleIdentifier
 {
-    if(bundleIdentifier.length == 0) { return NO; }
-    Auto watched = NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifiers;
-    for(NSString *candidate in watched)
-    {
-        if([bundleIdentifier caseInsensitiveCompare:candidate] == NSOrderedSame)
-        {
-            return YES;
-        }
-    }
-    return NO;
+    return KYAWatchedBundleIdentifiers_Contains(
+        NSUserDefaults.standardUserDefaults.kya_watchedApplicationBundleIdentifiers,
+        bundleIdentifier);
 }
 
 - (BOOL)isAnyWatchedApplicationRunning
