@@ -73,6 +73,24 @@
     XCTAssertFalse(KYAWatchedBundleIdentifiers_Contains(watched, @"com.d"));
 }
 
+#pragma mark - Defensive: plist-sourced malformed entries
+
+/// `kya_watchedApplicationBundleIdentifiers` ultimately reads from
+/// `NSUserDefaults`, and a user can `defaults write -array` non-string
+/// values into the slot (e.g. `NSNumber`, `NSNull`, nested arrays /
+/// dictionaries). The helper must skip such entries silently rather
+/// than crash in `-caseInsensitiveCompare:` (`unrecognized selector
+/// sent to instance`). The non-generic `(NSArray *)` cast at the
+/// callsite below is intentional and safe: Objective-C generics are
+/// erased at the ABI level, so the helper's
+/// `NSArray<NSString *> *` parameter accepts the heterogeneous array.
+- (void)testIgnoresNonStringEntriesInArray
+{
+    NSArray *malformed = @[ @42, [NSNull null], @"com.apple.Safari" ];
+    XCTAssertTrue(KYAWatchedBundleIdentifiers_Contains(malformed, @"com.apple.Safari"));
+    XCTAssertFalse(KYAWatchedBundleIdentifiers_Contains(malformed, @"com.apple.Mail"));
+}
+
 #pragma mark - Case sensitivity (production = case-insensitive)
 
 /// Production uses `-caseInsensitiveCompare:`, so a watched entry
