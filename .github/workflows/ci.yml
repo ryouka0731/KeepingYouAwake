@@ -102,7 +102,7 @@ jobs:
           xcodebuild build $XCODEBUILD_ARGS -configuration Debug \
             -derivedDataPath build/
 
-      - name: Smoke-test the URL scheme
+      - name: Smoke-test E2E paths (URL scheme + AppleScript + CLI + activity log)
         run: |
           set -euo pipefail
 
@@ -129,6 +129,8 @@ jobs:
             exit 1
           fi
 
+          echo "--- URL scheme path ---"
+
           # Activate via URL scheme (10 s window)
           open "keepingyouawake:///activate?seconds=10"
           sleep 3
@@ -142,7 +144,7 @@ jobs:
             ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
             exit 1
           fi
-          echo "PASS: caffeinate is running after activate"
+          echo "PASS: caffeinate is running after URL-scheme activate"
 
           # Deactivate via URL scheme
           open "keepingyouawake:///deactivate"
@@ -153,7 +155,108 @@ jobs:
             ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
             exit 1
           fi
-          echo "PASS: caffeinate stopped after deactivate"
+          echo "PASS: caffeinate stopped after URL-scheme deactivate"
+
+          echo "--- AppleScript path ---"
+          # Driven through the sdef-defined "activate kya for N" / "deactivate kya"
+          # commands. Pre-condition: app is already running from above; no caffeinate.
+          osascript -e 'tell application "KeepingYouAwake" to activate kya for 10'
+          sleep 3
+
+          if ! pgrep -f "caffeinate.*-di" >/dev/null; then
+            echo "::error::caffeinate did not spawn after AppleScript activate"
+            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
+            exit 1
+          fi
+          echo "PASS: caffeinate is running after AppleScript activate"
+
+          osascript -e 'tell application "KeepingYouAwake" to deactivate kya'
+          sleep 3
+
+          if pgrep -f "caffeinate.*-di" >/dev/null; then
+            echo "::error::caffeinate still running after AppleScript deactivate"
+            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
+            exit 1
+          fi
+          echo "PASS: caffeinate stopped after AppleScript deactivate"
+
+          echo "--- CLI path ---"
+          # tools/cli/kya.py is a stdlib-only Python 3 script. It drives KYA
+          # via the same URL scheme (no IPC), and `kya status --json` reads
+          # the activity-log file rather than the running app — so the 3 s
+          # sleep after each dispatch covers both URL handling AND the
+          # log-file write before status is read.
+          python3 tools/cli/kya.py activate 10s
+          sleep 3
+
+          if ! pgrep -f "caffeinate.*-di" >/dev/null; then
+            echo "::error::caffeinate did not spawn after CLI activate"
+            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
+            exit 1
+          fi
+          echo "PASS: caffeinate is running after CLI activate"
+
+          # `kya status --json` exits 0 when active, 1 when inactive.
+          STATUS_JSON="$(python3 tools/cli/kya.py status --json)"
+          echo "$STATUS_JSON"
+          echo "$STATUS_JSON" | jq -e '.active == true' >/dev/null
+          echo "PASS: kya status --json reports active=true after CLI activate"
+
+          python3 tools/cli/kya.py deactivate
+          sleep 3
+
+          if pgrep -f "caffeinate.*-di" >/dev/null; then
+            echo "::error::caffeinate still running after CLI deactivate"
+            ps -axww -o pid,ppid,command | grep -i -E '(KeepingYouAwake|caffeinate)' || true
+            exit 1
+          fi
+          echo "PASS: caffeinate stopped after CLI deactivate"
+
+          # Status now reports inactive — exits with code 1 by design, so
+          # capture stdout via a subshell that swallows the non-zero exit
+          # rather than tripping `set -e`.
+          STATUS_JSON_OFF="$(python3 tools/cli/kya.py status --json || true)"
+          echo "$STATUS_JSON_OFF"
+          if echo "$STATUS_JSON_OFF" | jq -e '.active == false' >/dev/null; then
+            echo "PASS: kya status --json reports active=false after CLI deactivate"
+          else
+            echo "::error::kya status did not report active=false"
+            exit 1
+          fi
+
+          echo "--- Activity log JSONL ---"
+          LOG="$HOME/Library/Application Support/KeepingYouAwake/activity.jsonl"
+          if [ ! -f "$LOG" ]; then
+            echo "::error::Activity log not found at $LOG"
+            exit 1
+          fi
+
+          # Every non-empty line must parse as JSON.
+          LINE_COUNT="$(wc -l < "$LOG" | tr -d ' ')"
+          echo "Activity log has $LINE_COUNT line(s)"
+          if [ "$LINE_COUNT" -eq 0 ]; then
+            echo "::error::Activity log is empty after E2E run"
+            exit 1
+          fi
+
+          while IFS= read -r line; do
+            if [ -z "$line" ]; then continue; fi
+            if ! printf '%s' "$line" | jq -e . >/dev/null; then
+              echo "::error::Malformed JSONL line in activity.jsonl: $line"
+              exit 1
+            fi
+          done < "$LOG"
+
+          # Spot-check that the first entry has the keys KYAActivityLogger
+          # actually writes: startedAt + source are present on every open
+          # session; endedAt + endedReason appear once a session closes,
+          # and requestedDuration is always present (-1 for indefinite).
+          if ! head -n 1 "$LOG" | jq -e 'has("startedAt") and has("source") and has("requestedDuration")' >/dev/null; then
+            echo "::error::First JSONL entry missing one of: startedAt, source, requestedDuration"
+            head -n 1 "$LOG"
+            exit 1
+          fi
+          echo "PASS: activity.jsonl is well-formed JSONL with expected keys"
 
           # Quit the app cleanly
           osascript -e 'tell application "KeepingYouAwake" to quit' || \
